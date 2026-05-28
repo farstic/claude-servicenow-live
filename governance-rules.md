@@ -74,7 +74,7 @@ This rule applies to all 24 specialists at all tiers — builders, reviewers, do
 Every MCP write operation against a live ServiceNow instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `create_*`, `update_*`, `delete_*`, `execute_*`, and any other MCP tool that mutates instance state.
 
 **What counts as "write approved":**
-- A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "да, качи", "да, създай", "да, изпълни", "write approved", "go ahead and create").
+- A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "write approved", "go ahead and create", "yes, deploy it", "yes, update it").
 
 **What does NOT count as "write approved":**
 - A previous "yes" to a read-only operation (approving a routing proposal, approving a Code Reviewer pass).
