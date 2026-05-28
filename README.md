@@ -200,7 +200,24 @@ echo "claude_desktop_config.json" >> ~/.gitignore_global
 git config --global core.excludesfile ~/.gitignore_global
 ```
 
-### 3d — Configure Claude Code hooks (context-mode)
+### 3d — Install the pre-commit hook (agents/skills sync guard)
+
+The repo keeps `.claude/agents/` and `.claude/skills/` as the source of truth, with `agents/` and `skills/` at the repo root as mirrors (visible on GitHub). A pre-commit hook prevents commits where the mirrors are out of sync.
+
+Install once per machine:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To sync manually at any time:
+
+```bash
+bash scripts/sync-agents-skills.sh        # sync source → mirror
+bash scripts/sync-agents-skills.sh --check  # check only
+```
+
+### 3f — Configure Claude Code hooks (context-mode)
 
 This repo uses [context-mode](https://www.npmjs.com/package/context-mode) to protect Claude's context window from flooding. Install it globally:
 
@@ -225,7 +242,7 @@ npm root -g
 
 **Note:** `.claude/settings.json` and `.claude/settings.local.json` are gitignored — they contain machine-specific paths and must never be committed.
 
-### 3e — Restart Claude Code
+### 3g — Restart Claude Code
 
 After saving the config, restart Claude Code completely so it picks up the new MCP server:
 
@@ -234,7 +251,7 @@ After saving the config, restart Claude Code completely so it picks up the new M
 claude
 ```
 
-### 3f — Verify MCP connection
+### 3h — Verify MCP connection
 
 In a Claude Code session, type:
 
@@ -244,7 +261,7 @@ In a Claude Code session, type:
 
 Expected: Claude calls `get_current_instance` and returns the instance URL and version. If you see an error, check the config path and credential values.
 
-### 3g — Understanding the Update Set capture pattern
+### 3i — Understanding the Update Set capture pattern
 
 When Claude creates or updates records via MCP, changes must be captured into an Update Set for deployment. Standard REST API calls bypass the ServiceNow session mechanism that auto-captures changes. The correct pattern is:
 
