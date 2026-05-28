@@ -83,6 +83,14 @@ cd claude-servicenow-live
 
 After this step your directory should contain `CLAUDE.md`, `README.md`, `.claude/`, `skills/`, `agents/`, and `templates/` at minimum.
 
+Install the pre-commit hook (one-time per machine):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This activates the agents/skills sync guard — commits are blocked if the repo root mirrors (`agents/`, `skills/`) drift from the source of truth (`.claude/agents/`, `.claude/skills/`).
+
 ---
 
 ## Step 2 — Add ServiceNowDocs submodule
