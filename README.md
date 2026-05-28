@@ -90,7 +90,7 @@ After this step your directory should contain `CLAUDE.md`, `README.md`, `.claude
 The submodule pulls the official ServiceNow documentation repo (Australia release branch) so Claude Code can read it directly without copying files.
 
 ```bash
-cd ~/work/claude-servicenow
+cd ~/work/claude-servicenow-live
 
 git submodule add -b australia https://github.com/ServiceNow/ServiceNowDocs.git ServiceNowDocs
 git submodule update --init --recursive
@@ -261,7 +261,7 @@ Claude Code handles this automatically when `WRITE_ENABLED=true` and the active 
 ## Step 4 — Set up Tier 2 (Claude Code)
 
 ```bash
-cd ~/work/claude-servicenow
+cd ~/work/claude-servicenow-live
 claude
 ```
 
@@ -343,7 +343,7 @@ For each client engagement:
 
 ### Tier 2 (Claude Code)
 
-- Run from `~/work/claude-servicenow`.
+- Run from `~/work/claude-servicenow-live`.
 - Use when a task needs: multiple ServiceNow doc pages, linked artefacts, local code operations, or live instance validation via MCP.
 - Sub-agents are invoked by the orchestrator automatically, or explicitly with `@<agent-name>` to skip the routing-approval step.
 - **Write operations require explicit approval.** Before any MCP write call, Claude will state the operation and wait for your `write approved` confirmation.
@@ -495,10 +495,6 @@ To invoke manually:
 ├── prompt-patterns.md                ← reusable prompt templates (PP-01 through PP-18)
 ├── .claude/
 │   ├── skills/                       ← portable expertise (Tier 1 + Tier 2)
-│   │   ├── gherkin-stories/SKILL.md
-│   │   ├── hld-lld-documents/SKILL.md
-│   │   ├── servicenow-technical-design/SKILL.md
-│   │   ├── now-assist-genai/SKILL.md
 │   │   ├── itsm-specialist/SKILL.md
 │   │   ├── csm-specialist/SKILL.md
 │   │   ├── hrsd-specialist/SKILL.md
@@ -516,7 +512,7 @@ To invoke manually:
 │       ├── flow-designer-specialist.md
 │       ├── integration-specialist.md
 │       └── atf-author.md
-├── claude-ai-projects/
+├── claude-ai-projects/               ← gitignored (local-only, never committed)
 │   ├── master-project-instructions.md
 │   ├── satellite-project-template.md
 │   └── state-file-template.md
@@ -537,7 +533,7 @@ To invoke manually:
 
 | Symptom | Fix |
 |---|---|
-| Claude Code doesn't pick up skills | Confirm you are in `~/work/claude-servicenow`. Run `claude /agents` and `claude /skills` to list. |
+| Claude Code doesn't pick up skills | Confirm you are in `~/work/claude-servicenow-live`. Run `claude /agents` and `claude /skills` to list. |
 | `ServiceNowDocs/` is empty | `git submodule update --init --recursive` |
 | Sub-agent not invoked automatically | Tighten the `description` field in the agent file — that is what the router matches against. Add explicit trigger phrases. |
 | Skills not loading in claude.ai | Settings > Features > Skills must be ON; skills must be uploaded to the specific Project. |
@@ -561,7 +557,7 @@ To invoke manually:
 - Multi-instance support in NowAIKit config (dev / test / prod profiles).
 
 **v2.0** (planned):
-- Integration Specialist, App Engine Specialist, DevOps / Release Manager as full sub-agents.
+- App Engine Specialist, DevOps / Release Manager as full sub-agents.
 - Evaluation harness: golden prompts per specialist with expected-output checks (`VALIDATION-TESTS.md`).
 - ATF artefact deployment: Claude Code writes ATF test records directly to instance via MCP.
 - Performance & Scale audit automation against live instance data.
