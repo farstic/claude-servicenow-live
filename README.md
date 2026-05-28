@@ -1,4 +1,4 @@
-# claude-servicenow
+# claude-servicenow-live
 
 A two-tier ServiceNow expertise system for Claude, with live ServiceNow instance integration via NowAIKit MCP.
 
@@ -77,21 +77,11 @@ claude --version
 # Choose a parent directory — ~/work is a common convention
 cd ~/work
 
-# Clone your private fork of this repo
-git clone <your-private-remote-url> claude-servicenow
-cd claude-servicenow
+git clone https://github.com/farstic/claude-servicenow-live.git claude-servicenow-live
+cd claude-servicenow-live
 ```
 
-If you are starting from scratch (no remote yet):
-
-```bash
-mkdir claude-servicenow && cd claude-servicenow
-git init
-# Copy the repo contents in, then:
-git add . && git commit -m "Initial import"
-```
-
-After this step your directory should contain `CLAUDE.md`, `README.md`, `.claude/`, `clients/`, and `templates/` at minimum.
+After this step your directory should contain `CLAUDE.md`, `README.md`, `.claude/`, `skills/`, `agents/`, and `templates/` at minimum.
 
 ---
 
