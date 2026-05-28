@@ -38,22 +38,22 @@ Before opening any tool, collect the following from your contract, internal hand
 ## Step 1 — Generate the satellite instructions
 
 ```bash
-cd /Users/cvetomirgrigorov/Documents/work/claude-servicenow
+cd ~/work/claude-servicenow-live
 cp claude-ai-projects/satellite-project-template.md claude-ai-projects/{{client-short-name}}-instructions.md
 ```
 
-`{{client-short-name}}` = lowercase short identifier, e.g., `rolls-royce`, `maersk`, `acme`.
+`{{client-short-name}}` = lowercase short identifier, e.g., `acme`, `globex`, `initech`.
 
 Open the new file and fill in every `{{PLACEHOLDER}}`:
 - `{{CLIENT_NAME}}` — exact official name.
 - `{{ENGAGEMENT_TYPE}}` — single phrase.
 - `{{MODULES}}` — comma-separated list.
 - `{{SCOPED_APPS}}` — known scoped app prefixes; if unknown, write "to be confirmed" and create OD-{{XX}}-01 for it later.
-- `{{STAKEHOLDERS}}` — formatted matrix; see Rolls-Royce instructions for an exemplar.
+- `{{STAKEHOLDERS}}` — formatted matrix; include name, role, and decision authority per person.
 - `{{NAMING_CONVENTIONS}}` — anything the client is strict about.
 - `{{SPRINT_CADENCE}}` — if known.
 
-For complex engagements (multiple workstreams, distinct LLM decisions, recurring patterns), expand the Engagement-specific defaults section (§7) and Recurring patterns section (§8) accordingly. Reference `clients/rolls-royce/rolls-royce-instructions-v2.md` as the gold-standard exemplar.
+For complex engagements (multiple workstreams, distinct LLM decisions, recurring patterns), expand the Engagement-specific defaults section (§7) and Recurring patterns section (§8) accordingly. Your first completed satellite instructions file becomes the gold-standard exemplar for subsequent engagements.
 
 ---
 
@@ -66,7 +66,7 @@ cp claude-ai-projects/state-file-template.md clients/{{client-short-name}}/{{cli
 
 Open the new state file and fill in:
 - `{{CLIENT_NAME}}` everywhere
-- `{{XX}}` replace with the client's short code in capitals (e.g., `RR` for Rolls-Royce, `MK` for Maersk)
+- `{{XX}}` replace with the client's short code in capitals (e.g., `AC` for Acme, `GL` for Globex)
 - Current PI/sprint, delivery workstreams, open decisions, blockers
 - If the engagement is freshly signed and most fields are empty, fill what you can and leave the rest as placeholders. The structure matters more than completeness on day 1.
 
@@ -76,7 +76,7 @@ Open the new state file and fill in:
 
 Some engagements have recurring reference content that doesn't fit in the state file or instructions. Create dedicated files in `clients/{{client-short-name}}/` for:
 
-- An agentic workflow catalogue (if Now Assist is in scope) — see `clients/rolls-royce/rr-agentic-workflow-catalogue.md` for an exemplar.
+- An agentic workflow catalogue (if Now Assist is in scope) — see `clients/{{client-short-name}}/{{client-short-name}}-agentic-workflow-catalogue.md`.
 - A current-state architecture summary if migrating from a complex existing setup.
 - A glossary of client-specific terminology.
 
@@ -87,7 +87,7 @@ Skip if not yet needed. Add as you discover the need.
 ## Step 4 — Commit local changes
 
 ```bash
-cd /Users/cvetomirgrigorov/Documents/work/claude-servicenow
+cd ~/work/claude-servicenow-live
 git add claude-ai-projects/{{client-short-name}}-instructions.md
 git add clients/{{client-short-name}}/
 git commit -m "Add {{Client Name}} engagement (instructions + state file)"
@@ -99,7 +99,7 @@ git commit -m "Add {{Client Name}} engagement (instructions + state file)"
 
 1. Open **claude.ai/projects** → **New Project**.
 2. **Name** (exactly): `{{Client Name}} — Active Engagement`
-3. **Description:** one sentence summarising the engagement and confidentiality boundary. Example: *"PI 2 2026 — Inetum delivery. ITSM, Now Assist Agentic Workflows, AiRR Assist. Confidential — Rolls-Royce only."*
+3. **Description:** one sentence summarising the engagement and confidentiality boundary. Example: *"Q2 2026 — ITSM implementation. Modules: ITSM, Now Assist. Confidential — {{Client Name}} only."*
 4. Open the project → **Set project instructions** (pencil icon).
 5. Open the local file `claude-ai-projects/{{client-short-name}}-instructions.md`.
 6. **Skip the meta header.** Copy from the line `You are the **Chief ServiceNow Architect**...` to the end. Do NOT include the `# Satellite Project Template — ...` header or the `> Paste the entire content...` instruction-to-self block. Those are for you, not for Claude.

@@ -175,7 +175,7 @@ When the user's task contains certain keywords or phrases, the router has a stro
 | "Flow Designer", "flow", "subflow", "custom action", "Action Designer" | Flow Designer Specialist | — |
 | "trigger when", "fires on", "runs when X happens" (orchestration semantics) | Flow Designer Specialist | — |
 | "AI Agent", "agentic workflow", "Now Assist skill", "AI Control Tower", "Virtual Agent" | Now Assist Specialist | — |
-| "AiRR", "AiRR Assist" (Rolls-Royce engagement) | Now Assist Specialist | Integration Specialist (if bot-to-bot) |
+| "AiRR", "AiRR Assist" | Now Assist Specialist | Integration Specialist (if bot-to-bot) |
 
 ### 4.3 Integration and data movement triggers
 
