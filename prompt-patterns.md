@@ -1,7 +1,7 @@
 # prompt-patterns.md — Reusable Prompt Templates
 
-**Version:** 1.0
-**For:** ServiceNow Architecture Engine v2.0
+**Version:** 1.1
+**For:** ServiceNow Architecture Engine v2.5
 **Purpose:** Copy-paste prompt templates for common operations against the Chief Architect orchestrator.
 
 ## How to use
@@ -64,10 +64,37 @@ Conventions:
 
 ---
 
+### PP-02b: Domain Expert gateway — explicit invocation
+**When to use:** You want the ITSM / CSM / HRSD / ITOM Specialist to produce its 5-Part Constraint Envelope *without* immediately dispatching a downstream builder. Useful when exploring baseline coverage before committing to a design track. Note: the gateway fires automatically at Phase 1 Step 5 whenever a domain keyword is present — this pattern is for *explicit, standalone* invocation.
+
+**Template:**
+> {{ITSM / CSM / HRSD / ITOM}} Specialist gateway task: produce the 5-Part Constraint Envelope for the requirement described below.
+>
+> Process scope: {{PROCESS_OR_FEATURE_NAME}}
+> Current-state artefacts: {{EXISTING_CUSTOMISATIONS_IF_ANY}}
+> Target-state requirement: {{WHAT_WE_WANT_TO_ACHIEVE}}
+> Volume context: {{RECORD_COUNTS_AND_TRANSACTION_RATES}}
+> Sensitivity classification: {{PII / FINANCIAL / REGULATED / PUBLIC}}
+>
+> Stop after Part 5. Do not dispatch any builder until the envelope is reviewed.
+
+**Example (filled):**
+> ITSM Specialist gateway task: produce the 5-Part Constraint Envelope for the requirement described below.
+>
+> Process scope: SLA breach risk scoring for incidents based on assignment group historical data.
+> Current-state artefacts: no existing customisations on task_sla or contract_sla.
+> Target-state requirement: a Script Include that returns a risk score (0-100) and label (Low / Medium / High / Critical) for an incident based on the breach rate and average business_percentage of its assignment group over the past 90 days.
+> Volume context: ~3M historical incidents, ~50K active, ~500K task_sla rows.
+> Sensitivity classification: internal ops data, not PII.
+>
+> Stop after Part 5.
+
+---
+
 ## Group B — Discovery and requirements
 
 ### PP-04: Transcript-to-stories chain
-**When to use:** You have a workshop or interview transcript and need sprint-ready Gherkin stories. This is the "Discovery extracts → Story Writer converts" two-step pattern from taxonomy §5.
+**When to use:** You have a workshop or interview transcript and need sprint-ready Gherkin stories. This is the "Discovery extracts → Story Writer converts" two-step pattern from taxonomy §2.4.
 
 **Template:**
 > Two-step task. Step 1: Discovery Specialist extracts requirements from the transcript below — produce a structured requirements list with personas, processes, gaps, and open questions. Step 2: Story Writer converts the requirements into Gherkin Feature files following ServiceNow conventions, with explicit OPEN QUESTIONS blocks.
@@ -258,6 +285,31 @@ Conventions:
 
 ---
 
+### PP-13b: Multi-builder sequence dispatch
+**When to use:** A single user request spans multiple builder jurisdictions (e.g., Integration Specialist → Flow Designer Specialist → Developer). Use to get the Chief Architect to propose a sequenced plan and dispatch builders in order rather than collapsing everything into one sub-agent.
+
+**Template:**
+> Multi-builder task. Propose a sequenced builder plan for the requirement below, identify all routing-time consults (taxonomy §3.1), and wait for my approval before dispatching the first builder.
+>
+> Requirement: {{REQUIREMENT_DESCRIPTION}}
+> Modules in scope: {{MODULE_LIST}}
+> External systems: {{EXTERNAL_SYSTEM_LIST_IF_ANY}}
+> Volume context: {{VOLUME_ESTIMATES}}
+> Sensitive data: {{YES_NO_AND_TYPE}}
+> Scoped app prefix: {{SCOPE_PREFIX}}
+
+**Example (filled):**
+> Multi-builder task. Propose a sequenced builder plan for the requirement below, identify all routing-time consults, and wait for my approval before dispatching the first builder.
+>
+> Requirement: Build an outbound integration that posts P1/P2 incidents to an external ticketing system when they reach Resolved state. Include the flow that triggers the integration and any custom scripts needed.
+> Modules in scope: ITSM
+> External systems: external REST API (JSON, OAuth2)
+> Volume context: ~100 P1/P2 incidents per day.
+> Sensitive data: incident description may contain internal ops data — not PII.
+> Scoped app prefix: x_acme_itsm
+
+---
+
 ## Group E — Review and consult
 
 ### PP-14: Code Review pass (manual invocation)
@@ -351,4 +403,4 @@ Updates committed with message: `prompt-patterns: <change-summary>`.
 
 ---
 
-*End of prompt-patterns.md v1.0.*
+*End of prompt-patterns.md v1.1.*
