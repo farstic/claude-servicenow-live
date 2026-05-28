@@ -18,6 +18,7 @@ Before opening any tool, collect the following from your contract, internal hand
 - **Engagement type.** Implementation / Optimisation / Managed Service / AI enablement / Migration / etc.
 - **Active modules in scope.** ITSM, CSM, HRSD, ITOM, SPM, GRC, Now Assist, etc.
 - **Release family** of the client's instance (default: Australia).
+- **ServiceNow instance URL** (e.g., `https://<client-instance>.service-now.com`) — needed for Tier 2 MCP work.
 - **Sprint / PI cadence.** If known.
 
 ### Strongly recommended
@@ -37,8 +38,11 @@ Before opening any tool, collect the following from your contract, internal hand
 
 ## Step 1 — Generate the satellite instructions
 
+> **Note:** The `claude-ai-projects/` folder is gitignored — it is local-only and never committed to the shared repo. It contains your personal templates and all client-specific instruction files. If you have just cloned the repo and the folder does not exist, create it and add the template files manually from the `README.md` setup guide.
+
 ```bash
 cd ~/work/claude-servicenow-live
+mkdir -p claude-ai-projects
 cp claude-ai-projects/satellite-project-template.md claude-ai-projects/{{client-short-name}}-instructions.md
 ```
 
@@ -84,13 +88,17 @@ Skip if not yet needed. Add as you discover the need.
 
 ---
 
-## Step 4 — Commit local changes
+## Step 4 — Save local files
+
+> **Important:** Both `claude-ai-projects/` and `clients/` are gitignored — these folders are **local-only** and are never committed to the shared repo. This is intentional: client instructions and state files contain confidential engagement data.
+>
+> Your local backup discipline replaces git here: back up these folders to a secure location (encrypted drive, private cloud storage, or a separate private repo) according to your firm's data retention policy.
+
+Verify the files are in place:
 
 ```bash
-cd ~/work/claude-servicenow-live
-git add claude-ai-projects/{{client-short-name}}-instructions.md
-git add clients/{{client-short-name}}/
-git commit -m "Add {{Client Name}} engagement (instructions + state file)"
+ls claude-ai-projects/{{client-short-name}}-instructions.md
+ls clients/{{client-short-name}}/{{client-short-name}}-engagement-state.md
 ```
 
 ---
@@ -162,7 +170,9 @@ If anything drifts, the satellite instructions need refinement. Common fixes:
 
 ---
 
-## Step 9 — (Optional) Tier 2 client folder structure
+## Step 9 — (Optional) Tier 2 client folder structure and MCP config
+
+### 9a — Create the working subfolder structure
 
 If you'll be using Claude Code (Tier 2) for this client's work — code generation, ATF batches, multi-file artefacts — create the working subfolder structure:
 
@@ -173,11 +183,33 @@ mkdir -p clients/{{client-short-name}}/flows
 mkdir -p clients/{{client-short-name}}/designs
 mkdir -p clients/{{client-short-name}}/stories
 mkdir -p clients/{{client-short-name}}/runbooks
-git add clients/{{client-short-name}}/
-git commit -m "Add {{Client Name}} working folder structure"
 ```
 
+> **Note:** `clients/` is gitignored — these folders are local-only. No `git add` or `git commit` is needed or possible here.
+
 This keeps generated artefacts physically separated by client, which is the Tier 2 confidentiality discipline (Tier 2 has no UI-level firewall — folder discipline enforces it).
+
+### 9b — Configure NowAIKit MCP for the client instance
+
+If you will use live ServiceNow instance tools (MCP) for this engagement, update your local `claude_desktop_config.json` with the client's instance credentials:
+
+```
+Location (macOS): ~/Library/Application Support/Claude/claude_desktop_config.json
+```
+
+Update the `env` block:
+```json
+"SERVICENOW_INSTANCE_URL": "https://{{client-instance}}.service-now.com",
+"SERVICENOW_USERNAME": "{{your-username-on-client-instance}}",
+"SERVICENOW_PASSWORD": "{{your-password-or-token}}"
+```
+
+Restart Claude Code after saving. Verify the connection:
+```
+> Check the current ServiceNow instance connection
+```
+
+> **Security:** `claude_desktop_config.json` is never committed to git. Credentials stay on your local machine only. When switching between client engagements, update this file and restart Claude Code.
 
 ---
 
