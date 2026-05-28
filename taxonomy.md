@@ -8,13 +8,9 @@
 
 ---
 
----
-
 ## 0. Global governance rules — authoritative reference
 
 This taxonomy operates under the global architecture rules in `governance-rules.md`. The Chief Architect and every specialist must comply with all rules in that file.
-
-The most consequential rule for routing and design decisions is:
 
 **§1.1 — Baseline-First / Zero Custom Objects Without Explicit Approval.** No specialist may propose, design, or create custom tables, custom scoped applications, custom state-model extensions, custom Connection & Credential Aliases, or any other major custom architectural object without the Chief Architect's explicit, prior approval in the routing-time dispatch envelope. If a specialist concludes that a custom object is genuinely the only viable technical path, it must halt and return a blocking `OPEN QUESTION — CUSTOM OBJECT PROPOSAL` per the halt protocol in `governance-rules.md` §1.1.
 
@@ -23,7 +19,11 @@ The most consequential rule for routing and design decisions is:
 - **Routing-time (§6.1):** the Chief Architect surfaces custom-object evaluations as Phase 1 assumptions. Custom objects implied by the user's request are raised as blocking OPEN QUESTIONS before specialist dispatch.
 - **Post-build (§6.2):** the Chief Architect inspects every returned artefact for §1.1 violations as part of the post-build evaluation. A detected violation triggers a rework dispatch before any other consult proposals.
 
-See `governance-rules.md` for the full halt protocol, custom-object scope hierarchy, and violation handling.
+**§2.1 — MCP Write Operations Explicit Approval Gate.** Every MCP write operation against a live ServiceNow instance requires an explicit "write approved" from the user in the current conversation before execution. Tier upgrade, prior approvals, and logical flow do not substitute. See `governance-rules.md` §2.1.
+
+**§2.2 — MCP Update Set Capture Mandatory Pre-Write Protocol.** Before any configuration write via MCP, the `sys_user_preference` record (`name=sys_update_set`) for the authenticated user must be set to the target Update Set. Without this, objects are not captured and cannot be promoted. See `governance-rules.md` §2.2.
+
+See `governance-rules.md` for the full text of all rules, halt protocols, and violation handling.
 
 ---
 
@@ -52,7 +52,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
 | 9 | Code Reviewer | ✅ | ❌ |
-| 10 | Performance & Scale Specialist | ✅ | ❌ |
+| 10 | Performance & Scale Specialist | ⚠️ planned | ❌ |
 
 ### Domain experts (modules)
 
@@ -62,21 +62,23 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 12 | CSM Specialist | ✅ | ❌ |
 | 13 | HRSD Specialist | ✅ | ❌ |
 | 14 | ITOM/Discovery Specialist | ✅ | ❌ |
-| 15 | SPM Specialist | ✅ | ❌ |
-| 16 | Security & GRC Specialist | ✅ | ❌ |
-| 17 | CMDB & CSDM Specialist | ✅ | ❌ |
-| 18 | App Engine Specialist | ✅ | ❌ |
-| 19 | Migration Specialist | ✅ | ❌ |
-| 20 | UI/UX Specialist | ✅ | ❌ |
-| 21 | Reporting & Analytics Specialist | ✅ | ❌ |
-| 22 | DevOps / Release Manager | ✅ | ❌ |
+| 15 | SPM Specialist | ⚠️ planned | ❌ |
+| 16 | Security & GRC Specialist | ⚠️ planned | ❌ |
+| 17 | CMDB & CSDM Specialist | ⚠️ planned | ❌ |
+| 18 | App Engine Specialist | ⚠️ planned | ❌ |
+| 19 | Migration Specialist | ⚠️ planned | ❌ |
+| 20 | UI/UX Specialist | ⚠️ planned | ❌ |
+| 21 | Reporting & Analytics Specialist | ⚠️ planned | ❌ |
+| 22 | DevOps / Release Manager | ⚠️ planned | ❌ |
 
 ### Consultants and Documentation
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 23 | Discovery Specialist | ✅ | ❌ |
-| 24 | Operational Documentation | ✅ | ❌ |
+| 23 | Discovery Specialist | ⚠️ planned | ❌ |
+| 24 | Operational Documentation | ⚠️ planned | ❌ |
+
+**Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
 
 (Numbering is presentational. The roster has 22 distinct specialists; ATF Author has both skill and sub-agent variants.)
 
@@ -95,7 +97,7 @@ When a task could plausibly route to two or more specialists, this table determi
 | **Developer** vs **App Engine Specialist** | Developer writes scripts. App Engine Specialist designs custom scoped applications, App Engine Studio components, decision tables, document templates. | Granularity. Script-level work → Developer. Application-architecture work → App Engine Specialist. | "Write the validation logic for table X" → Developer. "Design a scoped app for the X workflow" → App Engine Specialist. |
 | **Integration Specialist** vs **Migration Specialist** | Integration = ongoing, steady-state. Migration = one-time, project-phase. | Temporality of the data flow. Continuous bidirectional/unidirectional sync → Integration. One-time historical load with cutover → Migration. | "Sync ServiceNow with Azure DevOps" → Integration. "Migrate Remedy incidents into ServiceNow" → Migration. |
 | **Integration Specialist** vs **Flow Designer Specialist** | Integration designs the *integration architecture* (REST messages, IntegrationHub spokes, MID Server, authentication, error handling). Flow Designer designs the *orchestration* that uses those integrations. | What's being designed. The endpoint, payload, auth, retry logic → Integration. The flow that calls the endpoint as a step → Flow Designer. | "Design the REST integration with Azure DevOps" → Integration. "Design the flow that triggers the Azure pipeline when a CHG is approved" → Flow Designer. |
-| **ATF Author skill** vs **ATF Author sub-agent** | Skill = inline single-component test generation. Sub-agent = batch test-suite generation across an app. | Scope. One method / one Script Include → skill. Whole scoped app → sub-agent. | "Write ATF for ConflictAssessmentUtils" → skill. "Generate the full ATF suite for the x_rr_itsmai app" → sub-agent. |
+| **ATF Author skill** vs **ATF Author sub-agent** | Skill = inline single-component test generation. Sub-agent = batch test-suite generation across an app. | Scope. One method / one Script Include → skill. Whole scoped app → sub-agent. | "Write ATF for ConflictAssessmentUtils" → skill. "Generate the full ATF suite for the x_acme_itsm app" → sub-agent. |
 
 ### 2.2 Reviewer boundaries
 
@@ -236,7 +238,7 @@ Explicit "do not route X to Y" cases to prevent known confusion.
 
 ## 6. Resolution algorithm
 
-The algorithm runs in two phases: routing-time (steps 1–8, before specialist invocation) and post-build evaluation (steps 9–11, after a builder sub-agent returns).
+The algorithm runs in two phases: routing-time (steps 1–9, before specialist invocation) and post-build evaluation (steps 10–14, after a builder sub-agent returns).
 
 ### 6.1 Routing-time phase
 
@@ -246,20 +248,21 @@ The algorithm runs in two phases: routing-time (steps 1–8, before specialist i
 4. **If multiple candidates** — apply the relevant boundary table (§2) using the trigger differentiator.
 5. **If still ambiguous** — apply anti-routing rules (§5) to eliminate impossible routes.
 6. **If still ambiguous after §5** — the task may legitimately require *multiple* specialists in sequence. Propose a sequenced plan: "Specialist A produces X, then Specialist B consumes X to produce Y."
-7. **Surface routing-time consult relationships (§3.1).** Mention any cross-cutting consultants whose trigger conditions fire. Do not invoke them yet — surface them as part of the proposal.
-8. **Stop and wait** for user approval before proceeding to specialist invocation.
+7. **Apply the Domain Expert gateway (mandatory).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). No builder sub-agent is dispatched until the Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
+8. **Surface routing-time consult relationships (§3.1).** Mention any cross-cutting consultants whose trigger conditions fire. Do not invoke them yet — surface them as part of the proposal.
+9. **Stop and wait** for user approval before proceeding to specialist invocation.
 
 ### 6.2 Post-build evaluation phase
 
 Triggered when a builder sub-agent returns an artefact, *before* the artefact is presented as final.
 
-9. **Inspect the returned artefact.** Classify content: code block, flow definition, configuration, pure design.
-10. **Check for §1.1 violations.** Scan the artefact for new table names (`x_*_*` or non-baseline `<scope>_<table>`), new scoped app prefixes, new Connection & Credential Aliases, new state values, or new sys_user_group structures that were not approved in the dispatch envelope. If any are found, halt immediately and re-dispatch the originating builder with the §1.1 halt protocol as the rework brief. Do not proceed to step 11 until the violation is resolved.
-11. **Domain Expert post-build review (domain tasks only).** If the task was routed through a Domain Expert gateway at Phase 1 Step 5, re-adopt the same Domain Expert skill in review mode and validate the artefact against the Constraint Envelope (§3.2, first row). If a deviation is found, re-dispatch the builder with findings. Do not proceed to step 12 until the Domain Expert clears the artefact.
-12. **Evaluate remaining post-build consult triggers (§3.2).** For each remaining post-build consult whose detection signal matches the artefact (Code Reviewer, ATF Author, Operational Documentation), prepare a consult proposal using the verbatim Action wording from §3.2.
-13. **Present artefact + consult proposals together.** The user receives the builder's artefact alongside a clearly labelled set of post-build consult proposals. The user chooses which to invoke.
+10. **Inspect the returned artefact.** Classify content: code block, flow definition, configuration, pure design.
+11. **Check for §1.1 violations.** Scan the artefact for new table names (`x_*_*` or non-baseline `<scope>_<table>`), new scoped app prefixes, new Connection & Credential Aliases, new state values, or new sys_user_group structures that were not approved in the dispatch envelope. If any are found, halt immediately and re-dispatch the originating builder with the §1.1 halt protocol as the rework brief. Do not proceed to step 12 until the violation is resolved.
+12. **Domain Expert post-build review (domain tasks only).** If the task was routed through a Domain Expert gateway at Phase 1 Step 7, re-adopt the same Domain Expert skill in review mode and validate the artefact against the Constraint Envelope (§3.2, first row). If a deviation is found, re-dispatch the builder with findings. Do not proceed to step 13 until the Domain Expert clears the artefact.
+13. **Evaluate remaining post-build consult triggers (§3.2).** For each remaining post-build consult whose detection signal matches the artefact (Code Reviewer, ATF Author, Operational Documentation), prepare a consult proposal using the verbatim Action wording from §3.2.
+14. **Present artefact + consult proposals together.** The user receives the builder's artefact alongside a clearly labelled set of post-build consult proposals. The user chooses which to invoke.
 
-If no post-build consult triggers match (e.g., Technical Designer returned a pure design doc with no code and the task had no domain tag), step 13 still runs but contains zero proposals — the artefact is presented as final.
+If no post-build consult triggers match (e.g., Technical Designer returned a pure design doc with no code and the task had no domain tag), step 14 still runs but contains zero proposals — the artefact is presented as final.
 
 ---
 
@@ -276,4 +279,4 @@ Updates are committed to git with a clear message: `taxonomy: <change-summary>`.
 
 ---
 
-*End of taxonomy.md.*
+*End of taxonomy.md v1.1.*
