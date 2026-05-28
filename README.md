@@ -281,7 +281,7 @@ Expected: Claude introduces itself as the Chief ServiceNow Architect and lists a
 > I have a transcript snippet. Draft 3 Gherkin stories for restricting incident creation to GSC agents only.
 ```
 
-Expected: the orchestrator routes to `story-writer`, asks your approval, then produces Gherkin stories using the `gherkin-stories` skill.
+Expected: the orchestrator routes to `story-writer`, asks your approval, then produces Gherkin stories using the `story-writer` skill.
 
 ### Smoke test 3 — MCP connection (requires Step 3 complete)
 
@@ -305,24 +305,40 @@ Expected: Claude returns the connected instance URL and ServiceNow version.
 1. Go to **claude.ai/projects** > **New Project**.
 2. Name: `ServiceNow Architect — Master`
 3. Description: `Master orchestrator for all ServiceNow expertise. No client-confidential data here.`
-4. **Custom instructions**: paste the full content of `claude-ai-projects/master-project-instructions.md`.
+4. **Custom instructions**: follow `client-onboarding.md` Step 1 to generate your local `claude-ai-projects/master-project-instructions.md` file. Then paste its full content into this field (starting from `You are the **Chief ServiceNow Architect**...`).
+
+   > **Why this file does not come pre-built in the repo:** `claude-ai-projects/` is a local-only, gitignored directory. It holds your personal instruction files and per-client templates — content that should never be committed to a public repo. `client-onboarding.md` walks you through creating it from `claude-ai-projects/satellite-project-template.md`.
+
 5. **Project knowledge** (optional — small, non-confidential anchors):
    - `templates/gherkin-feature-template.md`
    - `templates/hld-template.md`
-6. **Skills**: upload the core skills as `.zip` files (one per skill folder):
-   - `gherkin-stories`
-   - `hld-lld-documents`
-   - `servicenow-technical-design`
-   - `now-assist-genai`
+6. **Skills**: upload each skill as an individual markdown file. Go to **Settings > Skills** in Claude.ai, click **New Skill**, and upload the `SKILL.md` file from each folder. The 12 available skills are:
+
+   | Skill file | Purpose |
+   |---|---|
+   | `.claude/skills/itsm-specialist/SKILL.md` | ITSM gateway (incident, problem, change, SLA) |
+   | `.claude/skills/csm-specialist/SKILL.md` | CSM gateway (case, account, contact) |
+   | `.claude/skills/hrsd-specialist/SKILL.md` | HRSD gateway (HR case, Lifecycle Events) |
+   | `.claude/skills/itom-discovery-specialist/SKILL.md` | ITOM gateway (Discovery, CMDB, MID Server) |
+   | `.claude/skills/developer/SKILL.md` | Server-side and client-side scripting |
+   | `.claude/skills/code-reviewer/SKILL.md` | Four-checklist code review |
+   | `.claude/skills/flow-designer-specialist/SKILL.md` | Flow Designer flows and subflows |
+   | `.claude/skills/integration-specialist/SKILL.md` | REST/SOAP, IntegrationHub, MID Server |
+   | `.claude/skills/story-writer/SKILL.md` | Gherkin stories and acceptance criteria |
+   | `.claude/skills/hld-lld-writer/SKILL.md` | HLD and LLD documents |
+   | `.claude/skills/technical-designer/SKILL.md` | Table models, ACLs, business rule design |
+   | `.claude/skills/now-assist-specialist/SKILL.md` | AI Agents, Now Assist skills, agentic workflows |
+
+   Start with the four Domain Expert skills (itsm, csm, hrsd, itom) and the developer + code-reviewer pair — those cover 90% of daily use.
 
 ### 5c — Create Satellite Projects (one per active client)
 
 For each client engagement:
 
 1. **New Project** > name: `<Client> — Active Engagement`
-2. **Custom instructions**: paste `claude-ai-projects/satellite-project-template.md` and fill in the `{{CLIENT_NAME}}` and other placeholders.
-3. **Project knowledge**: client-specific docs only — transcripts, scoped app exports, current-state diagrams, naming conventions.
-4. **Skills**: same four core skills.
+2. **Custom instructions**: follow `client-onboarding.md` Steps 1–2 to generate the per-client instruction file (`claude-ai-projects/<client>-instructions.md`) and state file. Paste the instruction file content into this field.
+3. **Project knowledge**: client-specific docs only — transcripts, scoped app exports, current-state diagrams, naming conventions. Upload the state file (`clients/<client>/<client>-engagement-state.md`).
+4. **Skills**: upload the same skills as in Step 5b. All skills are client-agnostic — same set for every project.
 
 ### 5d — Confidentiality firewall
 
@@ -494,15 +510,20 @@ To invoke manually:
 ├── client-onboarding.md              ← repeatable onboarding ritual
 ├── prompt-patterns.md                ← reusable prompt templates (PP-01 through PP-18)
 ├── .claude/
+│   ├── settings.example.json         ← copy to settings.json and fill in your paths (see Step 3d)
 │   ├── skills/                       ← portable expertise (Tier 1 + Tier 2)
-│   │   ├── itsm-specialist/SKILL.md
-│   │   ├── csm-specialist/SKILL.md
-│   │   ├── hrsd-specialist/SKILL.md
-│   │   ├── itom-discovery-specialist/SKILL.md
-│   │   ├── developer/SKILL.md
-│   │   ├── code-reviewer/SKILL.md
-│   │   ├── flow-designer-specialist/SKILL.md
-│   │   └── integration-specialist/SKILL.md
+│   │   ├── itsm-specialist/          ← SKILL.md + EXAMPLES.md
+│   │   ├── csm-specialist/
+│   │   ├── hrsd-specialist/
+│   │   ├── itom-discovery-specialist/
+│   │   ├── developer/
+│   │   ├── code-reviewer/
+│   │   ├── flow-designer-specialist/
+│   │   ├── integration-specialist/
+│   │   ├── hld-lld-writer/
+│   │   ├── now-assist-specialist/
+│   │   ├── story-writer/
+│   │   └── technical-designer/
 │   └── agents/                       ← sub-agents (Tier 2 only)
 │       ├── story-writer.md
 │       ├── hld-lld-writer.md
@@ -510,18 +531,18 @@ To invoke manually:
 │       ├── now-assist-specialist.md
 │       ├── developer.md
 │       ├── flow-designer-specialist.md
-│       ├── integration-specialist.md
-│       └── atf-author.md
-├── claude-ai-projects/               ← gitignored (local-only, never committed)
-│   ├── master-project-instructions.md
-│   ├── satellite-project-template.md
-│   └── state-file-template.md
+│       └── integration-specialist.md
+├── skills/                           ← mirror of .claude/skills/ (for repo sync tooling)
+├── agents/                           ← mirror of .claude/agents/ (for repo sync tooling)
 ├── templates/
 │   ├── gherkin-feature-template.md
 │   └── hld-template.md
-├── clients/                          ← per-client working folders (gitignored as needed)
+├── claude-ai-projects/               ← gitignored — create locally per client-onboarding.md
+│                                        (holds master-project-instructions.md,
+│                                         satellite-project-template.md,
+│                                         state-file-template.md, per-client instructions)
+├── clients/                          ← gitignored — per-client working folders
 │   └── <client-name>/
-│       ├── <client>-instructions-v*.md
 │       ├── <client>-engagement-state.md
 │       └── deliverables/
 └── ServiceNowDocs/                   ← git submodule (australia branch)
