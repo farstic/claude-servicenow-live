@@ -537,6 +537,8 @@ To invoke manually:
 ├── templates/
 │   ├── gherkin-feature-template.md
 │   └── hld-template.md
+├── docs/
+│   └── nowaikit-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
 ├── claude-ai-projects/               ← gitignored — create locally per client-onboarding.md
 │                                        (holds master-project-instructions.md,
 │                                         satellite-project-template.md,
