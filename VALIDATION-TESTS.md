@@ -217,37 +217,62 @@ Before calling `create_script_include`, Architect executes in order:
 
 ---
 
-## T-07 — agents/ ↔ .claude/agents/ sync check
+## T-07 — agents/skills auto-sync on commit
 
-**Covers:** Repo structural integrity (mirrors in sync)
+**Covers:** Pre-commit hook auto-sync (Variant A)
 **Tiers:** Claude Code ✅
 
-### Command
+### Setup
+
+Edit a file in `.claude/agents/` or `.claude/skills/` only. Stage it. Do NOT manually run sync.
 
 ```bash
-bash scripts/sync-agents-skills.sh --check
+echo "" >> .claude/agents/developer.md
+git add .claude/agents/developer.md
+git commit -m "test: auto-sync"
 ```
 
 ### Expected behaviour
 
-Script exits 0 and prints `OK: agents/ and skills/ mirrors are in sync`.
-If any file differs or is missing, script exits 1 and lists the diff.
+1. Pre-commit hook detects mismatch between `.claude/agents/developer.md` and `agents/developer.md`.
+2. Hook **automatically** runs `sync-agents-skills.sh` and stages the updated mirror.
+3. Commit succeeds and includes **both** `.claude/agents/developer.md` and `agents/developer.md`.
+4. No manual intervention required.
+
+Output during commit:
+```
+Auto-syncing agents/ and skills/ mirrors...
+UPDATED: agents/developer.md
+Sync complete.
+Mirrors synced and staged automatically.
+```
 
 ### Pass criteria
 
-- Script exits 0 after a clean sync.
-- Script exits 1 and names the divergent files when mirrors are out of sync.
+- Commit succeeds without any manual sync step.
+- Both `.claude/agents/developer.md` and `agents/developer.md` appear in the commit diff.
+- `bash scripts/sync-agents-skills.sh --check` exits 0 immediately after commit.
+
+### Fail signals
+
+- Commit blocked and requires manual intervention → hook is in check-only mode (old behaviour).
+- Only `.claude/agents/developer.md` in the commit diff → mirror not auto-staged.
 
 ---
 
 ## Running all tests
 
 ```bash
-# Check structural sync (automated)
+# T-07: automated sync check
 bash scripts/sync-agents-skills.sh --check
 
-# Routing and gateway tests (manual — paste prompts into a fresh Claude session)
-# T-01 through T-06: paste prompt, compare response against pass criteria
+# T-07: full auto-sync flow (edit .claude/, commit without manual sync, verify both files committed)
+echo "" >> .claude/agents/developer.md
+git add .claude/agents/developer.md
+git commit -m "test: auto-sync hook"
+git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.md and agents/developer.md
+
+# T-01 through T-06: manual — paste prompts into a fresh Claude session
 ```
 
 Regression baseline: all 7 tests passed on 2026-05-29 against CLAUDE.md v2.6.
