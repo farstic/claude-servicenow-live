@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # .githooks/pre-commit
 #
-# Blocks commits when agents/ or skills/ mirrors are out of sync with
-# .claude/agents/ and .claude/skills/.
+# Auto-syncs agents/ and skills/ mirrors with .claude/agents/ and .claude/skills/.
+# If any files are updated, they are staged automatically before the commit proceeds.
 #
 # Install once per machine:
 #   git config core.hooksPath .githooks
@@ -14,15 +14,13 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-if bash "$REPO_ROOT/scripts/sync-agents-skills.sh" --check; then
+if bash "$REPO_ROOT/scripts/sync-agents-skills.sh" --check > /dev/null 2>&1; then
+  # Already in sync — nothing to do
   exit 0
-else
-  echo ""
-  echo "Pre-commit blocked: agents/ or skills/ mirrors are out of sync."
-  echo "Run the following to fix and re-stage:"
-  echo ""
-  echo "  bash scripts/sync-agents-skills.sh"
-  echo "  git add agents/ skills/"
-  echo ""
-  exit 1
 fi
+
+# Out of sync — auto-sync and stage
+echo "Auto-syncing agents/ and skills/ mirrors..."
+bash "$REPO_ROOT/scripts/sync-agents-skills.sh"
+git -C "$REPO_ROOT" add agents/ skills/
+echo "Mirrors synced and staged automatically."
