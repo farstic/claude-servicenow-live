@@ -406,7 +406,7 @@ git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.m
 # T-01 through T-10: manual — paste prompts into a fresh Claude session
 ```
 
-Regression baseline: T-01–T-07 passed on 2026-05-29 against CLAUDE.md v2.6. T-08–T-10 added 2026-05-29 — not yet run.
+Regression baseline: T-01–T-07 passed on 2026-05-29 against CLAUDE.md v2.6. T-08–T-10 added and passed 2026-05-29 — full suite 10/10 PASS.
 
 ---
 
@@ -415,3 +415,4 @@ Regression baseline: T-01–T-07 passed on 2026-05-29 against CLAUDE.md v2.6. T-
 | Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | Result |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
