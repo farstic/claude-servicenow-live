@@ -413,7 +413,7 @@ git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.m
 # T-01 through T-10: manual — paste prompts into a fresh Claude session
 ```
 
-Regression baseline: T-01–T-07 passed on 2026-05-29 against CLAUDE.md v2.6. T-08–T-10 added and passed 2026-05-29 — full suite 10/10 PASS.
+Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6. Includes updated criteria for T-02 (design artefact definition), T-03 (Security & GRC mandatory), T-06 (full-pipeline setup).
 
 ---
 
@@ -423,3 +423,4 @@ Regression baseline: T-01–T-07 passed on 2026-05-29 against CLAUDE.md v2.6. T-
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
 | 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (full suite, updated criteria) |
