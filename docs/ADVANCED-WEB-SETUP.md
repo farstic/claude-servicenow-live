@@ -54,7 +54,7 @@ Claude.ai's Skills uploader expects one ZIP per skill — one folder, two files 
 From your local clone of the repo (you already have it from [`INSTALLATION-GUIDE.md`](./INSTALLATION-GUIDE.md)):
 
 ```bash
-cd /path/to/claude-servicenow-engine
+cd /path/to/claude-servicenow-live
 
 mkdir -p /tmp/claude-ai-uploads
 
