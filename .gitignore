@@ -5,6 +5,9 @@ claude-ai-projects/
 .env
 start-mcp.sh
 
+# Audit / internal reports — may quote live instance data (URLs, sys_ids). Local-only, never pushed.
+reports/
+
 # Machine-specific Claude Code settings (contain absolute local paths and per-user permissions)
 .claude/settings.json
 .claude/settings.local.json
