@@ -276,3 +276,11 @@ git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.m
 ```
 
 Regression baseline: all 7 tests passed on 2026-05-29 against CLAUDE.md v2.6.
+
+---
+
+## Test Run History
+
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 7/7 PASS |
