@@ -57,6 +57,14 @@ emailGR.insert();
 This creates a visible, queryable record in `sys_email` with `state=ready`.
 `glide.smtp.mock=true` is NOT required for this approach.
 
+**Result on PDI:** record appears with `state=ignored` — PDI suppresses actual sending but the record is created and queryable. This is the expected and correct behaviour for testing.
+
+**Standing rule — always use GlideRecord insert for email in Script Actions and event handlers:**
+- `gs.sendEmail()` bypasses `sys_email` on PDI (direct SMTP, not queryable, cannot be verified)
+- GlideRecord insert on `sys_email` works on both PDI and production
+- Use `recipients` field for the To address; `body` should be HTML (`<p>...</p>`)
+- Whenever a Script Action or any server-side handler needs to send an email, default to this pattern — do NOT use `gs.sendEmail()`
+
 ---
 
 ## 4. register_event MCP Tool — Bug: event_name Left Empty
