@@ -95,9 +95,9 @@ When done, the Skills panel should list four entries, each tagged `version: 2.0.
 
 ## Step 4 — Paste the Chief Architect persona
 
-The Chief Architect persona and routing protocol live in `claude-ai-projects/master-project-instructions.md` at the repo root.
+⚠️ **Not yet implemented — Steps 4–5 cannot be completed yet.** The Tier 1 Chief Architect persona file (`claude-ai-projects/master-project-instructions.md`) is **not shipped** in the repo. The web Master Project setup is therefore currently unavailable; use Tier 2 (Claude Code) per [`INSTALLATION-GUIDE.md`](./INSTALLATION-GUIDE.md). The steps below are retained as a placeholder for when that file is authored.
 
-1. Open `claude-ai-projects/master-project-instructions.md` from your local clone. **Select all** and **copy**.
+1. Open the Tier 1 master instructions file *(not yet shipped — see the warning above)*. **Select all** and **copy**.
 2. In Claude.ai, open your Master Project → **Settings** → **Instructions**.
 3. **Select all** existing text in the field and **delete**.
 4. **Paste** the copied contents.
@@ -128,7 +128,7 @@ If this behaviour matches, your web setup is healthy.
 |---|---|
 | Skill upload rejected with YAML error | The skill ZIP is malformed. Re-zip from the original folder using the commands in Step 2. |
 | `Status` shows fewer than 4 Domain Experts | One or more skill uploads silently failed. Re-open the Skills panel and confirm all four are listed with `v2.0`. |
-| CSM test produces a table model in the same turn as the OPEN QUESTION | Project Instructions paste was incomplete. Re-do Step 4 with a fresh copy of `claude-ai-projects/master-project-instructions.md`. |
+| CSM test produces a table model in the same turn as the OPEN QUESTION | Project Instructions paste was incomplete. Re-do Step 4 with a fresh copy of `claude-ai-projects/master-project-instructions.md` *(when shipped)*. |
 | Conversations seem to forget governance rules mid-chat | Project Instructions are loaded per-chat. Make sure you're in the Master Project (not a free chat). |
 
 ---
@@ -140,7 +140,7 @@ When the engine releases a new version (e.g. v2.4):
 1. `git pull --recurse-submodules` in your local clone.
 2. Repeat Step 2 to regenerate the four skill ZIPs.
 3. Repeat Step 3 — Claude.ai will offer **Replace** for the existing v2.0 skills. Choose it.
-4. Re-copy `claude-ai-projects/master-project-instructions.md` and repeat Step 4.
+4. Re-copy `claude-ai-projects/master-project-instructions.md` *(when shipped)* and repeat Step 4.
 5. Verify with Step 5.
 
 The CLI install updates with one `git pull`. The web install requires this manual re-sync.

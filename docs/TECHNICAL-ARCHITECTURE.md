@@ -8,7 +8,7 @@
 
 If you just want to *use* the engine, read [`USER-GUIDE-AND-EXAMPLES.md`](./USER-GUIDE-AND-EXAMPLES.md) instead.
 
-> **Source of truth.** The authoritative governance source is `governance-rules.md` at repo root. The authoritative routing source is `taxonomy.md`. The Chief Architect persona is defined in `CLAUDE.md` (Claude Code) and `claude-ai-projects/master-project-instructions.md` (Claude.ai). Where this document and any of those drift, the source files win.
+> **Source of truth.** The authoritative governance source is `governance-rules.md` at repo root. The authoritative routing source is `taxonomy.md`. The Chief Architect persona is defined in `CLAUDE.md` (Claude Code); a Tier 1 (Claude.ai) `master-project-instructions.md` is planned but **not yet shipped**. Where this document and any of those drift, the source files win.
 
 ---
 
@@ -314,12 +314,12 @@ This behaviour is regression-tested by **T-07**. After cloning, no setup is requ
 
 | Task | Files to touch |
 |---|---|
-| Add a new Domain Expert gateway | New `skills/<name>-specialist/{SKILL.md,EXAMPLES.md}`; update `taxonomy.md` §3.1; update Phase 1 Step 5 table in `CLAUDE.md` **and** `claude-ai-projects/master-project-instructions.md`; add a validation test |
+| Add a new Domain Expert gateway | New `skills/<name>-specialist/{SKILL.md,EXAMPLES.md}`; update `taxonomy.md` §3.1; update Phase 1 Step 5 table in `CLAUDE.md` *(and the Tier 1 master instructions, once shipped)*; add a validation test |
 | Add a new builder | New `skills/<name>/SKILL.md` and `agents/<name>.md`; update `taxonomy.md` boundary table; update builder-pair rules in `CLAUDE.md` |
 | Add a routing-time consult | Update `taxonomy.md` §3.1; update Phase 1 Step 7 in `CLAUDE.md` |
 | Add a post-build consult | Update `taxonomy.md` §3.2; update Phase 2 Step 5 in `CLAUDE.md` |
 | Add an MCP write pattern / gotcha | Record it in [`nowaikit-field-notes.md`](./nowaikit-field-notes.md); commit and push immediately |
-| Modify §1.1 | **Authoritative source is `governance-rules.md`.** Update there first, then propagate to `CLAUDE.md`, `master-project-instructions.md`, and every SKILL.md anti-pattern section |
+| Modify §1.1 | **Authoritative source is `governance-rules.md`.** Update there first, then propagate to `CLAUDE.md` and every SKILL.md anti-pattern section *(plus the Tier 1 master instructions, once shipped)* |
 
 After any change to `skills/` or `agents/`, the pre-commit hook (§9) re-syncs the `.claude/` mirror automatically. Re-run the validation suite (§8) before committing protocol changes.
 

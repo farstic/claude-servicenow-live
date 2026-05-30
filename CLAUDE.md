@@ -26,11 +26,7 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 │       └── EXAMPLES.md
 ├── agents/                         ← sub-agent definitions (Tier 2 isolated execution)
 │   └── <agent-name>.md
-├── claude-ai-projects/             ← Tier 1 instruction templates and per-client instructions
-│   ├── master-project-instructions.md
-│   ├── satellite-project-template.md
-│   ├── state-file-template.md
-│   └── <client>-instructions.md
+├── claude-ai-projects/             ← (NOT YET IMPLEMENTED) planned Tier 1 instruction templates — no files ship yet
 ├── docs/                           ← cross-laptop knowledge base (MCP field notes, patterns)
 │   └── nowaikit-field-notes.md     ← MCP tool limitations and working patterns (committed to GitHub)
 ├── clients/<client-name>/          ← per-client working folder (state, transcripts, artefacts)
