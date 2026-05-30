@@ -60,7 +60,7 @@ When detected, the Chief Architect halts the post-build §6.2 flow and re-dispat
 
 ### Scope of application
 
-This rule applies to all 24 specialists at all tiers — builders, reviewers, domain experts, consultants, documentation specialists. It overrides any prior "default to scoped app" or "create a dedicated table" language that may exist in earlier-phase SKILL.md files. Where conflict exists, §1.1 wins.
+This rule applies to all 22 specialists at all tiers — builders, reviewers, domain experts, consultants, documentation specialists. It overrides any prior "default to scoped app" or "create a dedicated table" language that may exist in earlier-phase SKILL.md files. Where conflict exists, §1.1 wins.
 
 ### Routing-time vs post-build enforcement
 

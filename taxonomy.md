@@ -45,7 +45,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 5 | Integration Specialist | ✅ | ✅ |
 | 6 | Flow Designer Specialist | ✅ | ✅ |
 | 7 | Developer | ✅ | ✅ |
-| 8 | ATF Author | ✅ | ✅ (batch mode) |
+| 8 | ATF Author | ✅ | ❌ (batch mode planned) |
 
 ### Reviewers and Quality
 
@@ -80,7 +80,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 
 **Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
 
-(Numbering is presentational. The roster has 22 distinct specialists; ATF Author has both skill and sub-agent variants.)
+(Numbering is presentational. The roster has 22 distinct specialists. ATF Author's batch sub-agent is planned but not yet built — 7 sub-agent files exist today.)
 
 ---
 
@@ -238,7 +238,7 @@ Explicit "do not route X to Y" cases to prevent known confusion.
 
 ## 6. Resolution algorithm
 
-The algorithm runs in two phases: routing-time (steps 1–9, before specialist invocation) and post-build evaluation (steps 10–14, after a builder sub-agent returns).
+The algorithm runs in two phases that map directly onto the CLAUDE.md routing protocol: routing-time (§6.1 = CLAUDE.md Phase 1) and post-build evaluation (§6.2 = CLAUDE.md Phase 2). The numbered sub-steps below are taxonomy's finer-grained resolution procedure; the canonical phase/step references used across CLAUDE.md, the SKILL.md files, and VALIDATION-TESTS.md are Phase 1 Step 5 (Domain Expert gateway) and Phase 2 Step 4 (Domain Expert post-build review).
 
 ### 6.1 Routing-time phase
 
@@ -248,7 +248,7 @@ The algorithm runs in two phases: routing-time (steps 1–9, before specialist i
 4. **If multiple candidates** — apply the relevant boundary table (§2) using the trigger differentiator.
 5. **If still ambiguous** — apply anti-routing rules (§5) to eliminate impossible routes.
 6. **If still ambiguous after §5** — the task may legitimately require *multiple* specialists in sequence. Propose a sequenced plan: "Specialist A produces X, then Specialist B consumes X to produce Y."
-7. **Apply the Domain Expert gateway (mandatory).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). No builder sub-agent is dispatched until the Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
+7. **Apply the Domain Expert gateway (mandatory — this is CLAUDE.md Phase 1 Step 5).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). No builder sub-agent is dispatched until the Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
 8. **Surface routing-time consult relationships (§3.1).** Mention any cross-cutting consultants whose trigger conditions fire. Do not invoke them yet — surface them as part of the proposal.
 9. **Stop and wait** for user approval before proceeding to specialist invocation.
 
@@ -258,7 +258,7 @@ Triggered when a builder sub-agent returns an artefact, *before* the artefact is
 
 10. **Inspect the returned artefact.** Classify content: code block, flow definition, configuration, pure design.
 11. **Check for §1.1 violations.** Scan the artefact for new table names (`x_*_*` or non-baseline `<scope>_<table>`), new scoped app prefixes, new Connection & Credential Aliases, new state values, or new sys_user_group structures that were not approved in the dispatch envelope. If any are found, halt immediately and re-dispatch the originating builder with the §1.1 halt protocol as the rework brief. Do not proceed to step 12 until the violation is resolved.
-12. **Domain Expert post-build review (domain tasks only).** If the task was routed through a Domain Expert gateway at Phase 1 Step 7, re-adopt the same Domain Expert skill in review mode and validate the artefact against the Constraint Envelope (§3.2, first row). If a deviation is found, re-dispatch the builder with findings. Do not proceed to step 13 until the Domain Expert clears the artefact.
+12. **Domain Expert post-build review (domain tasks only — this is CLAUDE.md Phase 2 Step 4).** If the task was routed through a Domain Expert gateway at Phase 1 Step 5, re-adopt the same Domain Expert skill in review mode and validate the artefact against the Constraint Envelope (§3.2, first row). If a deviation is found, re-dispatch the builder with findings. Do not proceed to step 13 until the Domain Expert clears the artefact.
 13. **Evaluate remaining post-build consult triggers (§3.2).** For each remaining post-build consult whose detection signal matches the artefact (Code Reviewer, ATF Author, Operational Documentation), prepare a consult proposal using the verbatim Action wording from §3.2.
 14. **Present artefact + consult proposals together.** The user receives the builder's artefact alongside a clearly labelled set of post-build consult proposals. The user chooses which to invoke.
 

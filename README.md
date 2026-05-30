@@ -35,7 +35,7 @@ Both tiers share the same `.claude/skills/` directory so expertise is authored o
 Claude.ai Projects (Tier 1)          Claude Code CLI (Tier 2)
 ─────────────────────────────         ──────────────────────────────────────────
 Master Project                        Chief Architect orchestrator (CLAUDE.md)
-  └─ global skills                      ├─ 22 specialists (8 with sub-agents)
+  └─ global skills                      ├─ 22 specialists (7 with sub-agents)
 Satellite Projects (per client)         ├─ ServiceNowDocs/ (official docs submodule)
   └─ client knowledge + skills          └─ NowAIKit MCP ──► Live ServiceNow instance
 ```
