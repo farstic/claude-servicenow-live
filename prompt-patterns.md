@@ -1,7 +1,7 @@
 # prompt-patterns.md — Reusable Prompt Templates
 
 **Version:** 1.1
-**For:** ServiceNow Architecture Engine v2.5
+**For:** ServiceNow Architecture Engine v2.6
 **Purpose:** Copy-paste prompt templates for common operations against the Chief Architect orchestrator.
 
 ## How to use

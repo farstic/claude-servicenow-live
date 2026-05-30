@@ -336,6 +336,97 @@ that writes escalation events to it.
 
 ---
 
+## T-11 — Post-build §1.1 violation detection
+
+**Covers:** Phase 2 Step 3 (§1.1 post-build violation scan); `governance-rules.md` §1.1 Violation handling
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+Developer returned an artefact containing a new table x_acme_test_log not approved
+in the dispatch envelope. What happens?
+```
+
+### Expected behaviour
+
+1. Architect holds the artefact (Phase 2 Step 1) and classifies it (Step 2).
+2. **Phase 2 Step 3 — §1.1 violation scan fires:** detects `x_acme_test_log`, a new `x_*_*` table **not present in the dispatch envelope**.
+3. Architect **halts the §6.2 sequence** and re-dispatches the originating Developer with the **§1.1 halt protocol as the rework brief** (`governance-rules.md` §1.1 "Violation handling").
+4. **No Domain Expert review, Code Reviewer, ATF Author, or Operational Documentation proposal** is surfaced until the violation is resolved.
+
+### Pass criteria
+
+- The unapproved `x_acme_test_log` table is detected as a §1.1 violation at Phase 2 Step 3.
+- A rework dispatch back to the originating builder is proposed, with the §1.1 halt protocol as the brief.
+- Code Reviewer / ATF Author proposals are **NOT** surfaced in the same turn as the violation finding.
+
+### Fail signals
+
+- Architect proposes a Code Reviewer (or ATF Author) pass alongside the violation instead of halting.
+- Architect accepts the custom table without flagging it as a §1.1 violation.
+- §6.2 proceeds to Domain Expert review or consults before the violation is resolved.
+
+---
+
+## T-12 — Operational Documentation go-live trigger
+
+**Covers:** Phase 2 Step 5 (§3.2 Operational Documentation post-build consult)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+The feature is ready for prod — sign off and deploy.
+```
+
+### Expected behaviour
+
+1. Architect detects the **go-live signal** — `ready for prod`, `sign off`, and `deploy` are all §3.2 Operational Documentation triggers.
+2. **Operational Documentation consult proposed automatically (Phase 2 Step 5 / §3.2):** Architect proposes runbook + KBA authoring before proceeding to go-live.
+3. (If an actual deployment follows, it is additionally gated by §2.1 write approval and §2.2 Update Set capture — but the focus of this test is the Op Docs trigger.)
+
+### Pass criteria
+
+- The go-live signal triggers the Operational Documentation proposal **automatically**.
+- The proposal is not skipped even though the user did not explicitly request documentation.
+
+### Fail signals
+
+- Architect proceeds toward "deploy" without proposing runbook + KBA authoring.
+- No Operational Documentation consult is surfaced despite the go-live keywords.
+
+---
+
+## T-13 — ATF Author proposal after code artefact
+
+**Covers:** Phase 2 Step 5 (§3.2 Code Reviewer + ATF Author post-build consults)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Setup
+
+The Developer sub-agent returns a Script Include artefact **destined for a release path** (not a throwaway PoC).
+
+### Expected behaviour
+
+1. §6.2 post-build evaluation runs on the returned Script Include.
+2. **Phase 2 Step 5 fires two consult proposals:**
+   - **Code Reviewer** — the artefact contains a JavaScript code block → verbatim Code Reviewer proposal.
+   - **ATF Author** — the artefact is release-path bound (not a throwaway PoC) → ATF coverage proposed (skill or sub-agent mode).
+3. Both proposals are presented together (Phase 2 Step 6) for the user to choose.
+
+### Pass criteria
+
+- The ATF Author proposal surfaces **automatically alongside** the Code Reviewer proposal.
+- Neither proposal is skipped for a release-path code artefact.
+
+### Fail signals
+
+- Only the Code Reviewer pass is proposed; the ATF Author proposal is omitted.
+- ATF Author is proposed only when the user explicitly asks for it.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)

@@ -529,7 +529,7 @@ To invoke manually:
 ```
 .
 ├── README.md                         ← this file (setup + reference)
-├── CLAUDE.md                         ← Chief Architect orchestrator config (v2.5+)
+├── CLAUDE.md                         ← Chief Architect orchestrator config (v2.6+)
 ├── taxonomy.md                       ← specialist boundaries; routing-ambiguity resolver
 ├── governance-rules.md               ← §1.1 Baseline-First and other global rules
 ├── client-onboarding.md              ← repeatable onboarding ritual
@@ -594,7 +594,7 @@ To invoke manually:
 
 **v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
-**v1.1** (current): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. ATF Author (batch mode). NowAIKit MCP integration live (Tier 2 to live ServiceNow instance). Write Approval Gate (§2.1) and Update Set Capture Protocol (§2.2) operational. CLAUDE.md v2.5.
+**v1.1** (current): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. ATF Author (batch mode). NowAIKit MCP integration live (Tier 2 to live ServiceNow instance). Write Approval Gate (§2.1) and Update Set Capture Protocol (§2.2) operational. CLAUDE.md v2.6.
 
 **v1.2** (next):
 - Expand remaining outline skills to full sub-agents: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.

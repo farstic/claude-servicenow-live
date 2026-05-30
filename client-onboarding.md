@@ -248,7 +248,7 @@ Update your delivery tracker, Notion, or whatever you use to track active engage
 
 - Update the engagement state file with closed decisions, new blockers, sprint progress.
 - Re-upload to the satellite project's knowledge area (delete old version, upload new).
-- Commit the state file change to git: `git commit -m "Update {{Client}} state — {{summary}}"`.
+- Back up the state file per your local retention policy (`clients/` is gitignored — git commit is not possible here).
 
 ### After a workshop, refinement, or PI planning
 
