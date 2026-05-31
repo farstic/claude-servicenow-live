@@ -392,6 +392,27 @@ Conventions:
 
 ---
 
+### PP-19: Deploy approved artefact to live instance
+**When to use:** A design artefact has been approved (§1.1 Verdict A or B, Code Reviewer passed) and you want the engine to deploy it directly to the connected ServiceNow instance via MCP. This pattern triggers the §2.1 Write Approval Gate and §2.2 Update Set Capture protocol. See `docs/MCP-OPERATIONS-GUIDE.md` for the full gate sequence.
+
+**Template:**
+> Deploy {{ARTEFACT_TYPE}} named {{ARTEFACT_NAME}} to the instance.
+> Update Set: {{UPDATE_SET_NAME — create if it does not exist}}.
+> §1.1 status: {{confirmed Verdict A — baseline only / Verdict B — approved extension: describe}}.
+> Code Reviewer: {{passed / waived — reason}}.
+> Write approved.
+
+**Example (filled):**
+> Deploy Script Include named SLABreachRiskCalculator to the instance.
+> Update Set: SLA Risk — May 2026.
+> §1.1 status: confirmed Verdict A — baseline tables only (incident, task_sla, contract_sla, sys_user_group).
+> Code Reviewer: passed.
+> Write approved.
+
+*Note: "Write approved" in the template body counts as the §2.1 explicit approval for this specific write. Do not use this pattern for bulk approvals or for artefacts that have not completed the §6.2 post-build sequence.*
+
+---
+
 ## Maintenance
 
 This file is updated when:

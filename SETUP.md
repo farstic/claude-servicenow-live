@@ -1,5 +1,7 @@
 # Setup Guide
 
+**Last updated:** 2026-05-31
+
 This file has been superseded by **README.md**, which contains the full, up-to-date setup guide including:
 
 - Prerequisites
