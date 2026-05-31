@@ -225,7 +225,7 @@ bash scripts/sync-agents-skills.sh        # sync source → mirror
 bash scripts/sync-agents-skills.sh --check  # check only
 ```
 
-### 3f — Configure Claude Code hooks (context-mode)
+### 3e — Configure Claude Code hooks (context-mode)
 
 This repo uses [context-mode](https://www.npmjs.com/package/context-mode) to protect Claude's context window from flooding. Install it globally:
 
@@ -250,7 +250,7 @@ npm root -g
 
 **Note:** `.claude/settings.json` and `.claude/settings.local.json` are gitignored — they contain machine-specific paths and must never be committed.
 
-### 3g — Restart Claude Code
+### 3f — Restart Claude Code
 
 After saving the config, restart Claude Code completely so it picks up the new MCP server:
 
@@ -259,7 +259,7 @@ After saving the config, restart Claude Code completely so it picks up the new M
 claude
 ```
 
-### 3h — Verify MCP connection
+### 3g — Verify MCP connection
 
 In a Claude Code session, type:
 
@@ -269,7 +269,7 @@ In a Claude Code session, type:
 
 Expected: Claude calls `get_current_instance` and returns the instance URL and version. If you see an error, check the config path and credential values.
 
-### 3i — Understanding the Update Set capture pattern
+### 3h — Understanding the Update Set capture pattern
 
 When Claude creates or updates records via MCP, changes must be captured into an Update Set for deployment. Standard REST API calls bypass the ServiceNow session mechanism that auto-captures changes. The correct pattern is:
 
@@ -592,17 +592,19 @@ To invoke manually:
 
 ## Roadmap
 
+> **Note on versioning:** the roadmap below uses a `v1.x` product-release cadence. The engine's internal `CLAUDE.md` version (currently v2.6) tracks protocol and governance changes on a separate increment. Both version numbers are maintained; they do not conflict.
+
 **v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
-**v1.1** (current): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. ATF Author (batch mode). NowAIKit MCP integration live (Tier 2 to live ServiceNow instance). Write Approval Gate (§2.1) and Update Set Capture Protocol (§2.2) operational. CLAUDE.md v2.6.
+**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. NowAIKit MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
 
 **v1.2** (next):
-- Expand remaining outline skills to full sub-agents: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.
-- GitHub security review automation (pre-push hook wired into Claude Code).
+- ATF Author — skill + batch sub-agent (currently planned; not yet shipped).
+- Expand remaining planned skills to full implementation: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.
+- `claude-ai-projects/` Tier 1 instruction templates (currently placeholders).
 - Multi-instance support in NowAIKit config (dev / test / prod profiles).
 
-**v2.0** (planned):
+**v2.0** (future):
 - App Engine Specialist, DevOps / Release Manager as full sub-agents.
-- Evaluation harness: golden prompts per specialist with expected-output checks (`VALIDATION-TESTS.md`).
 - ATF artefact deployment: Claude Code writes ATF test records directly to instance via MCP.
 - Performance & Scale audit automation against live instance data.
