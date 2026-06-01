@@ -124,31 +124,37 @@ on promote. They do not affect the functioning of the INSERT_OR_UPDATE records i
 
 ---
 
-## 9. Scripting Table Write Restriction — NOT_FOUND on DELETE/UPDATE (confirmed 2026-06-01)
+## 9. Write Restrictions on Scripting Tables (confirmed 2026-06-01)
 
-`delete_record` and `update_record` return `NOT_FOUND` on scripting tables even when `query_records`
-confirms the record exists. Affected tables confirmed on PDI:
+Two distinct restrictions apply — one is MCP/REST-only, one is a platform-level hard restriction.
 
-- `sys_script` (Business Rules)
-- `sys_script_include` (Script Includes)
-- `sysevent_script_action` (Script Actions)
-- `sys_properties` (System Properties)
-- `sysevent_register` (Event Registry)
+### 9a. MCP REST restriction — DELETE/UPDATE returns NOT_FOUND (workaround: UI)
 
-Same behaviour observed with specialized tools: `update_script_include`, `delete_system_property`.
+`delete_record` and `update_record` return `NOT_FOUND` via REST on these tables even when
+`query_records` confirms the record exists. Workaround: delete from the ServiceNow UI.
 
-**Root cause:** REST Table API DELETE/PATCH is blocked by ACL on these scripting tables at PDI level,
-even for admin credentials. Read (GET) works fine on the same records.
+Affected tables (confirmed on PDI):
+- `sys_script` (Business Rules) → UI: System Definition → Business Rules
+- `sys_script_include` (Script Includes) → UI: System Definition → Script Includes
+- `sysevent_script_action` (Script Actions) → UI: System Policy → Events → Script Actions
+- `sys_properties` (System Properties) → UI: sys_properties.list
 
-**Workaround:** Delete and update scripting objects via the ServiceNow UI directly:
-- Script Includes: System Definition → Script Includes
-- Business Rules: System Definition → Business Rules
-- Script Actions: System Policy → Events → Script Actions
-- Event Registry: System Policy → Events → Registry
-- System Properties: sys_properties.list
+Same behaviour with specialized tools: `update_script_include`, `delete_system_property`.
 
-**Note:** `create_*` tools (create_script_include, create_business_rule, etc.) worked fine — the
-restriction appears to affect DELETE and PUT/PATCH but not POST on these tables.
+**Root cause:** REST Table API DELETE/PATCH blocked by ACL at PDI level even for admin.
+Read (GET) works fine. `create_*` (POST) also works fine — restriction is DELETE/PUT/PATCH only.
+
+### 9b. Platform restriction — sysevent_register records CANNOT be deleted anywhere
+
+`sysevent_register` (Event Registry) records **cannot be deleted** — not via MCP REST, not via UI,
+not by admin. This is a ServiceNow platform-level restriction, not a PDI or MCP limitation.
+
+The record remains readable and `query_records` returns it normally. For cleanup purposes this is
+acceptable: without a Script Action or Business Rule listening to the event, it fires harmlessly.
+
+**Implication for implementations:** when deploying an event registration (`register_event`), treat
+it as permanent. Design the implementation to work with the event always present — remove the
+handlers (Script Action, BR) rather than the event itself when decommissioning.
 
 ---
 
