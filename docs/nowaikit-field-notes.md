@@ -124,6 +124,31 @@ on promote. They do not affect the functioning of the INSERT_OR_UPDATE records i
 
 ---
 
+## 10. Assignment Rules — Correct Table Name: sysrule_assignment (confirmed 2026-06-01)
+
+`create_record(assignment_rule, ...)` → `INVALID_REQUEST`. The correct REST-accessible table is `sysrule_assignment`.
+
+**Working pattern:**
+```
+create_record(sysrule_assignment, {
+  name: "...",
+  document: "incident",       // NOT "table" — field is called "document"
+  order: "900",
+  active: "true",
+  condition: "priority=1^assignment_groupISEMPTY",
+  group: "<assignment_group_sys_id>"
+})
+```
+
+Key field differences vs what you might expect:
+- `document` = the target table (not `table` or `collection`)
+- `group` = assignment_group sys_id (not `assignment_group`)
+- `condition` = encoded query string (standard)
+
+The record is captured in the active Update Set automatically.
+
+---
+
 ## 9. Write Restrictions on Scripting Tables (confirmed 2026-06-01)
 
 Two distinct restrictions apply — one is MCP/REST-only, one is a platform-level hard restriction.
