@@ -124,6 +124,34 @@ on promote. They do not affect the functioning of the INSERT_OR_UPDATE records i
 
 ---
 
+## 9. Scripting Table Write Restriction — NOT_FOUND on DELETE/UPDATE (confirmed 2026-06-01)
+
+`delete_record` and `update_record` return `NOT_FOUND` on scripting tables even when `query_records`
+confirms the record exists. Affected tables confirmed on PDI:
+
+- `sys_script` (Business Rules)
+- `sys_script_include` (Script Includes)
+- `sysevent_script_action` (Script Actions)
+- `sys_properties` (System Properties)
+- `sysevent_register` (Event Registry)
+
+Same behaviour observed with specialized tools: `update_script_include`, `delete_system_property`.
+
+**Root cause:** REST Table API DELETE/PATCH is blocked by ACL on these scripting tables at PDI level,
+even for admin credentials. Read (GET) works fine on the same records.
+
+**Workaround:** Delete and update scripting objects via the ServiceNow UI directly:
+- Script Includes: System Definition → Script Includes
+- Business Rules: System Definition → Business Rules
+- Script Actions: System Policy → Events → Script Actions
+- Event Registry: System Policy → Events → Registry
+- System Properties: sys_properties.list
+
+**Note:** `create_*` tools (create_script_include, create_business_rule, etc.) worked fine — the
+restriction appears to affect DELETE and PUT/PATCH but not POST on these tables.
+
+---
+
 ## 8. MCP Config Reference
 
 Required env vars in `claude_desktop_config.json` (instance URL stored locally in MEMORY.md):
