@@ -59,7 +59,7 @@ You'll see the Claude Code prompt. Type `Status` and press Enter.
 You should see output like this:
 
 ```
-Status — ServiceNow Architecture Engine v2.6
+Status — ServiceNow Architecture Engine v2.7.5
 
 1. Working Scope
    No client engagement loaded. Working in repo root.
