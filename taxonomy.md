@@ -63,7 +63,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 13 | HRSD Specialist | ✅ | ❌ |
 | 14 | ITOM/Discovery Specialist | ✅ | ❌ |
 | 15 | SPM Specialist | ⚠️ planned | ❌ |
-| 16 | Security & GRC Specialist | ⚠️ planned | ❌ |
+| 16 | Security & GRC Specialist | ✅ (consult/review skill) | ❌ |
 | 17 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
 | 18 | App Engine Specialist | ⚠️ planned | ❌ |
 | 19 | Migration Specialist | ⚠️ planned | ❌ |

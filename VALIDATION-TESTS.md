@@ -412,6 +412,40 @@ Design the shared service model so both sides point at the same thing.
 
 ---
 
+## T-13 — Security & GRC consult + review (skill-only, NOT a gateway)
+
+**Covers:** §3.1 routing-time security consult with a backing skill; architectural-security review mode; correct boundary vs gateway and vs Code Reviewer
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+Design the access model for a CSM case table where customer contact PII must be
+hidden from ITSM support staff who can see the related incident.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **CSM gateway fires (Phase 1 Step 5)** — it's a CSM case design. (Gateway behaviour unchanged.)
+3. **Security & GRC consult fires (§3.1)** — PII + non-trivial ACL + cross-domain visibility triggers. The Architect adopts `skills/security-grc-specialist/SKILL.md` and produces a **Security & GRC Constraint Note** (field-ACL strategy, PII classification, default-deny, §1.1 verdict = configuration-only), BEFORE any builder is dispatched.
+4. **Security & GRC does NOT auto-fire a 5-Part Constraint Envelope and does NOT halt all builders** — it is a consult, not a gateway. The five gateways are unchanged.
+5. If a Technical Designer spec is later returned, the skill re-adopts in **review mode** and returns a verdict (block / fix-before-prod / consider).
+
+### Pass criteria
+
+- Security & GRC consult is surfaced at routing time with a backing skill (Constraint Note), not just named.
+- It is treated as a **consult** (no 5-Part Envelope, no gateway-style hard halt of the pipeline).
+- Correct boundary: architectural security here, not code-level (which remains Code Reviewer).
+
+### Fail signals
+
+- Security & GRC treated as a 6th Domain Expert gateway (auto-fires a 5-Part Envelope).
+- Consult named but no Constraint Note produced (the pre-skill behaviour).
+- Code-level findings (missing `gs.hasRole`, injection) emitted here instead of routed to Code Reviewer.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)
@@ -503,3 +537,4 @@ Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6.
 | 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | 3/3 (T-08–10 first run) |
 | 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | 10/10 PASS (full suite, updated criteria) |
 | 2026-06-03 | v2.7 | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | T-11 + T-12 PASS (Claude Code, live-fired). Full suite + Tier 1 run still pending |
+| 2026-06-03 | v2.7.1 | — | — | — | — | — | — | — | — | — | — | — | — | **T-13 PASS** (Security & GRC consult/review, Claude Code, live-fired). Full suite + Tier 1 run still pending |

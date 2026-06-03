@@ -9,6 +9,26 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.1 — Security & GRC Specialist skill (consult + architectural-security review)
+
+**Released:** June 2026
+**Trigger:** Security & GRC was a §3.1 routing-time consult with an active persona but no SKILL.md — so the consult fired with nothing to adopt. The upcoming CSM ↔ ITSM ↔ CSDM work will hit it immediately (PII/ACL across the CSM boundary).
+
+### Added
+
+- **`skills/security-grc-specialist/SKILL.md` + `EXAMPLES.md`** (mirrored in `.claude/skills/`) — skill-only, **not a gateway** (deliberate: security is cross-cutting, not a single domain; its analog is Code Reviewer, not the Domain Expert gateways). Two modes: a **routing-time Constraint Note** (§3.1) that sets ACL/RBAC/data-classification/audit constraints *before* builders run, and a **post-build architectural-security review** (verdict block / fix-before-prod / consider). Seven checklists: ACL strategy & evaluation order, RBAC/SoD, field-level security, PII/sensitive-data handling, audit & logging, secure integration, GRC control mapping. Grounded in the real Australia paths (`platform-security/access-control/`, `platform-security/`, `governance-risk-compliance/`) — note the baseline Code Reviewer skill cites a stale `servicenow-platform/security/` path; the new skill uses the correct tree. §1.1 nuance encoded: ACLs/roles/security-attributes are baseline configuration (not a §1.1 trigger), but new security tables/scopes/group-structures are.
+
+### Changed
+
+- **`CLAUDE.md`** — added to the Phase 2.1 skills registry; removed from the persona-only "planned" line; §3.1 consult row now points at the skill and notes the two modes.
+- **`taxonomy.md`** — roster #16 marked ✅ (consult/review skill). Existing §2.2 boundary (vs Code Reviewer), §4.4 trigger map, and §5 anti-route already described it correctly — unchanged.
+
+### Notes
+
+Distinct from a Domain Expert gateway: it does **not** auto-fire at Phase 1 Step 5 or produce a 5-Part Constraint Envelope. The five gateways remain ITSM / CSM / HRSD / ITOM / CMDB & CSDM. The §3.1 consult firing is already covered by validation test T-03; a dedicated test for the review mode is a candidate follow-up.
+
+---
+
 ## v2.7 — CMDB & CSDM promoted to 5th Domain Expert gateway
 
 **Released:** June 2026

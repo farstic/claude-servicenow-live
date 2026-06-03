@@ -70,6 +70,7 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 
 - `skills/developer/SKILL.md` — Developer persona. Adopted in main thread or by the Developer sub-agent. Pairs with `skills/developer/EXAMPLES.md`.
 - `skills/code-reviewer/SKILL.md` — Code Reviewer persona. **Skill only — no sub-agent.** Adopted in main thread post-build per taxonomy §6.2 or on manual invocation (PP-14). Pairs with `skills/code-reviewer/EXAMPLES.md`.
+- `skills/security-grc-specialist/SKILL.md` — Security & GRC Specialist persona. **Skill only — no sub-agent; not a gateway.** Cross-cutting architectural-security consult: adopted in main thread as a §3.1 routing-time consult (sets security constraints before builders run) and as a post-build architectural-security review (verdict block / fix-before-prod / consider). Distinct from Code Reviewer (code-level security on a JS artefact). Pairs with `skills/security-grc-specialist/EXAMPLES.md`.
 - `skills/flow-designer-specialist/SKILL.md` — Flow Designer Specialist persona. Adopted in main thread or by the Flow Designer Specialist sub-agent. Pairs with `skills/flow-designer-specialist/EXAMPLES.md`.
 - `skills/integration-specialist/SKILL.md` — Integration Specialist persona. Adopted in main thread or by the Integration Specialist sub-agent. Pairs with `skills/integration-specialist/EXAMPLES.md`.
 
@@ -96,7 +97,8 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 ### Domain experts (skills only)
 
 - **ITSM Specialist, CSM Specialist, HRSD Specialist, ITOM/Discovery Specialist, CMDB & CSDM Specialist** — v2.0 mandatory upstream gateways (see Phase 2.1 skills registry above). Fire at Phase 1 Step 5 before any builder dispatch and again at Phase 2 Step 4 in review mode after builder artefacts return.
-- SPM Specialist, Security & GRC Specialist, App Engine Specialist, Migration Specialist, UI/UX Specialist, Reporting & Analytics Specialist, DevOps / Release Manager
+- SPM Specialist, App Engine Specialist, Migration Specialist, UI/UX Specialist, Reporting & Analytics Specialist, DevOps / Release Manager (persona-only — no SKILL.md yet)
+- **Security & GRC Specialist** (`skills/security-grc-specialist/SKILL.md`) — now backed by a skill; cross-cutting consult + architectural-security reviewer (see Phase 2.1 skills registry above and §3.1)
 
 ### Consultants and documentation (skills only)
 
@@ -210,7 +212,7 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 | Consultant | Trigger condition |
 |---|---|
 | Performance & Scale Specialist | Volume estimates >1M records; async/batch design; instance scaling; large-table query patterns |
-| Security & GRC Specialist | Non-trivial ACL design; PII handling; SecOps patterns; GDPR or regulatory controls; sensitive integrations |
+| Security & GRC Specialist (skill: `skills/security-grc-specialist/SKILL.md`) | Non-trivial ACL design; PII handling; SecOps patterns; GDPR or regulatory controls; sensitive integrations. Adopt the skill to produce a Security & GRC Constraint Note; re-adopt post-build for an architectural-security review. |
 | DevOps / Release Manager | New scoped apps; update set strategy; deployment pipeline design |
 
 *CMDB & CSDM was previously a routing-time consult; it is now a Phase 1 Step 5 Domain Expert gateway (fires automatically on CMDB/CSDM/IRE/service-model triggers). See the Step 5 gateway table.*
