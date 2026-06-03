@@ -9,6 +9,23 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.4 — Operational Documentation skill (completes the §6.2 consult chain)
+
+**Released:** June 2026
+**Trigger:** The artefact standards and the §6.2 go-live consult referenced `skills/operational-documentation/SKILL.md`, but the file didn't exist — the last referenced-but-missing skill. The §6.2 hook proposed runbook + KBA authoring at go-live with nothing to adopt.
+
+### Added
+
+- **`skills/operational-documentation/SKILL.md` + `EXAMPLES.md`** (mirrored in `.claude/skills/`) — skill-only (no sub-agent), main-thread, fires post-build per §6.2 on a go-live signal (`ready for prod` / `sign-off` / `release` / `go-live` / `cutover` / `deploy`). Produces **runbooks** (operator/on-call: indicators, procedures, alert response, rollback, escalation), **KBAs** (baseline `kb_knowledge` / `kb_knowledge_base` / article templates / versioning / validity / review→publish / KCS create-from-incident), **training material**, and **user guides**. Audience is operators/support/end-users — explicitly bounded against the HLD/LLD Writer (architect audience) per taxonomy §2.4. Grounded in `servicenow-platform/knowledge-management/` (all citations verified). §1.1: KBAs are baseline configuration; a custom documentation/runbook table or custom publish workflow is a halt.
+
+### Fixed / completed
+
+- taxonomy §1 roster #24 marked ✅; CLAUDE.md "Consultants and documentation" entry now points at the skill.
+- **The §6.2 post-build consult chain is now fully real:** Code Reviewer ✓, Domain Experts ✓ (5 gateways), ATF Author ✓ (v2.7.3), Operational Documentation ✓. No §6.2 consult proposes a capability the engine can't deliver.
+- **No referenced-but-missing skill/agent files remain.** Every skill cited anywhere in the engine now exists with resolving doc citations.
+
+---
+
 ## v2.7.3 — ATF Author skill + sub-agent (closes the ATF drift)
 
 **Released:** June 2026

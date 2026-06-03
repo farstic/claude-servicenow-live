@@ -105,7 +105,7 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 ### Consultants and documentation (skills only)
 
 - Discovery Specialist — workshops, current/target-state, transcript extraction
-- Operational Documentation — runbooks, KBA, training, user guides
+- Operational Documentation (`skills/operational-documentation/SKILL.md`) — runbooks, KBAs (baseline `kb_knowledge`), training, user guides. Skill only — no sub-agent; fires post-build per §6.2 on a go-live signal. Audience: operators / support / end users (distinct from HLD/LLD Writer's architect audience).
 
 ## The routing protocol (mandatory)
 
