@@ -9,6 +9,26 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.3 — ATF Author skill + sub-agent (closes the ATF drift)
+
+**Released:** June 2026
+**Trigger:** CLAUDE.md, taxonomy, the artefact standards, and the §6.2 post-build hook all referenced an ATF Author **skill** (`skills/atf-author/SKILL.md`) and **batch sub-agent** (`agents/atf-author.md`) — but neither file existed. The engine *proposed* ATF coverage at sign-off and had nothing to adopt.
+
+### Added
+
+- **`skills/atf-author/SKILL.md` + `EXAMPLES.md`** (mirrored in `.claude/skills/`) — the ATF Author persona. Two modes: inline single-component (skill, fires post-build §6.2) and full-app batch (sub-agent). Covers the ATF data model (`sys_atf_test` / `_test_suite` / `_step` / `_step_config` / `_test_template` / result tables), the baseline step categories (Server / Form / Catalog / REST / Email / Application Navigation), test-design discipline (one behaviour per test, self-contained created-and-rolled-back data, explicit assertions, reuse via Test Templates, negative paths, spec coverage matrix), and **mandatory deployment notes** (runner placement, sub-prod enablement, scope/update set, `atf_test_designer`/`atf_test_admin` roles, data strategy). Grounded in `application-development/automated-test-framework-atf/` (all citations verified).
+- **`agents/atf-author.md`** (mirrored in `.claude/agents/`) — the batch sub-agent: enumerates a scoped app's components, designs a suite (child suites split by runner type), returns a coverage matrix + deployment notes + a §6.2 manifest for any custom step config scripts.
+
+### Fixed
+
+- The "8 sub-agents" roster claim in CLAUDE.md is now **true** (7 + ATF Author). taxonomy §1 ATF Author ✅✅ is now accurate. The §6.2 ATF proposal now has a real skill/sub-agent to adopt.
+
+### §1.1 discipline encoded
+
+ATF tests are baseline configuration; a custom **step type** (`sys_atf_step_config` + config script) is a flagged extension whose script routes to Code Reviewer; a custom **table for test data/results** or a custom **test runner** is a §1.1 halt (use Create-a-Record-and-rollback + baseline result tables).
+
+---
+
 ## v2.7.2 — Repo-wide citation-path audit and remediation
 
 **Released:** June 2026

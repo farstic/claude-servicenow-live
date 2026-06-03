@@ -73,6 +73,7 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 - `skills/security-grc-specialist/SKILL.md` — Security & GRC Specialist persona. **Skill only — no sub-agent; not a gateway.** Cross-cutting architectural-security consult: adopted in main thread as a §3.1 routing-time consult (sets security constraints before builders run) and as a post-build architectural-security review (verdict block / fix-before-prod / consider). Distinct from Code Reviewer (code-level security on a JS artefact). Pairs with `skills/security-grc-specialist/EXAMPLES.md`.
 - `skills/flow-designer-specialist/SKILL.md` — Flow Designer Specialist persona. Adopted in main thread or by the Flow Designer Specialist sub-agent. Pairs with `skills/flow-designer-specialist/EXAMPLES.md`.
 - `skills/integration-specialist/SKILL.md` — Integration Specialist persona. Adopted in main thread or by the Integration Specialist sub-agent. Pairs with `skills/integration-specialist/EXAMPLES.md`.
+- `skills/atf-author/SKILL.md` — ATF Author persona. Adopted in main thread (single-component, fires post-build per §6.2) or by the ATF Author sub-agent (`agents/atf-author.md`, full-app batch suite). Produces ATF test/suite designs with mandatory deployment notes. Pairs with `skills/atf-author/EXAMPLES.md`.
 
 **Domain Expert gateway skills (v2.0 — mandatory upstream gateways):**
 
@@ -87,12 +88,13 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 - `agents/developer.md` — Developer sub-agent. Dispatched for code implementation tasks (Script Includes, Business Rules, Client Scripts, etc.) per a supplied spec. Returns code artefact(s) and a §6.2 post-build proposal manifest. Adopts `skills/developer/SKILL.md`.
 - `agents/flow-designer-specialist.md` — Flow Designer Specialist sub-agent. Dispatched for flow / subflow / custom Action design tasks. Returns flow design specification(s) and a §6.2 post-build proposal manifest covering Developer (for Action server scripts) and ATF Author (for flow tests). Adopts `skills/flow-designer-specialist/SKILL.md`.
 - `agents/integration-specialist.md` — Integration Specialist sub-agent. Dispatched for integration architecture design (REST/SOAP, Scripted REST API, IntegrationHub spokes, MID Server, auth). Returns integration architecture specification(s) and a §6.2 post-build proposal manifest covering Developer (for custom scripts) and Flow Designer Specialist (for orchestration). Adopts `skills/integration-specialist/SKILL.md`.
+- `agents/atf-author.md` — ATF Author sub-agent (**batch mode**). Dispatched to generate a full-app ATF test suite across a scoped application when full-app coverage is chosen at the §6.2 step. Returns a suite design (suite map + per-test step definitions + coverage matrix + mandatory deployment notes) and a §6.2 manifest covering Code Reviewer for any custom step config scripts. Adopts `skills/atf-author/SKILL.md`. Single-component coverage runs as the skill in the main thread instead.
 
 ### Reviewers and quality (skills only)
 
 - Code Reviewer — runs four checklists (style, performance, security, best-practice). Fires post-build per §6.2 hook below.
 - Performance & Scale Specialist — production-scale design and audit.
-- ATF Author (skill mode) — inline test generation per component.
+- ATF Author (skill mode) — inline single-component test generation. Backed by `skills/atf-author/SKILL.md` (batch/full-app mode is the `agents/atf-author.md` sub-agent). Fires post-build per §6.2 when a release-path artefact returns.
 
 ### Domain experts (skills only)
 
