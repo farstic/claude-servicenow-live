@@ -77,7 +77,7 @@ A violation halts the §6.2 flow and re-dispatches the originating specialist wi
 
 ## 2. The 5-Part Constraint Envelope
 
-When a task touches a domain covered by a Domain Expert (ITSM, CSM, HRSD, ITOM/Discovery), the Chief Architect routes to that Domain Expert **first**. The Domain Expert produces a standardised output called the 5-Part Constraint Envelope.
+When a task touches a domain covered by a Domain Expert (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM), the Chief Architect routes to that Domain Expert **first**. The Domain Expert produces a standardised output called the 5-Part Constraint Envelope.
 
 | Part | Content |
 |---|---|
@@ -242,7 +242,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 | Integration Specialist | `skills/integration-specialist/` | `agents/integration-specialist.md` | REST/SOAP integrations, IH spokes |
 | Now Assist Specialist | `skills/now-assist-specialist/` | `agents/now-assist-specialist.md` | AI Agents, agentic workflows, skills |
 
-**Skill-only specialists** (no sub-agent): Code Reviewer; the four Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery); ATF Author (skill mode — a batch sub-agent is still pending); and the consult roster (Performance & Scale, Security & GRC, CMDB & CSDM, DevOps/Release, SPM, App Engine, Migration, UI/UX, Reporting & Analytics, Discovery, Operational Documentation).
+**Skill-only specialists** (no sub-agent): Code Reviewer; the five Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM); ATF Author (skill mode — a batch sub-agent is still pending); and the consult roster (Performance & Scale, Security & GRC, DevOps/Release, SPM, App Engine, Migration, UI/UX, Reporting & Analytics, Discovery, Operational Documentation).
 
 ### 6.4 Builder-pair routing rules
 

@@ -64,7 +64,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 14 | ITOM/Discovery Specialist | ✅ | ❌ |
 | 15 | SPM Specialist | ⚠️ planned | ❌ |
 | 16 | Security & GRC Specialist | ⚠️ planned | ❌ |
-| 17 | CMDB & CSDM Specialist | ⚠️ planned | ❌ |
+| 17 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
 | 18 | App Engine Specialist | ⚠️ planned | ❌ |
 | 19 | Migration Specialist | ⚠️ planned | ❌ |
 | 20 | UI/UX Specialist | ⚠️ planned | ❌ |
@@ -138,8 +138,9 @@ Evaluated by the Chief Architect *before* the primary specialist is invoked, as 
 |---|---|---|
 | **Performance & Scale Specialist** | Technical Designer, Developer | Volume estimates exceed 1M records, async/batch design choices, instance scaling questions, query patterns on large tables. |
 | **Security & GRC Specialist** | Technical Designer, Developer, Integration Specialist | Non-trivial ACL design, PII handling in scope, SecOps pattern involvement, GDPR or regulatory controls, integration with sensitive external systems. |
-| **CMDB & CSDM Specialist** | Technical Designer, ITOM/Discovery Specialist, Integration Specialist | CI relationship modelling involved, IRE rule design, integration writes to `cmdb_*` tables, CSDM phase decisions. |
 | **DevOps / Release Manager** | Technical Designer, App Engine Specialist | When new scoped apps are designed (update set strategy, App Repository workflow, deployment pipeline). |
+
+> **Note — CMDB & CSDM promoted to gateway (v2.0).** CMDB & CSDM Specialist was formerly a routing-time consult here. It is now a mandatory Phase 1 Step 5 / §6.1 Step 7 Domain Expert gateway (`skills/cmdb-csdm-specialist/SKILL.md`) that fires automatically on CMDB/CSDM/IRE/service-model triggers (§4.4) and produces a 5-Part Constraint Envelope. It co-fires with the ITOM/Discovery gateway when a task spans CI population and CI model (ITOM owns population; CMDB & CSDM owns the model).
 
 ### 3.2 Post-build consults
 
@@ -147,7 +148,7 @@ Evaluated by the Chief Architect *after* a builder sub-agent returns its artefac
 
 | Consultant specialist | Triggered by completion of | Detection signal | Action |
 |---|---|---|---|
-| **Domain Expert gateway** (ITSM / CSM / HRSD / ITOM — skill only) | Any builder sub-agent whose task was routed through a Domain Expert gateway at Phase 1 Step 5 | Task was domain-tagged at routing time (incident, problem, change, SLA, case, HR case, Discovery, etc.) | Re-adopt the same Domain Expert skill in review mode (Phase 2 Step 4). Validate the returned artefact against the Constraint Envelope produced at Phase 1 — confirm no baseline construct has been silently replaced by a custom object, and all table/field/state references are consistent with the Envelope's Data Model Alignment. If a deviation is found, surface it as a §1.1 violation and re-dispatch the builder with findings before surfacing any other post-build proposal. |
+| **Domain Expert gateway** (ITSM / CSM / HRSD / ITOM / CMDB & CSDM — skill only) | Any builder sub-agent whose task was routed through a Domain Expert gateway at Phase 1 Step 5 | Task was domain-tagged at routing time (incident, problem, change, SLA, case, HR case, Discovery, CMDB/CSDM/IRE/service-model, etc.) | Re-adopt the same Domain Expert skill in review mode (Phase 2 Step 4). Validate the returned artefact against the Constraint Envelope produced at Phase 1 — confirm no baseline construct has been silently replaced by a custom object, and all table/field/state references are consistent with the Envelope's Data Model Alignment. If a deviation is found, surface it as a §1.1 violation and re-dispatch the builder with findings before surfacing any other post-build proposal. |
 | **Code Reviewer** (skill only — no sub-agent) | Developer sub-agent; or any builder that emits server-side or client-side script (Flow Designer Specialist custom Action scripts, App Engine Specialist business rules, ATF Author step scripts) | Returned artefact contains a JavaScript code block (Script Include, Business Rule, Client Script, UI Script, Scheduled Job, custom Flow Action script, ATF step script). | Chief Architect proposes Code Reviewer handoff verbatim: *"Code artefact produced. Proposing a Code Reviewer pass (style, performance, security, best-practice) before final delivery — proceed?"* On approval, adopt Code Reviewer skill in main thread (no sub-agent dispatch) and run the four checklists against the artefact. |
 | **ATF Author** (skill or sub-agent) | Developer, Flow Designer Specialist, App Engine Specialist | New code or flow definition returned and the artefact is destined for a release path (i.e., not throwaway analysis or PoC). | Chief Architect proposes: *"Build artefact produced. Proposing ATF coverage before sign-off — single-component (skill) or full-app suite (sub-agent)?"* |
 | **Operational Documentation** | Any builder, when feature is approaching production readiness | User signal of imminent go-live (`"ready for prod"`, `"sign-off"`, `"release"`, `"go-live"`, `"cutover"`, `"deploy"`); or completion of an end-to-end feature spanning multiple builders. | Chief Architect proposes: *"Approaching production readiness. Proposing runbook + KBA authoring before go-live — proceed?"* |
@@ -248,7 +249,7 @@ The algorithm runs in two phases: routing-time (steps 1–9, before specialist i
 4. **If multiple candidates** — apply the relevant boundary table (§2) using the trigger differentiator.
 5. **If still ambiguous** — apply anti-routing rules (§5) to eliminate impossible routes.
 6. **If still ambiguous after §5** — the task may legitimately require *multiple* specialists in sequence. Propose a sequenced plan: "Specialist A produces X, then Specialist B consumes X to produce Y."
-7. **Apply the Domain Expert gateway (mandatory).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). No builder sub-agent is dispatched until the Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
+7. **Apply the Domain Expert gateway (mandatory).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM, CMDB & CSDM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). **Multiple gateways co-fire** for cross-domain tasks (e.g., CSM ↔ ITSM ↔ CSDM) — reconcile their envelopes into one dispatch context. For the CMDB & CSDM ↔ ITOM/Discovery boundary, ITOM owns CI *population* and CMDB & CSDM owns the CI *model*; fire both only when the task spans both. No builder sub-agent is dispatched until every Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
 8. **Surface routing-time consult relationships (§3.1).** Mention any cross-cutting consultants whose trigger conditions fire. Do not invoke them yet — surface them as part of the proposal.
 9. **Stop and wait** for user approval before proceeding to specialist invocation.
 
@@ -279,4 +280,4 @@ Updates are committed to git with a clear message: `taxonomy: <change-summary>`.
 
 ---
 
-*End of taxonomy.md v1.1.*
+*End of taxonomy.md v1.2 — CMDB & CSDM Specialist promoted from planned routing-time consult to active v2.0 Domain Expert gateway: roster marked ✅, §3.1 consult row retired with promotion note, §3.2 post-build Domain Expert row and §6.1 Step 7 gateway list updated, co-fire boundary with ITOM/Discovery documented.*

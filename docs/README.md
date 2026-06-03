@@ -97,7 +97,7 @@ cd claude-servicenow-live
 claude
 ```
 
-At the `❯` prompt, type `Status`. You should see the Chief Architect roster with four Domain Experts loaded. To connect a live instance, follow the optional MCP step in the [Installation Guide](./INSTALLATION-GUIDE.md).
+At the `❯` prompt, type `Status`. You should see the Chief Architect roster with five Domain Experts loaded. To connect a live instance, follow the optional MCP step in the [Installation Guide](./INSTALLATION-GUIDE.md).
 
 ---
 

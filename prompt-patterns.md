@@ -65,10 +65,10 @@ Conventions:
 ---
 
 ### PP-02b: Domain Expert gateway — explicit invocation
-**When to use:** You want the ITSM / CSM / HRSD / ITOM Specialist to produce its 5-Part Constraint Envelope *without* immediately dispatching a downstream builder. Useful when exploring baseline coverage before committing to a design track. Note: the gateway fires automatically at Phase 1 Step 5 whenever a domain keyword is present — this pattern is for *explicit, standalone* invocation.
+**When to use:** You want the ITSM / CSM / HRSD / ITOM / CMDB & CSDM Specialist to produce its 5-Part Constraint Envelope *without* immediately dispatching a downstream builder. Useful when exploring baseline coverage before committing to a design track. Note: the gateway fires automatically at Phase 1 Step 5 whenever a domain keyword is present — this pattern is for *explicit, standalone* invocation.
 
 **Template:**
-> {{ITSM / CSM / HRSD / ITOM}} Specialist gateway task: produce the 5-Part Constraint Envelope for the requirement described below.
+> {{ITSM / CSM / HRSD / ITOM / CMDB & CSDM}} Specialist gateway task: produce the 5-Part Constraint Envelope for the requirement described below.
 >
 > Process scope: {{PROCESS_OR_FEATURE_NAME}}
 > Current-state artefacts: {{EXISTING_CUSTOMISATIONS_IF_ANY}}

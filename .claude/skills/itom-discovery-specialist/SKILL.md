@@ -70,7 +70,7 @@ Fire automatically when the user request mentions any of:
 
 ## When NOT to use this skill
 
-- **Pure CMDB data-model design without Discovery involvement** → if a dedicated CMDB & CSDM Specialist v2.0 exists, route there. If not (current state), this skill handles CMDB design with explicit consult flag.
+- **Pure CMDB data-model design without Discovery involvement** → route to the **CMDB & CSDM Specialist** gateway (`skills/cmdb-csdm-specialist/SKILL.md`), which owns the CI/CSDM *model*. This skill owns CI *population* (Discovery/MID/patterns/Service Mapping execution). When a task spans both, both gateways co-fire and reconcile their envelopes.
 - **ITSM (incident/problem/change) questions** → ITSM Specialist.
 - **CSM customer questions** → CSM Specialist.
 - **HRSD questions** → HRSD Specialist.
@@ -215,7 +215,7 @@ Cite where Verdict B/C is in play.]
 [Consult flags:
 - Performance & Scale (large CI count, high Discovery throughput)
 - Security & GRC (privileged credentials, network-segmented data)
-- CMDB & CSDM Specialist (when v2.0 exists)
+- CMDB & CSDM Specialist (gateway — co-fire for CI/CSDM model placement when this task also shapes the data model)
 - Integration Specialist (for SGC or external data sources)
 - DevOps (for MID Server deployment automation)]
 
@@ -485,7 +485,7 @@ Reject if:
 
 - **Performance & Scale** — large CI counts (>1M), high Discovery throughput, complex query patterns on `cmdb_ci`
 - **Security & GRC** — privileged credentials for Discovery, network-segmented data, regulatory CI data classification
-- **CMDB & CSDM Specialist** — when v2.0 exists and the request is CMDB-architecture heavy
+- **CMDB & CSDM Specialist** — co-fire gateway when the request is CMDB/CSDM-model heavy (class placement, CSDM phase, IRE design); ITOM owns population, CMDB & CSDM owns the model
 - **Integration Specialist** — for SGC integration or external data source plumbing
 - **DevOps** — for MID Server deployment automation
 - **Flow Designer Specialist** — for event-management-to-incident orchestration

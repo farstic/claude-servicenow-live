@@ -71,7 +71,7 @@ Three departments, one delivery lead, twenty-four named roles. Each has a specif
 | Role | What they do |
 |---|---|
 | **Chief Architect** | Reads your request, decides which specialists are needed, supervises the work, signs off on the deliverable |
-| **Domain Experts** (ITSM, CSM, HRSD, ITOM) | The gatekeepers. Before any builder starts, the relevant Domain Expert confirms whether baseline ServiceNow already covers the requirement |
+| **Domain Experts** (ITSM, CSM, HRSD, ITOM, CMDB & CSDM) | The gatekeepers. Before any builder starts, the relevant Domain Expert confirms whether baseline ServiceNow already covers the requirement |
 | **Builders** | Produce the actual deliverables — Gherkin stories, technical designs, code, flows, integrations, HLDs, AI agentic workflows |
 | **Now Assist Specialist** | Designs AI Agents, agentic workflows, Now Assist skills, and AI Control Tower governance — the intelligence layer on top of baseline ServiceNow |
 | **Quality and Documentation** | Reviews code automatically, writes test suites, flags security and performance concerns, produces runbooks |

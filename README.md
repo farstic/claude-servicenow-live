@@ -354,7 +354,7 @@ Expected: Claude returns the connected instance URL and ServiceNow version.
    | `.claude/skills/technical-designer/SKILL.md` | Table models, ACLs, business rule design |
    | `.claude/skills/now-assist-specialist/SKILL.md` | AI Agents, Now Assist skills, agentic workflows |
 
-   Start with the four Domain Expert skills (itsm, csm, hrsd, itom) and the developer + code-reviewer pair — those cover 90% of daily use.
+   Start with the five Domain Expert skills (itsm, csm, hrsd, itom, cmdb-csdm) and the developer + code-reviewer pair — those cover 90% of daily use.
 
 ### 5c — Create Satellite Projects (one per active client)
 
@@ -394,7 +394,7 @@ For each client engagement:
 ```
 User request
   → Chief Architect restates + surfaces assumptions
-  → Domain Expert gateway fires (ITSM / CSM / HRSD / ITOM)
+  → Domain Expert gateway fires (ITSM / CSM / HRSD / ITOM / CMDB & CSDM)
   → Developer sub-agent dispatched (with constraint envelope)
   → Code Reviewer pass proposed (§6.2 hook)
   → ATF Author pass proposed
@@ -595,7 +595,7 @@ To invoke manually:
 
 ## Roadmap
 
-**v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
+**v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
 **v1.1** (current): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. ATF Author (batch mode). NowAIKit MCP integration live (Tier 2 to live ServiceNow instance). Write Approval Gate (§2.1) and Update Set Capture Protocol (§2.2) operational. CLAUDE.md v2.5.
 

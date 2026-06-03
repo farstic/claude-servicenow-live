@@ -228,7 +228,7 @@ Technical Designer's deliverable:
 7. **Reporting note** — direction to Reporting & Analytics for compliance-tier-based reports (not Technical Designer's deliverable).
 
 Consult flags:
-- **CMDB & CSDM Specialist** — when v2.0 exists; for now this skill carries the CMDB design ratification.
+- **CMDB & CSDM Specialist** — co-fire gateway for the CI/CSDM model placement of the field (class choice, CSDM phase); ITOM owns the Discovery/population side.
 - **Reporting & Analytics Specialist** — downstream, non-blocking.
 
 ## Part 5 — Anti-Patterns to Block

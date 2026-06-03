@@ -277,14 +277,17 @@ with EC2 instances as Configuration Items.
    MID Server, Cloud Discovery, and CMDB write.
    ITOM/Discovery Specialist produces 5-Part Constraint Envelope. Part 3 Verdict: **A** —
    baseline Cloud Discovery with `cmdb_ci_vm_instance` covers EC2; no custom table required.
-   Routing-time consult flagged: **CMDB & CSDM Specialist** (CMDB writes).
+   Because this is a **population-led** task (set up a Discovery schedule), ITOM leads. The
+   **CMDB & CSDM gateway may co-fire** for model placement (correct CSDM class/CSDM phase for
+   EC2 CIs); if it does, its envelope reconciles with ITOM's. CMDB & CSDM is no longer a §3.1
+   routing-time consult — it is a Phase 1 Step 5 gateway.
 3. Architect proposes the appropriate builder. Waits for approval.
 4. No builder dispatched before Envelope is produced.
 
 ### Pass criteria
 
-- ITOM/Discovery Specialist gateway fires **automatically** at Phase 1 Step 5.
-- CMDB & CSDM consult mentioned at routing time.
+- ITOM/Discovery Specialist gateway fires **automatically** at Phase 1 Step 5 as the lead.
+- CMDB & CSDM treated as a gateway (co-fire for model placement), **not** as a routing-time consult.
 - No builder dispatched before Envelope is produced.
 
 ### Fail signals
@@ -333,6 +336,79 @@ that writes escalation events to it.
 - Script Include produced in the same turn as the OPEN QUESTION.
 - Architect states "since you've already decided, I'll proceed" — self-authorization bypass.
 - §1.1 halt raised generically by Architect rather than via Part 3 of the Constraint Envelope.
+
+---
+
+## T-11 — CMDB & CSDM Gateway: fires for a data-model request
+
+**Covers:** Phase 1 Step 5 (CMDB & CSDM gateway — new v2.0 gateway)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+We're modelling our service portfolio in CSDM. Design how "Acme Connect" should sit
+in the CMDB as a business service and how it links to the technology that delivers it.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **CMDB & CSDM Specialist gateway fires (Phase 1 Step 5)** — task is CMDB/CSDM data-model
+   design (service-type modelling, CSDM placement). Produces 5-Part Constraint Envelope.
+   Part 3 Verdict: **A** — `cmdb_ci_service_business` + `cmdb_ci_service_technical` linked via
+   designed `cmdb_rel_ci`; CSDM v5; no custom table.
+3. Architect proposes the appropriate builder (Technical Designer if config needed). Waits for approval.
+4. No builder dispatched before the Envelope is produced.
+
+### Pass criteria
+
+- CMDB & CSDM Specialist gateway fires **automatically** at Phase 1 Step 5.
+- Envelope uses **CSDM v5 table names** (`cmdb_ci_service_technical`, not `cmdb_ci_service_technical_service`).
+- No builder dispatched before the Envelope is produced.
+
+### Fail signals
+
+- No gateway fires; Architect answers from generic memory → Phase 1 Step 5 not wired for CMDB & CSDM.
+- ITOM/Discovery fires *instead* (this is a pure model task with no Discovery/population) → boundary misapplied.
+- Pre-v5 table names used as current state → release-family discipline not enforced.
+
+---
+
+## T-12 — Multi-Gateway Co-Fire: CSM ↔ ITSM ↔ CSDM
+
+**Covers:** Phase 1 Step 5 multi-gateway co-fire rule; envelope reconciliation; ITOM↔CMDB&CSDM boundary
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+On one instance, when a customer logs a CSM case about a product, the agent should see the
+related service; and when that service has an incident, ITSM support should see the impact.
+Design the shared service model so both sides point at the same thing.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **Three gateways co-fire (Phase 1 Step 5):** CSM (case/install base), ITSM (incident impact),
+   and CMDB & CSDM (the shared service model). Each produces a 5-Part Constraint Envelope.
+3. Envelopes are **reconciled** so all name the *same* `cmdb_ci_service_*` records. CMDB & CSDM
+   Verdict: **A** — shared service layer is the integration; **no bridging table**.
+4. Architect proposes a plan referencing the shared layer (Technical Designer for reference/form
+   config). Waits for approval. No builder dispatched before envelopes are produced and reconciled.
+
+### Pass criteria
+
+- All three gateways fire automatically; the CMDB & CSDM envelope explicitly blocks a bridging table.
+- Reconciliation is stated (the same service records referenced from both CSM and ITSM).
+- No builder dispatched before the reconciled envelope context exists.
+
+### Fail signals
+
+- Only one gateway fires (cross-domain co-fire rule not applied).
+- A custom bridging table (e.g., `x_*_service_map`) is proposed or accepted → §1.1 / anti-pattern miss.
+- CSM and ITSM modelled against *separate* service records → shared-layer principle violated.
 
 ---
 
@@ -415,12 +491,15 @@ git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.m
 
 Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6. Includes updated criteria for T-02 (design artefact definition), T-03 (Security & GRC mandatory), T-06 (full-pipeline setup).
 
+**v2.7 status:** T-11 and T-12 (the new CMDB & CSDM gateway and the CSM↔ITSM↔CSDM co-fire path) were **live-fired and PASSED in Claude Code (Tier 2) on 2026-06-03**. Still outstanding: the **full T-01–T-12 regression** (to confirm no regression from the routing changes) and a **Claude.ai (Tier 1) run** of T-09/T-11/T-12 once the five gateway skills are re-uploaded.
+
 ---
 
 ## Test Run History
 
-| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | Result |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
-| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (full suite, updated criteria) |
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | 7/7 (T-08–10 new) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | 10/10 PASS (full suite, updated criteria) |
+| 2026-06-03 | v2.7 | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | T-11 + T-12 PASS (Claude Code, live-fired). Full suite + Tier 1 run still pending |

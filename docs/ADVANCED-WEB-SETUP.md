@@ -32,7 +32,7 @@ You can run both. The governance behaviour is identical.
 ## What you'll do
 
 1. Create a Claude.ai Master Project
-2. Upload four skill packages (the four Domain Experts)
+2. Upload five skill packages (the five Domain Experts)
 3. Paste the Chief Architect persona into Project Instructions
 4. Verify the install with a `Status` check
 
@@ -47,7 +47,7 @@ You can run both. The governance behaviour is identical.
 
 ---
 
-## Step 2 — Prepare the four Domain Expert packages
+## Step 2 — Prepare the five Domain Expert packages
 
 Claude.ai's Skills uploader expects one ZIP per skill — one folder, two files (`SKILL.md` and `EXAMPLES.md`) inside each ZIP.
 
@@ -58,7 +58,7 @@ cd /path/to/claude-servicenow-live
 
 mkdir -p /tmp/claude-ai-uploads
 
-for skill in itsm-specialist csm-specialist hrsd-specialist itom-discovery-specialist; do
+for skill in itsm-specialist csm-specialist hrsd-specialist itom-discovery-specialist cmdb-csdm-specialist; do
   cd skills
   zip -r "/tmp/claude-ai-uploads/${skill}-v2.0.zip" "$skill/"
   cd ..
@@ -67,9 +67,10 @@ done
 ls -lh /tmp/claude-ai-uploads/
 ```
 
-You'll get four ZIPs, each around 15–25 KB:
+You'll get five ZIPs, each around 15–25 KB:
 
 ```
+cmdb-csdm-specialist-v2.0.zip
 csm-specialist-v2.0.zip
 hrsd-specialist-v2.0.zip
 itom-discovery-specialist-v2.0.zip
@@ -87,9 +88,9 @@ itsm-specialist-v2.0.zip
 3. Click **Add skill**.
 4. Upload the first ZIP from `/tmp/claude-ai-uploads/`. Claude.ai validates the YAML frontmatter and shows a preview.
 5. If a v1.0 version of the same skill already exists, choose **Replace**.
-6. Repeat for the other three ZIPs.
+6. Repeat for the other four ZIPs.
 
-When done, the Skills panel should list four entries, each tagged `version: 2.0.0`.
+When done, the Skills panel should list five entries, each tagged `version: 2.0.0`.
 
 ---
 
@@ -110,7 +111,7 @@ The Chief Architect persona and routing protocol live in `claude-ai-projects/mas
 1. Open a **new chat** inside the Master Project (skill loading happens per-chat — existing chats won't pick up the new configuration).
 2. Type `Status` and send.
 
-You should see the Chief Architect roster listing all four Domain Expert gateways with `v2.0` labels.
+You should see the Chief Architect roster listing all five Domain Expert gateways with `v2.0` labels.
 
 3. Run the canonical Verdict C test:
 
@@ -127,7 +128,7 @@ If this behaviour matches, your web setup is healthy.
 | Symptom | Fix |
 |---|---|
 | Skill upload rejected with YAML error | The skill ZIP is malformed. Re-zip from the original folder using the commands in Step 2. |
-| `Status` shows fewer than 4 Domain Experts | One or more skill uploads silently failed. Re-open the Skills panel and confirm all four are listed with `v2.0`. |
+| `Status` shows fewer than 5 Domain Experts | One or more skill uploads silently failed. Re-open the Skills panel and confirm all five are listed with `v2.0`. |
 | CSM test produces a table model in the same turn as the OPEN QUESTION | Project Instructions paste was incomplete. Re-do Step 4 with a fresh copy of `claude-ai-projects/master-project-instructions.md`. |
 | Conversations seem to forget governance rules mid-chat | Project Instructions are loaded per-chat. Make sure you're in the Master Project (not a free chat). |
 

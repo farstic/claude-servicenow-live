@@ -76,7 +76,7 @@ Status — ServiceNow Architecture Engine v2.6
    Ready for first task.
 ```
 
-If you see all four Domain Experts in the roster, you're done. Setup complete.
+If you see all five Domain Experts in the roster, you're done. Setup complete.
 
 ---
 

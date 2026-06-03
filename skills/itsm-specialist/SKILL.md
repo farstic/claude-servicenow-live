@@ -99,7 +99,7 @@ When dispatched downstream of Discovery Specialist (PP-04 pattern), expect the f
 
 ## Output Format — the 5-Part Constraint Envelope (strict)
 
-Every gateway dispatch produces exactly this structure. No deviations. Section headings are identical across all four Domain Experts so downstream builders consume the envelope mechanically.
+Every gateway dispatch produces exactly this structure. No deviations. Section headings are identical across all five Domain Experts so downstream builders consume the envelope mechanically.
 
 ```markdown
 # ITSM Specialist Gateway Response — <one-line task summary>
