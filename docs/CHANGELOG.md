@@ -9,6 +9,26 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.5 — Discovery Specialist + UI/UX Specialist skills
+
+**Released:** June 2026
+**Trigger:** Pre-engagement hardening before a CSM ↔ ITSM ↔ CSDM build. Two persona-only specialists most relevant to that engagement were missing SKILL.md files: Discovery (the upstream requirements work a blueprint demands) and UI/UX (CSM lives in a configurable Workspace + a Service Portal).
+
+### Added
+
+- **`skills/discovery-specialist/SKILL.md` + `EXAMPLES.md`** — upstream requirements consultant (skill-only, sits *above* the routing protocol). Turns a blueprint/workshop/transcript into the structured **Discovery Output** — process scope, current-state, target-state requirements (MoSCoW), volume, sensitivity, personas/roles, gap analysis, §1.1 implications (flagged, not ruled), routing recommendation, OPEN QUESTIONS — shaped to match the **Input Contract** every Domain Expert gateway and the Story Writer already expect. Divergent/elicitation only; does not design, build, or rule §1.1. Example walks a CSM blueprint excerpt → full Discovery Output.
+- **`skills/ui-ux-specialist/SKILL.md` + `EXAMPLES.md`** — designs the three UI surfaces: **configurable Workspaces** (Next Experience / UI Builder — UX pages, configurable lists/forms, contextual side panels, agent assist, declarative actions, unified nav), **Service Portal** (pages, widgets, theme), and **classic UI** (form layout, lists, UI policies, UI actions). Produces design specs, not code (Developer) or the data model (Technical Designer). Grounded in `platform-user-interface/` + `application-development/ui-builder/` (citations verified). §1.1: configuring baseline workspaces/portals/forms is configuration; new UX scopes / custom UIB components / custom widgets where baseline serves need approval.
+
+### Changed
+
+- taxonomy §1 roster: #20 UI/UX and #23 Discovery marked ✅. CLAUDE.md registries updated (Discovery noted as upstream-of-protocol; UI/UX pulled from the persona-only line). docs/TECHNICAL-ARCHITECTURE roster count 16 → 18 skills.
+
+### Notes
+
+Both are skill-only (no sub-agent); the 22-specialist count is unchanged (these were already in the roster as planned personas). All skill citations across the repo still resolve (0 missing). First commits authored under the RobertBH17 identity.
+
+---
+
 ## v2.7.4 — Operational Documentation skill (completes the §6.2 consult chain)
 
 **Released:** June 2026

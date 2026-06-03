@@ -97,12 +97,13 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 ### Domain experts (skills only)
 
 - **ITSM Specialist, CSM Specialist, HRSD Specialist, ITOM/Discovery Specialist, CMDB & CSDM Specialist** — v2.0 mandatory upstream gateways (see Phase 2.1 skills registry above). Fire at Phase 1 Step 5 before any builder dispatch and again at Phase 2 Step 4 in review mode after builder artefacts return.
-- SPM Specialist, App Engine Specialist, Migration Specialist, UI/UX Specialist, Reporting & Analytics Specialist, DevOps / Release Manager (persona-only — no SKILL.md yet)
+- SPM Specialist, App Engine Specialist, Migration Specialist, Reporting & Analytics Specialist, DevOps / Release Manager (persona-only — no SKILL.md yet)
+- **UI/UX Specialist** (`skills/ui-ux-specialist/SKILL.md`) — now backed by a skill; designs the three UI surfaces (configurable Workspaces / UI Builder, Service Portal, classic UI). Skill only — no sub-agent.
 - **Security & GRC Specialist** (`skills/security-grc-specialist/SKILL.md`) — now backed by a skill; cross-cutting consult + architectural-security reviewer (see Phase 2.1 skills registry above and §3.1)
 
 ### Consultants and documentation (skills only)
 
-- Discovery Specialist — workshops, current/target-state, transcript extraction
+- Discovery Specialist (`skills/discovery-specialist/SKILL.md`) — workshops, current/target-state, transcript/blueprint extraction. Skill only. Sits **upstream** of the routing protocol; produces the structured **Discovery Output** that the Domain Expert gateways and Story Writer consume as their Input Contract.
 - Operational Documentation (`skills/operational-documentation/SKILL.md`) — runbooks, KBAs (baseline `kb_knowledge`), training, user guides. Skill only — no sub-agent; fires post-build per §6.2 on a go-live signal. Audience: operators / support / end users (distinct from HLD/LLD Writer's architect audience).
 
 ## The routing protocol (mandatory)

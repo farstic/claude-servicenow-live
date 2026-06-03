@@ -230,7 +230,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 3. OPEN QUESTIONS block for client decisions before build
 4. Handoff manifest naming downstream specialists who consume this artefact
 
-### 6.3 The roster — 8 sub-agents, 16 skills
+### 6.3 The roster — 8 sub-agents, 18 skills
 
 | Builder | SKILL.md | Sub-agent | Output |
 |---|---|---|---|

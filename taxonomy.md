@@ -67,7 +67,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 17 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
 | 18 | App Engine Specialist | ⚠️ planned | ❌ |
 | 19 | Migration Specialist | ⚠️ planned | ❌ |
-| 20 | UI/UX Specialist | ⚠️ planned | ❌ |
+| 20 | UI/UX Specialist | ✅ | ❌ |
 | 21 | Reporting & Analytics Specialist | ⚠️ planned | ❌ |
 | 22 | DevOps / Release Manager | ⚠️ planned | ❌ |
 
@@ -75,7 +75,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 23 | Discovery Specialist | ⚠️ planned | ❌ |
+| 23 | Discovery Specialist | ✅ | ❌ |
 | 24 | Operational Documentation | ✅ | ❌ |
 
 **Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
