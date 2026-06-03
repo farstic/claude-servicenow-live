@@ -1,3 +1,11 @@
+# HLD Template — High-Level Design
+
+**Purpose:** Standard 8-section HLD skeleton for ServiceNow solution architecture documents.
+**Audience:** HLD/LLD Writer specialist; Solution Architects producing design documents for review boards.
+**Last updated:** 2026-05-31
+
+---
+
 # {{Solution / Programme name}} — High-Level Design
 
 | | |

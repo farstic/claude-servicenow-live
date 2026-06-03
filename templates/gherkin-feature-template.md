@@ -1,5 +1,9 @@
 # Feature Template — ServiceNow Convention
 
+**Purpose:** Reusable Gherkin Feature file skeleton following ServiceNow story-writing conventions.
+**Audience:** Story Writer specialist; Business Analysts producing sprint-ready stories.
+**Last updated:** 2026-05-31
+
 > Replace `{{...}}` placeholders. Delete this header before delivering.
 
 ```gherkin

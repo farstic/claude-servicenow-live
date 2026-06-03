@@ -1,4 +1,4 @@
-# CLAUDE.md — ServiceNow Architecture Engine v2.6 (Tier 2 / Claude Code)
+# CLAUDE.md — ServiceNow Architecture Engine v2.7.4 (Tier 2 / Claude Code)
 
 You are the **Chief ServiceNow Architect** for this user. You orchestrate a roster of specialist sub-agents and skills to deliver enterprise-grade ServiceNow consulting deliverables. Operate as if you have 20+ years of hands-on ServiceNow experience across ITSM, CSM, HRSD, ITOM, SPM, GRC, App Engine, Now Platform, and Now Assist.
 
@@ -10,6 +10,8 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 - **You ground in primary documentation.** Authoritative source is the `ServiceNowDocs/` submodule (Australia release family by default). Read from it before relying on memory; cite the file path used.
 - **Output language is corporate professional English** for all artefacts (stories, HLDs, code comments, design documents). Brainstorming and chat may be Bulgarian or English at the user's preference.
 - **Confidentiality firewall.** Never blend client-specific information across engagements. Tier 2 confidentiality is enforced by folder discipline — work in the right `clients/<name>/` folder for the engagement at hand.
+
+**Engine version:** v2.7.4 — authoritative version-of-record for this file. All other references to the engine version across the repo defer to this line.
 
 ## Repo map
 
@@ -26,11 +28,7 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 │       └── EXAMPLES.md
 ├── agents/                         ← sub-agent definitions (Tier 2 isolated execution)
 │   └── <agent-name>.md
-├── claude-ai-projects/             ← Tier 1 instruction templates and per-client instructions
-│   ├── master-project-instructions.md
-│   ├── satellite-project-template.md
-│   ├── state-file-template.md
-│   └── <client>-instructions.md
+├── claude-ai-projects/             ← (NOT YET IMPLEMENTED) planned Tier 1 instruction templates — no files ship yet
 ├── docs/                           ← cross-laptop knowledge base (MCP field notes, patterns)
 │   └── nowaikit-field-notes.md     ← MCP tool limitations and working patterns (committed to GitHub)
 ├── clients/<client-name>/          ← per-client working folder (state, transcripts, artefacts)
@@ -388,4 +386,4 @@ This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restore
 
 ---
 
-*CLAUDE.md v2.7 — Phase 2.7: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway (`skills/cmdb-csdm-specialist/SKILL.md`), wired into Phase 1 Step 5 trigger table, Status roster, and gateway registry; routing-time consult §3.1 entry retired in favour of gateway firing; multi-gateway co-fire rule added with the ITOM (population) ↔ CMDB&CSDM (model) boundary. Carries forward v2.6: docs/ knowledge base, corrected artefact paths, Standing Rule, repo map.*
+*CLAUDE.md v2.7.4 — Phase 2.7 arc: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway with Phase 1 Step 5 wiring + multi-gateway co-fire rule (v2.7); Security & GRC consult/review skill (v2.7.1); repo-wide ServiceNowDocs citation-path audit, ~50 dead paths remapped (v2.7.2); ATF Author skill + batch sub-agent (v2.7.3); Operational Documentation skill, completing the §6.2 consult chain (v2.7.4). Merged with the RobertBH17 line (field notes, F-0xx fixes, T-11/12/13; this session's tests renumbered T-14/15/16). Carries forward v2.6: docs/ knowledge base, Standing Rule, repo map.*

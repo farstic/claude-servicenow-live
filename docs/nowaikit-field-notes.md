@@ -4,7 +4,7 @@
 **Audience:** Architects and developers operating the engine against a live PDI; anyone debugging an MCP write that did not behave as expected.
 **Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed.
 **Related:** `MCP-OPERATIONS-GUIDE.md` (the playbook these notes support) · `TECHNICAL-ARCHITECTURE.md` (§2.1 write gate, §2.2 Update Set capture).
-**Last updated:** 2026-05-29
+**Last updated:** 2026-06-01
 
 ---
 
@@ -121,6 +121,116 @@ When objects are deleted from the environment while an Update Set is active, Ser
 
 This is **acceptable behavior** — DELETE records tell the target environment to also remove those objects
 on promote. They do not affect the functioning of the INSERT_OR_UPDATE records in the same Update Set.
+
+---
+
+## 10. Assignment Rules — Correct Table Name: sysrule_assignment (confirmed 2026-06-01)
+
+`create_record(assignment_rule, ...)` → `INVALID_REQUEST`. The correct REST-accessible table is `sysrule_assignment`.
+
+**Working pattern:**
+```
+create_record(sysrule_assignment, {
+  name: "...",
+  document: "incident",       // NOT "table" — field is called "document"
+  order: "900",
+  active: "true",
+  condition: "priority=1^assignment_groupISEMPTY",
+  group: "<assignment_group_sys_id>"
+})
+```
+
+Key field differences vs what you might expect:
+- `document` = the target table (not `table` or `collection`)
+- `group` = assignment_group sys_id (not `assignment_group`)
+- `condition` = encoded query string (standard)
+
+The record is captured in the active Update Set automatically.
+
+---
+
+## 9. Deleting Scripting Objects via MCP — Full Behaviour (confirmed 2026-06-01)
+
+This section documents the complete, verified deletion behaviour for scripting tables. The earlier
+version of this note contained two significant errors — both corrected here based on direct
+empirical testing during a demo-cleanup operation on 2026-06-01.
+
+---
+
+### 9a. delete_record on scripting tables — returns NOT_FOUND but SUCCEEDS
+
+**Critical pattern:** `delete_record` returns `Error: No Record found (Code: NOT_FOUND)` on
+scripting tables, which looks like a failure. **It is not a failure — the record IS deleted.**
+
+The MCP tool interprets the HTTP response code from ServiceNow's REST API as an error, but the
+underlying DELETE call completes successfully. This was confirmed by:
+1. Calling `delete_record` on 6 objects across 3 scripting tables → all returned NOT_FOUND
+2. Immediately calling `query_records` on the same tables → all returned count: 0
+3. Inspecting `sys_update_xml` for the active Update Set → 6 `action=DELETE` entries present,
+   one per deleted object — confirming ServiceNow captured the deletions correctly
+
+**Affected tables (confirmed on PDI):**
+- `sys_script` (Business Rules)
+- `sys_script_include` (Script Includes)
+- `sysevent_script_action` (Script Actions)
+- `sys_properties` (System Properties)
+
+**Mandatory protocol — always verify after deletion:**
+
+```
+# Step 1 — call delete_record (will return NOT_FOUND — ignore the error)
+delete_record(table, sys_id)
+
+# Step 2 — verify the object is actually gone
+query_records(table, query="name=<object_name>", fields="sys_id,name")
+# Expected: count: 0 — deletion confirmed
+
+# Step 3 — verify captured in Update Set
+query_records(sys_update_xml, query="update_set=<update_set_sys_id>", fields="name,action,type")
+# Expected: action=DELETE row for the object
+```
+
+**Do NOT:**
+- Retry the delete because NOT_FOUND appeared — the record is already gone
+- Conclude the deletion failed without running `query_records` to verify
+- Fall back to the UI assuming MCP cannot delete — MCP CAN delete these tables
+
+**update_record on scripting tables:** Also returns NOT_FOUND. Whether this similarly succeeds
+despite the error code has NOT been verified — treat updates on scripting tables as uncertain
+and verify with `query_records` after every `update_record` call on these tables.
+
+**Root cause (inferred):** ServiceNow's REST Table API on PDI returns a non-standard HTTP response
+code on DELETE for scripting tables (likely due to ACL or audit hook behaviour), which the MCP
+tool surface reports as NOT_FOUND. The database operation itself completes. This is a PDI-specific
+quirk — behaviour on production instances may differ.
+
+---
+
+### 9b. sysevent_register (Event Registry) — CAN be deleted from UI; MCP not verified
+
+**Correction from the earlier version of this note:** The earlier §9b stated that
+`sysevent_register` records "cannot be deleted anywhere". This was incorrect.
+
+**What is confirmed:**
+- `sysevent_register` records **CAN be deleted from the ServiceNow UI** by an admin user
+  while a custom Update Set is active. The deletion is captured as `action=DELETE` in
+  `sys_update_xml`. Confirmed during the Cleanup — P1AutoAssign operation (2026-06-01).
+- `delete_record` via MCP on `sysevent_register` has **not been tested**. Given §9a above
+  (MCP deletes on scripting tables return NOT_FOUND but succeed), it may also work — but
+  treat as unconfirmed until tested.
+
+**UI navigation:** System Policy → Events → Event Registry (`sysevent_register.list`)
+
+**When to delete vs leave inert:**
+- If the event was created as part of a custom demo/implementation and must be fully cleaned
+  up → delete from UI with the cleanup Update Set active.
+- If the event cannot be deleted or leaving it is acceptable → remove the Script Action and
+  Business Rule that reference it. Without handlers, the event fires but is harmlessly
+  consumed with no side effects.
+
+**Implication for implementations:** do not assume event registrations are permanent. They can
+be removed from the UI. Plan cleanup Update Sets to include the event registration deletion
+alongside the handler (Script Action) and trigger (Business Rule) deletions.
 
 ---
 

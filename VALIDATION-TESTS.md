@@ -277,17 +277,14 @@ with EC2 instances as Configuration Items.
    MID Server, Cloud Discovery, and CMDB write.
    ITOM/Discovery Specialist produces 5-Part Constraint Envelope. Part 3 Verdict: **A** —
    baseline Cloud Discovery with `cmdb_ci_vm_instance` covers EC2; no custom table required.
-   Because this is a **population-led** task (set up a Discovery schedule), ITOM leads. The
-   **CMDB & CSDM gateway may co-fire** for model placement (correct CSDM class/CSDM phase for
-   EC2 CIs); if it does, its envelope reconciles with ITOM's. CMDB & CSDM is no longer a §3.1
-   routing-time consult — it is a Phase 1 Step 5 gateway.
+   Routing-time consult flagged: **CMDB & CSDM Specialist** (CMDB writes).
 3. Architect proposes the appropriate builder. Waits for approval.
 4. No builder dispatched before Envelope is produced.
 
 ### Pass criteria
 
-- ITOM/Discovery Specialist gateway fires **automatically** at Phase 1 Step 5 as the lead.
-- CMDB & CSDM treated as a gateway (co-fire for model placement), **not** as a routing-time consult.
+- ITOM/Discovery Specialist gateway fires **automatically** at Phase 1 Step 5.
+- CMDB & CSDM consult mentioned at routing time.
 - No builder dispatched before Envelope is produced.
 
 ### Fail signals
@@ -339,7 +336,98 @@ that writes escalation events to it.
 
 ---
 
-## T-11 — CMDB & CSDM Gateway: fires for a data-model request
+## T-11 — Post-build §1.1 violation detection
+
+**Covers:** Phase 2 Step 3 (§1.1 post-build violation scan); `governance-rules.md` §1.1 Violation handling
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+Developer returned an artefact containing a new table x_acme_test_log not approved
+in the dispatch envelope. What happens?
+```
+
+### Expected behaviour
+
+1. Architect holds the artefact (Phase 2 Step 1) and classifies it (Step 2).
+2. **Phase 2 Step 3 — §1.1 violation scan fires:** detects `x_acme_test_log`, a new `x_*_*` table **not present in the dispatch envelope**.
+3. Architect **halts the §6.2 sequence** and re-dispatches the originating Developer with the **§1.1 halt protocol as the rework brief** (`governance-rules.md` §1.1 "Violation handling").
+4. **No Domain Expert review, Code Reviewer, ATF Author, or Operational Documentation proposal** is surfaced until the violation is resolved.
+
+### Pass criteria
+
+- The unapproved `x_acme_test_log` table is detected as a §1.1 violation at Phase 2 Step 3.
+- A rework dispatch back to the originating builder is proposed, with the §1.1 halt protocol as the brief.
+- Code Reviewer / ATF Author proposals are **NOT** surfaced in the same turn as the violation finding.
+
+### Fail signals
+
+- Architect proposes a Code Reviewer (or ATF Author) pass alongside the violation instead of halting.
+- Architect accepts the custom table without flagging it as a §1.1 violation.
+- §6.2 proceeds to Domain Expert review or consults before the violation is resolved.
+
+---
+
+## T-12 — Operational Documentation go-live trigger
+
+**Covers:** Phase 2 Step 5 (§3.2 Operational Documentation post-build consult)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+The feature is ready for prod — sign off and deploy.
+```
+
+### Expected behaviour
+
+1. Architect detects the **go-live signal** — `ready for prod`, `sign off`, and `deploy` are all §3.2 Operational Documentation triggers.
+2. **Operational Documentation consult proposed automatically (Phase 2 Step 5 / §3.2):** Architect proposes runbook + KBA authoring before proceeding to go-live.
+3. (If an actual deployment follows, it is additionally gated by §2.1 write approval and §2.2 Update Set capture — but the focus of this test is the Op Docs trigger.)
+
+### Pass criteria
+
+- The go-live signal triggers the Operational Documentation proposal **automatically**.
+- The proposal is not skipped even though the user did not explicitly request documentation.
+
+### Fail signals
+
+- Architect proceeds toward "deploy" without proposing runbook + KBA authoring.
+- No Operational Documentation consult is surfaced despite the go-live keywords.
+
+---
+
+## T-13 — ATF Author proposal after code artefact
+
+**Covers:** Phase 2 Step 5 (§3.2 Code Reviewer + ATF Author post-build consults)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Setup
+
+The Developer sub-agent returns a Script Include artefact **destined for a release path** (not a throwaway PoC).
+
+### Expected behaviour
+
+1. §6.2 post-build evaluation runs on the returned Script Include.
+2. **Phase 2 Step 5 fires two consult proposals:**
+   - **Code Reviewer** — the artefact contains a JavaScript code block → verbatim Code Reviewer proposal.
+   - **ATF Author** — the artefact is release-path bound (not a throwaway PoC) → ATF coverage proposed (skill or sub-agent mode).
+3. Both proposals are presented together (Phase 2 Step 6) for the user to choose.
+
+### Pass criteria
+
+- The ATF Author proposal surfaces **automatically alongside** the Code Reviewer proposal.
+- Neither proposal is skipped for a release-path code artefact.
+
+### Fail signals
+
+- Only the Code Reviewer pass is proposed; the ATF Author proposal is omitted.
+- ATF Author is proposed only when the user explicitly asks for it.
+
+---
+
+## T-14 — CMDB & CSDM Gateway: fires for a data-model request
 
 **Covers:** Phase 1 Step 5 (CMDB & CSDM gateway — new v2.0 gateway)
 **Tiers:** Claude Code ✅ · Claude.ai ✅
@@ -375,7 +463,7 @@ in the CMDB as a business service and how it links to the technology that delive
 
 ---
 
-## T-12 — Multi-Gateway Co-Fire: CSM ↔ ITSM ↔ CSDM
+## T-15 — Multi-Gateway Co-Fire: CSM ↔ ITSM ↔ CSDM
 
 **Covers:** Phase 1 Step 5 multi-gateway co-fire rule; envelope reconciliation; ITOM↔CMDB&CSDM boundary
 **Tiers:** Claude Code ✅ · Claude.ai ✅
@@ -412,7 +500,7 @@ Design the shared service model so both sides point at the same thing.
 
 ---
 
-## T-13 — Security & GRC consult + review (skill-only, NOT a gateway)
+## T-16 — Security & GRC consult + review (skill-only, NOT a gateway)
 
 **Covers:** §3.1 routing-time security consult with a backing skill; architectural-security review mode; correct boundary vs gateway and vs Code Reviewer
 **Tiers:** Claude Code ✅ · Claude.ai ✅
@@ -525,16 +613,15 @@ git diff HEAD~1 HEAD --name-only   # should show both .claude/agents/developer.m
 
 Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6. Includes updated criteria for T-02 (design artefact definition), T-03 (Security & GRC mandatory), T-06 (full-pipeline setup).
 
-**v2.7 status:** T-11 and T-12 (the new CMDB & CSDM gateway and the CSM↔ITSM↔CSDM co-fire path) were **live-fired and PASSED in Claude Code (Tier 2) on 2026-06-03**. Still outstanding: the **full T-01–T-12 regression** (to confirm no regression from the routing changes) and a **Claude.ai (Tier 1) run** of T-09/T-11/T-12 once the five gateway skills are re-uploaded.
-
 ---
 
 ## Test Run History
 
-| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | Result |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | 7/7 (T-08–10 new) |
-| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | 3/3 (T-08–10 first run) |
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | 10/10 PASS (full suite, updated criteria) |
-| 2026-06-03 | v2.7 | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | T-11 + T-12 PASS (Claude Code, live-fired). Full suite + Tier 1 run still pending |
-| 2026-06-03 | v2.7.1 | — | — | — | — | — | — | — | — | — | — | — | — | **T-13 PASS** (Security & GRC consult/review, Claude Code, live-fired). Full suite + Tier 1 run still pending |
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (full suite, updated criteria) |
+| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
+| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 13/13 PASS — T-01–T-10 ✅ above; **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
+| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Added with the v2.7–v2.7.4 work (5th gateway, Security & GRC, ATF Author, Operational Documentation, citation audit). Full T-01–T-16 regression + Tier 1 re-run pending |

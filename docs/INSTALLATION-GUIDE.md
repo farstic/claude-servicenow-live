@@ -131,7 +131,7 @@ The core engine above is **design-only** and needs no instance. To let the engin
 | Symptom | Fix |
 |---|---|
 | `command not found: claude` | `npm install -g @anthropic-ai/claude-code` did not complete. Re-run and check for permission errors. On macOS/Linux you may need `sudo`. |
-| `Status` shows fewer than 4 Domain Experts | Quit Claude Code (`/exit` or Ctrl+D) and relaunch from the repo root. The session may have cached an empty roster. |
+| `Status` shows fewer than 5 Domain Experts | Quit Claude Code (`/exit` or Ctrl+D) and relaunch from the repo root. The session may have cached an empty roster. |
 | `ServiceNowDocs/` references fail | You cloned without submodules. Run `git submodule update --init --recursive`. |
 | Authentication errors | `ANTHROPIC_API_KEY` not set or invalid. Re-export it and try again. |
 

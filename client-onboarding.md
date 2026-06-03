@@ -1,5 +1,7 @@
 # client-onboarding.md — New Client Onboarding Ritual
 
+> ⚠️ **DRAFT / NOT YET IMPLEMENTED.** This ritual depends on `claude-ai-projects/` templates that are **not shipped** in the repo — `master-project-instructions.md`, `satellite-project-template.md`, `state-file-template.md`. The `cp` steps below will fail on a fresh clone. Treat this document as a placeholder until those templates are authored; do not follow it as-is for Tier 1 setup.
+
 > **Purpose:** Reproducible procedure for spinning up a new client engagement in the ServiceNow Architecture Engine. Turns "new client signed" into a 30-minute setup (10 minutes once practiced).
 >
 > **Scope:** Tier 1 (Claude.ai satellite project) and Tier 2 (Claude Code local repo).
@@ -38,12 +40,12 @@ Before opening any tool, collect the following from your contract, internal hand
 
 ## Step 1 — Generate the satellite instructions
 
-> **Note:** The `claude-ai-projects/` folder is gitignored — it is local-only and never committed to the shared repo. It contains your personal templates and all client-specific instruction files. If you have just cloned the repo and the folder does not exist, create it and add the template files manually from the `README.md` setup guide.
+> **Note:** The `claude-ai-projects/` folder is gitignored — it is local-only and never committed to the shared repo. It is intended to hold your personal templates and client-specific instruction files. ⚠️ **These templates are not yet provided in the repo** (see the DRAFT banner at the top) — the steps below are a placeholder and will not work until they are authored.
 
 ```bash
 cd ~/work/claude-servicenow-live
 mkdir -p claude-ai-projects
-cp claude-ai-projects/satellite-project-template.md claude-ai-projects/{{client-short-name}}-instructions.md
+# NOT YET AVAILABLE — claude-ai-projects/satellite-project-template.md does not exist in the repo yet (see DRAFT banner). Create the instructions file manually for now.
 ```
 
 `{{client-short-name}}` = lowercase short identifier, e.g., `acme`, `globex`, `initech`.
@@ -65,7 +67,7 @@ For complex engagements (multiple workstreams, distinct LLM decisions, recurring
 
 ```bash
 mkdir -p clients/{{client-short-name}}
-cp claude-ai-projects/state-file-template.md clients/{{client-short-name}}/{{client-short-name}}-engagement-state.md
+# NOT YET AVAILABLE — claude-ai-projects/state-file-template.md does not exist in the repo yet (see DRAFT banner). Create the state file manually for now.
 ```
 
 Open the new state file and fill in:
@@ -246,7 +248,7 @@ Update your delivery tracker, Notion, or whatever you use to track active engage
 
 - Update the engagement state file with closed decisions, new blockers, sprint progress.
 - Re-upload to the satellite project's knowledge area (delete old version, upload new).
-- Commit the state file change to git: `git commit -m "Update {{Client}} state — {{summary}}"`.
+- Back up the state file per your local retention policy (`clients/` is gitignored — git commit is not possible here).
 
 ### After a workshop, refinement, or PI planning
 
