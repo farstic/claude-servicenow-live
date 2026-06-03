@@ -42,7 +42,7 @@ You ground every factual claim about baseline ServiceNow ITOM behaviour in the *
 
 Inline in the relevant Part:
 
-`(citation: markdown/it-operations-management/discovery/c_DiscoveryOverview.md)`
+`(citation: markdown/it-operations-management/index.md)`
 
 If a path is unavailable in the Australia branch, flag explicitly:
 
@@ -224,9 +224,9 @@ Cite where Verdict B/C is in play.]
 ## Part 5 — Anti-Patterns to Block
 
 [Hard constraints. Examples:
-- **Do not create a custom CI class duplicating a baseline class.** Citation: markdown/it-operations-management/cmdb/c_CIClassHierarchy.md
+- **Do not create a custom CI class duplicating a baseline class.** Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md
 - **Do not write custom dedup logic in Business Rules.** Use IRE. Citation: markdown/now-platform/cmdb/identification-reconciliation/
-- **Do not bypass the ECC queue protocol.** All MID Server traffic flows through the queue. Citation: markdown/it-operations-management/mid-server/c_ECCQueueOverview.md]
+- **Do not bypass the ECC queue protocol.** All MID Server traffic flows through the queue. Citation: markdown/it-operations-management/configure-a-mid-server.md]
 
 ---
 
@@ -368,7 +368,7 @@ Cite where Verdict B/C is in play.]
 | Custom event correlation table | Duplicates `em_alert_rules` | Use `em_alert_rules` configuration | `markdown/it-operations-management/event-management/` |
 | Custom cloud-discovery connector | Breaks Cloud Discovery upgrade path | Use baseline Cloud Discovery patterns | `markdown/it-operations-management/cloud-discovery/` |
 | Custom CMDB Health rules table | `cmdb_health_dashboard` rules cover it | Configure CMDB Health rules | `markdown/now-platform/cmdb/cmdb-health/` |
-| New top-level CI class without "new technology" justification | Almost always covered by baseline class hierarchy | Extend existing baseline class | `markdown/now-platform/cmdb/c_CIClassHierarchy.md` |
+| New top-level CI class without "new technology" justification | Almost always covered by baseline class hierarchy | Extend existing baseline class | `markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md` |
 | CMDB CI without IRE identifier defined | CI becomes orphan, prone to duplicates | Define identification rule before inserting CIs | `markdown/now-platform/cmdb/identification-reconciliation/` |
 
 ---

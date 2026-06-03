@@ -40,7 +40,7 @@ The baseline horizontal Discovery flow for a Linux server:
 9. **IRE reconciliation.** If existing CI found, reconciliation rules determine which fields update (Discovery typically has high precedence for hardware fields).
 10. **CI insert/update.** `cmdb_ci_linux_server` record inserted or updated.
 
-(citation: markdown/it-operations-management/discovery/index.md, markdown/now-platform/cmdb/identification-reconciliation/index.md)
+(citation: markdown/it-operations-management/index.md, markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md)
 
 ## Part 2 — Data Model Alignment
 
@@ -70,7 +70,7 @@ The baseline horizontal Discovery flow for a Linux server:
 - `cmdb_identification_rule` — `cmdb_ci_linux_server` identification rule (baseline)
 - `cmdb_rel_ci` — relationships from Linux server to network gear, applications, etc.
 
-(citation: markdown/it-operations-management/discovery/index.md, markdown/now-platform/cmdb/c_CIClassHierarchy.md)
+(citation: markdown/it-operations-management/index.md, markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md)
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -87,7 +87,7 @@ The Linux server discovery requirement is fully satisfied by baseline ITOM const
 
 No custom CI class. No custom pattern. No custom dedup logic. No custom Business Rules. Pure baseline Discovery configuration.
 
-(citation: markdown/it-operations-management/discovery/index.md)
+(citation: markdown/it-operations-management/index.md)
 
 ## Part 4 — Routing Recommendation
 
@@ -165,7 +165,7 @@ Consult flags:
 
 For manually-set fields that Discovery should not overwrite, IRE reconciliation rules need a "manual override" or "Discovery-cannot-write" configuration.
 
-(citation: markdown/now-platform/cmdb/identification-reconciliation/index.md)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md)
 
 ## Part 2 — Data Model Alignment
 
@@ -181,7 +181,7 @@ For manually-set fields that Discovery should not overwrite, IRE reconciliation 
 
 The compliance-tier attribute is a *new dimension* on the CI. Baseline does not carry it.
 
-(citation: markdown/now-platform/cmdb/c_CIClassHierarchy.md)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md)
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -211,7 +211,7 @@ Consider: Should the field live on `cmdb_ci_linux_server` (Linux-only) or on `cm
 
 If the engagement plans to compliance-tier *all* servers (Windows, Solaris, AIX), the field belongs on `cmdb_ci_server` (parent class) so it inherits to all server variants. If only Linux, keep it on `cmdb_ci_linux_server`. Open question in Part 5.
 
-(citation: markdown/now-platform/cmdb/identification-reconciliation/index.md — reconciliation rules for manual fields)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md — reconciliation rules for manual fields)
 
 ## Part 4 — Routing Recommendation
 
@@ -294,7 +294,7 @@ The baseline Discovery framework supports:
 
 The user's request introduces a new in-house technology (AceGrid) not covered by any baseline CI class. The relevant question is whether AceGrid can be modelled by an existing baseline class (with field extensions) or requires a new CI class.
 
-(citation: markdown/now-platform/cmdb/c_CIClassHierarchy.md)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md)
 
 ## Part 2 — Data Model Alignment
 
@@ -321,7 +321,7 @@ The user's request introduces a new in-house technology (AceGrid) not covered by
 
 The relationship semantics are baseline (`cmdb_rel_ci` covers them). The CI class question is the contested part.
 
-(citation: markdown/now-platform/cmdb/c_CIClassHierarchy.md)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md)
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -337,7 +337,7 @@ Before any specialist may be dispatched, §1.1 requires honest evaluation. This 
    a. Use `cmdb_ci_appl_cluster` directly with field extensions for shard count, replication factor, AceGrid health metric
       - Covers: cluster identity, leader/follower (`cluster_role` field on cluster member CIs)
       - Falls short: requires three field extensions on `cmdb_ci_appl_cluster` that apply only to AceGrid (and not to other application clusters). Schema bloat on the parent class for AceGrid-specific attributes.
-      - Citation: markdown/now-platform/cmdb/c_CIClassHierarchy.md
+      - Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md
 
    b. Use `cmdb_ci_appl_cluster` with a child reference to a new "AceGrid metadata" table
       - Covers: cluster identity baseline; AceGrid-specific data in a separate sidecar table
@@ -400,7 +400,7 @@ Recommendation if approved: dispatch Technical Designer + Performance & Scale co
 Recommendation if rejected: adopt Alternative A. Document schema-bloat trade-off.
 ```
 
-(citation: markdown/now-platform/cmdb/c_CIClassHierarchy.md, markdown/it-operations-management/discovery/patterns/)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md, markdown/it-operations-management/discovery/patterns/)
 
 ## Part 4 — Routing Recommendation
 

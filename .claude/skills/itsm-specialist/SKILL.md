@@ -50,7 +50,7 @@ You ground every factual claim about baseline ITSM behaviour in the Australia br
 
 **Citation format:** Cite paths inline in every Part of the constraint envelope where baseline behaviour is referenced. Use this format:
 
-> *(citation: `markdown/it-service-management/incident-management.md`)*
+> *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
 
 **Required vs preferred citations (per §1.1 governance):**
 
@@ -170,9 +170,9 @@ One of three recommendations to the orchestrator:
 
 Universal ITSM anti-patterns (always include if the relevant concept is in scope):
 
-- "Do not duplicate baseline assignment logic in custom BRs — use baseline `assignment_rule` records or Data Lookup Definitions. *(citation: `markdown/it-service-management/assignment-rules.md`)*"
+- "Do not duplicate baseline assignment logic in custom BRs — use baseline `assignment_rule` records or Data Lookup Definitions. *(citation: `markdown/it-service-management/incident-management/t_DefinAnAssignRuleIncidents.md`)*"
 - "Do not extend `incident.state` with new values without a documented impact analysis on SLA definitions, notifications, reports, and Performance Analytics indicators that depend on the state vocabulary."
-- "Do not create a custom on-call structure — use baseline `cmn_rota`, `cmn_schedule_span`, `cmn_rota_member`. *(citation: `markdown/it-service-management/on-call-scheduling.md`)*"
+- "Do not create a custom on-call structure — use baseline `cmn_rota`, `cmn_schedule_span`, `cmn_rota_member`. *(citation: `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*"
 - "Do not duplicate baseline notification logic in a custom BR — extend the baseline notification record by adding a condition or modifying the template."
 - "Do not create a custom priority matrix table — use a Data Lookup Definition keyed on `impact` and `urgency` to produce `priority`."
 - "Do not query `task_sla` with `stage='completed'` — the baseline stage vocabulary uses `stage='complete'` (no -ed suffix). Verify against your instance's `task_sla` choice list before depending on either value.]
@@ -199,7 +199,7 @@ Universal ITSM anti-patterns (always include if the relevant concept is in scope
 | Closed | 7 | (terminal) | itil_admin |
 | Canceled | 8 | (terminal) | itil_admin |
 
-*Citation:* `markdown/it-service-management/incident-management.md`
+*Citation:* `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`
 
 **Related tables:** `task_sla` (SLA progress per incident), `incident_alert` (link to Event Management alerts), `sys_journal_field` (work_notes / comments stream), `sys_history_set` / `sys_history_line` (field-level audit).
 
@@ -221,7 +221,7 @@ Universal ITSM anti-patterns (always include if the relevant concept is in scope
 
 **Baseline notifications:** "Major Incident Proposed", "Major Incident Accepted", "Major Incident Communication".
 
-*Citation:* `markdown/it-service-management/major-incident-management.md`
+*Citation:* `markdown/it-service-management/incident-management/major-incident-overview.md`
 
 ### On-call coordination
 
@@ -229,7 +229,7 @@ Universal ITSM anti-patterns (always include if the relevant concept is in scope
 
 **Resolution pattern:** at any point in time, the on-call engineer for an assignment group is resolved by querying `cmn_rota_roster` for the active member. The baseline `OnCallRotation` Script Include exposes the resolution API.
 
-*Citation:* `markdown/it-service-management/on-call-scheduling.md`
+*Citation:* `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`
 
 **§1.1 hot spot:** custom escalation tables are the most common §1.1 violation in ITSM. The baseline `cmn_rota` + `incident.assignment_group` pattern covers >95% of escalation requirements. Verdict C is rarely warranted here.
 
@@ -241,7 +241,7 @@ Universal ITSM anti-patterns (always include if the relevant concept is in scope
 
 **Breach behaviour:** when `task_sla.business_percentage` reaches 100 and the linked task hasn't met its stop condition, `task_sla.has_breached` = true and `task_sla.stage` = `breached`.
 
-*Citation:* `markdown/it-service-management/sla-definitions.md`
+*Citation:* `markdown/it-service-management/service-level-management/service-level-management-concepts.md`
 
 ### Assignment and routing
 
@@ -271,14 +271,14 @@ Cite each when invoking in a Part 5 list.
 
 | Anti-pattern | Baseline alternative | Citation |
 |---|---|---|
-| Custom escalation table per group/tier | `cmn_rota` + `incident.assignment_group` + on-call resolution Script Include | `markdown/it-service-management/on-call-scheduling.md` |
-| Custom priority matrix table | Data Lookup Definition keyed on `impact` + `urgency` | `markdown/it-service-management/priority-data-lookup.md` |
-| Custom assignment-routing table | `assignment_rule` records | `markdown/it-service-management/assignment-rules.md` |
-| Custom SLA pause/resume logic in BRs | Baseline `task_sla` pause/resume conditions on `contract_sla` definitions | `markdown/it-service-management/sla-definitions.md` |
-| Custom MIM table | Baseline MIM fields on `incident` + MIM Workbench | `markdown/it-service-management/major-incident-management.md` |
-| Duplicated baseline notification in custom BR | Extend the baseline notification record | `markdown/now-platform/notifications.md` |
-| Custom audit table for state changes | `sys_history_set` baseline audit | `markdown/now-platform/system-history.md` |
-| Hardcoded sys_id of an assignment group | System property containing the sys_id, OR resolution by group name + caching | `markdown/now-platform/system-properties.md` |
+| Custom escalation table per group/tier | `cmn_rota` + `incident.assignment_group` + on-call resolution Script Include | `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md` |
+| Custom priority matrix table | Data Lookup Definition keyed on `impact` + `urgency` | `markdown/it-service-management/incident-management/def-prio-lookup-rules.md` |
+| Custom assignment-routing table | `assignment_rule` records | `markdown/it-service-management/incident-management/t_DefinAnAssignRuleIncidents.md` |
+| Custom SLA pause/resume logic in BRs | Baseline `task_sla` pause/resume conditions on `contract_sla` definitions | `markdown/it-service-management/service-level-management/service-level-management-concepts.md` |
+| Custom MIM table | Baseline MIM fields on `incident` + MIM Workbench | `markdown/it-service-management/incident-management/major-incident-overview.md` |
+| Duplicated baseline notification in custom BR | Extend the baseline notification record | `markdown/platform-administration/c_EmailNotifications.md` |
+| Custom audit table for state changes | `sys_history_set` baseline audit | `markdown/platform-security/audit-mgmt-console.md` |
+| Hardcoded sys_id of an assignment group | System property containing the sys_id, OR resolution by group name + caching | `markdown/platform-administration/r_AvailableSystemProperties.md` |
 
 ## §1.1 Hot Spots — Where Build Specialists Routinely Propose Custom Objects
 

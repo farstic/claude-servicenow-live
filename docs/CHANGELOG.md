@@ -9,6 +9,30 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.2 — Repo-wide citation-path audit and remediation
+
+**Released:** June 2026
+**Trigger:** While grounding the Security & GRC skill, the older skills were found to cite `ServiceNowDocs/` paths that don't exist in the current (Australia) tree — they assumed a `now-platform/` + flat `servicenow-platform/` layout that the docs don't use.
+
+### Fixed
+
+- **Audited every `markdown/…md` citation across all 13 skills (SKILL.md + EXAMPLES.md) — 70 distinct paths.** Found ~50 dead across **Developer (7/7), Code Reviewer (9/9), Integration Specialist (6/6), Flow Designer (7/7), ITSM (~14), ITOM/Discovery (6), CSM (4)**. HRSD, CMDB & CSDM, and Security & GRC were already clean. Agents carry no citations.
+- **Remapped every dead path to a verified-existing target**, by real tree:
+  - scripting/coding → `application-development/` + `api-reference/`
+  - ACLs → `platform-security/access-control/`
+  - ITSM processes → `it-service-management/<process>/` subdirs (the flat `…/incident-management.md` etc. never existed; real docs are in the subdirectories)
+  - notifications/system-properties → `platform-administration/`; system-events → `build-workflows/system-events/`
+  - Flow Designer → `build-workflows/workflow-studio/`
+  - CMDB/IRE → `servicenow-platform/configuration-management-database-cmdb/`
+  - IntegrationHub/MID/credentials → `integrate-applications/` + `it-operations-management/`; OAuth/mTLS → `platform-security/authentication/`
+- **Verification gate:** after remediation, re-extracted and existence-tested all 70 citations → **0 missing**. Source/mirror sync confirmed.
+
+### Known residual (cosmetic, non-blocking)
+
+A few grounding-path *lists* in Developer/Code Reviewer/Integration/Flow now point multiple distinct concepts at the same correct file (the docs don't split those concepts into separate pages), so a description may not perfectly match its target. Paths resolve and are on-topic; tightening the prose/dedup is optional polish, tracked for a later pass.
+
+---
+
 ## v2.7.1 — Security & GRC Specialist skill (consult + architectural-security review)
 
 **Released:** June 2026

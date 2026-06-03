@@ -32,19 +32,19 @@ This request touches three core baseline ITSM processes: incident lifecycle, on-
 - `incident.priority` is set to 1 (Critical) or 2 (High) by Data Lookup Definition keyed on `impact` and `urgency` at insert time.
 - `incident.assignment_group` is set by baseline assignment rules, also fired at insert.
 - `incident.state` transitions through New (1) → In Progress (2). The "not acknowledged" condition maps to "state remains New and `assigned_to` is not populated, or `assigned_to` is populated and no work_note has been added by the assignee".
-- *(citation: `markdown/it-service-management/incident-management.md`)*
+- *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
 
 ### On-call coordination
 
 - The on-call engineer for an assignment group at any point in time is resolved via `cmn_rota_roster` (active member of the rotation defined in `cmn_rota`).
 - The baseline `OnCallRotation` Script Include exposes `OnCallRotation.getUsersOnSchedule(rotationSysId, dateTime)` to return the on-call user(s).
 - The duty manager role in baseline `cmn_rota` is typically configured as a separate rotation member type — "On-Call Engineer" and "On-Call Manager" can coexist in the same rotation with different escalation tiers.
-- *(citation: `markdown/it-service-management/on-call-scheduling.md`)*
+- *(citation: `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
 
 ### Baseline notifications
 
 - Baseline ServiceNow notification records on `incident` include "Incident Assigned", "Incident Resolved", "Major Incident Communication". The escalation notification in this request is **not** in the baseline set — but the mechanism (a notification record with a condition and a `Send to` resolution script) is baseline.
-- *(citation: `markdown/now-platform/notifications.md`)*
+- *(citation: `markdown/platform-administration/c_EmailNotifications.md`)*
 
 ## Part 2 — Data Model Alignment
 
@@ -59,7 +59,7 @@ This request touches three core baseline ITSM processes: incident lifecycle, on-
 
 No new tables. No new scoped app. No new state values. No new Connection Aliases. No new sys_user_group structures.
 
-*(citation: `markdown/it-service-management/incident-management.md`, `markdown/it-service-management/on-call-scheduling.md`)*
+*(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`, `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -67,7 +67,7 @@ No new tables. No new scoped app. No new state values. No new Connection Aliases
 
 The escalation requirement is fully satisfied by combining four baseline constructs:
 
-1. **A scheduled job** that runs every 5 minutes scanning `incident` for `priority IN 1,2 AND state=1 AND sys_created_on < 15 minutes ago AND <no work_note from assigned_to>` — or equivalent baseline `IncidentInactivityMonitor` pattern. *(citation: `markdown/it-service-management/incident-inactivity-monitor.md`)*
+1. **A scheduled job** that runs every 5 minutes scanning `incident` for `priority IN 1,2 AND state=1 AND sys_created_on < 15 minutes ago AND <no work_note from assigned_to>` — or equivalent baseline `IncidentInactivityMonitor` pattern. *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
 2. **Baseline `OnCallRotation` Script Include** to resolve the on-call duty manager for the incident's assignment group at the moment of escalation.
 3. **A baseline notification record** with: table = `incident`, when = "Event is fired", event = a custom event name like `incident.escalated_to_duty_manager`, condition = the 15-min/no-ack predicate, recipient = the resolved on-call duty manager. The event is fired from the scheduled job.
 4. **A work_note append** by the scheduled job, written via `gr.work_notes = "Escalated to duty manager <name> — no acknowledgement within 15 min of creation"`.
@@ -92,11 +92,11 @@ Downstream of Technical Designer, Developer implements the Scheduled Job's serve
 
 The following are explicitly blocked in any downstream design:
 
-- **Do not create a custom escalation table per priority tier.** The `cmn_rota` + on-call resolution pattern handles this. *(citation: `markdown/it-service-management/on-call-scheduling.md`)*
-- **Do not extend `incident.state` with a new "Escalated" value.** Escalation is an event, not a state — the incident remains in New or In Progress. *(citation: `markdown/it-service-management/incident-management.md`)*
-- **Do not duplicate the baseline assignment-rule logic in the scheduled job.** The scheduled job reads `assignment_group` from the incident; it does not re-route. *(citation: `markdown/it-service-management/assignment-rules.md`)*
+- **Do not create a custom escalation table per priority tier.** The `cmn_rota` + on-call resolution pattern handles this. *(citation: `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
+- **Do not extend `incident.state` with a new "Escalated" value.** Escalation is an event, not a state — the incident remains in New or In Progress. *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
+- **Do not duplicate the baseline assignment-rule logic in the scheduled job.** The scheduled job reads `assignment_group` from the incident; it does not re-route. *(citation: `markdown/it-service-management/incident-management/t_DefinAnAssignRuleIncidents.md`)*
 - **Do not hardcode the duty-manager rotation sys_id in the scheduled job.** Resolve at runtime via `OnCallRotation.getUsersOnSchedule()` or externalise to a system property if a default fallback is needed.
-- **Do not write the work_note in a custom audit table** — use `incident.work_notes`. This is a §1.1 hot spot; the work_notes journal is the baseline audit for state changes and operational events. *(citation: `markdown/now-platform/system-history.md`)*
+- **Do not write the work_note in a custom audit table** — use `incident.work_notes`. This is a §1.1 hot spot; the work_notes journal is the baseline audit for state changes and operational events. *(citation: `markdown/platform-security/audit-mgmt-console.md`)*
 - **Do not query `task_sla.stage='completed'` if SLA tracking is added** — baseline value is `complete` without the -ed. (Defensive — relevant if Technical Designer adds SLA-aware logic.)
 
 ## Open Questions
@@ -148,8 +148,8 @@ This request touches incident lifecycle, priority/impact handling, and Service-O
 
 - Baseline `incident.priority` is a 1–5 derived field, calculated from `incident.impact` (1–3) and `incident.urgency` (1–3) via the baseline Data Lookup Definition `Priority Lookup` (which can be reconfigured per engagement).
 - Both `impact` and `urgency` are choice fields with baseline labels: Impact = High/Medium/Low, Urgency = High/Medium/Low.
-- *(citation: `markdown/it-service-management/incident-management.md`)*
-- *(citation: `markdown/it-service-management/priority-data-lookup.md`)*
+- *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
+- *(citation: `markdown/it-service-management/incident-management/def-prio-lookup-rules.md`)*
 
 The request introduces a new dimension — "business severity" — that is conceptually adjacent to `impact` but driven by a different role (Service Owner) and a different signal (revenue/customer impact rather than technical impact). This does **not** map cleanly to `impact` or `urgency`.
 
@@ -184,7 +184,7 @@ Mandatory:       false (not all incidents need business severity assessment)
 
 The `u_` prefix is the engagement's convention for non-scoped custom fields on baseline tables. The dispatch envelope didn't specify scoped app vs. global; given this is a single field on a baseline table without complex logic attached, baseline scope + `u_` prefix is the standing pattern — confirm with engagement standards in Open Questions.
 
-*(citation: `markdown/it-service-management/incident-management.md` for the incident data model that we are extending)*
+*(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md` for the incident data model that we are extending)*
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -237,7 +237,7 @@ Technical Designer receives this envelope and produces:
 
 ## Part 5 — Anti-Patterns to Block
 
-- **Do not create a custom `business_severity_log` table** to track changes to the field. `sys_history_set` baseline audit captures field-level changes on `incident` automatically when field auditing is enabled in the dictionary. *(citation: `markdown/now-platform/system-history.md`)*
+- **Do not create a custom `business_severity_log` table** to track changes to the field. `sys_history_set` baseline audit captures field-level changes on `incident` automatically when field auditing is enabled in the dictionary. *(citation: `markdown/platform-security/audit-mgmt-console.md`)*
 - **Do not reuse `incident.impact` or `incident.urgency`** for business severity. The two ITIL dimensions are well-defined; conflating them with revenue-impact causes long-term reporting confusion.
 - **Do not extend `incident.priority` directly** — `priority` is derived. Extending it would require modifying the Data Lookup Definition globally and risk breaking baseline reports and Performance Analytics indicators.
 - **Do not hardcode the Service Owner role name** in the ACL condition — reference the role via name lookup or sys_id with a comment explaining why.
@@ -294,14 +294,14 @@ This request touches change management approval orchestration, change risk scori
 - Baseline `change_request` has a state machine: New → Assess → Authorize → Scheduled → Implement → Review → Closed.
 - Approvals happen in the `Authorize` state, driven by baseline `sysapproval_approver` records.
 - Approver resolution in baseline: a Flow Designer flow or a Business Rule generates `sysapproval_approver` records, one per required approver. Approval rules can be table-driven (via `approval_rule` table) or flow-driven (via Flow Designer with approval action).
-- Baseline `change_request.risk` is a 0–100 score, typically calculated by a Risk Assessment questionnaire (the `assessment_metric` / `assessment_metric_type` baseline pattern). *(citation: `markdown/it-service-management/change-management.md`)*
+- Baseline `change_request.risk` is a 0–100 score, typically calculated by a Risk Assessment questionnaire (the `assessment_metric` / `assessment_metric_type` baseline pattern). *(citation: `markdown/it-service-management/change-management/reference-change-management.md`)*
 - Baseline `change_request.type` distinguishes Standard (pre-approved, no CAB), Normal (CAB review), Emergency (expedited CAB).
-- *(citation: `markdown/it-service-management/change-cab.md`)*
+- *(citation: `markdown/it-service-management/change-management/reference-change-management.md`)*
 
 ### Frozen periods / change windows
 
 - Baseline supports `cmn_schedule` records with blackout windows. The baseline `Change Schedule` script include can check whether a proposed `start_date`/`end_date` overlaps a blackout window.
-- *(citation: `markdown/it-service-management/change-windows.md`)*
+- *(citation: `markdown/it-service-management/change-management/reference-change-management.md`)*
 
 ### PCI scope tracking
 
@@ -347,9 +347,9 @@ A custom decision-matrix table appears genuinely necessary. Surfacing for explic
 
 | Baseline option | Why it falls short for this specific requirement |
 |---|---|
-| **Single `approval_rule` records, one per scenario** | At ~50 scenarios with complex multi-dimensional conditions, each record's `condition` script becomes a mini-ruleset. Maintenance is error-prone — adding a new dimension means editing all 50. *(citation: `markdown/it-service-management/change-approval-rules.md`)* |
+| **Single `approval_rule` records, one per scenario** | At ~50 scenarios with complex multi-dimensional conditions, each record's `condition` script becomes a mini-ruleset. Maintenance is error-prone — adding a new dimension means editing all 50. *(citation: `markdown/it-service-management/change-management/reference-change-management.md`)* |
 | **Chained Data Lookup Definitions** | Better auditability than `approval_rule` records, but still requires ~50 lookup table entries plus orchestrator Script Include. The orchestrator becomes complex; quarterly changes still mean editing multiple data structures in lockstep. |
-| **Flow Designer-based approval orchestrator** | A single flow can evaluate the five dimensions and branch to one of ~50 approval paths via decision tables. Decision Tables (`sys_decision`) are baseline. **This is actually viable** — but at 50 scenarios it pushes the decision-table pattern past its readable scale, and quarterly changes mean editing a complex flow definition. *(citation: `markdown/build-workflows/decision-tables.md`)* |
+| **Flow Designer-based approval orchestrator** | A single flow can evaluate the five dimensions and branch to one of ~50 approval paths via decision tables. Decision Tables (`sys_decision`) are baseline. **This is actually viable** — but at 50 scenarios it pushes the decision-table pattern past its readable scale, and quarterly changes mean editing a complex flow definition. *(citation: `markdown/build-workflows/index.md`)* |
 | **External rule engine integration** | Out of scope — would route to Integration Specialist, not in scope here. |
 
 The viable baseline path is **chained Data Lookups + Flow Designer with Decision Tables**. This is "Verdict B with effort" — possible, but operationally fragile at the described scale and change cadence.
