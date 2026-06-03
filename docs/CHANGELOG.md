@@ -27,6 +27,15 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 Both are skill-only (no sub-agent); the 22-specialist count is unchanged (these were already in the roster as planned personas). All skill citations across the repo still resolve (0 missing). First commits authored under the RobertBH17 identity.
 
+### Fixed (post-release QA review)
+
+A thorough audit of all skills + agents + governing docs (structure was clean: frontmatter names match dirs, all internal refs + citations resolve, §1.1 in every skill, mirrors synced, no conflict markers). Fixed:
+
+- **Engine version drift** — CLAUDE.md version-of-record was v2.7.4 while the CHANGELOG was v2.7.5; bumped title + record line + footer to v2.7.5.
+- **Roster/count stamps** — README diagram "7 with sub-agents" → 8; INSTALLATION-GUIDE sample Status "v2.6" → v2.7.5; prompt-patterns "For: …v2.6" → v2.7.5; CLAUDE.md "PP-01 through PP-18" → PP-19.
+- **Dangling reference closed** — the Now Assist Specialist referenced a `now-assist-genai` reference-knowledge skill that did not exist (same drift class as the earlier ATF/Op-Docs gaps). **Added `skills/now-assist-genai/SKILL.md` + `EXAMPLES.md`** — reference knowledge on Now Assist (OOB skill catalogue, Now LLM / AI-native SKU, Skill Kit, AI Control Tower governance), grounded in `intelligent-experiences/` (citations verified); the builder↔reference handoffs now resolve. Roster: 19 skill directories.
+- **Cosmetic** — CSM gateway's "identical section headings" cross-reference updated to list all five Domain Experts.
+
 ---
 
 ## v2.7.4 — Operational Documentation skill (completes the §6.2 consult chain)

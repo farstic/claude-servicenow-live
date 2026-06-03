@@ -90,7 +90,7 @@ When dispatched downstream of Discovery Specialist, expect these structured fiel
 
 ## Output Format — the 5-Part Constraint Envelope (strict)
 
-Every gateway dispatch produces exactly this structure. Identical section headings to ITSM/HRSD/ITOM Domain Experts so downstream builders consume the envelope mechanically.
+Every gateway dispatch produces exactly this structure. Identical section headings across all five Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM) so downstream builders consume the envelope mechanically.
 
 ```markdown
 # CSM Specialist Gateway Response — <one-line task summary>
