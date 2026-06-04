@@ -87,6 +87,10 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 - `agents/flow-designer-specialist.md` — Flow Designer Specialist sub-agent. Dispatched for flow / subflow / custom Action design tasks. Returns flow design specification(s) and a §6.2 post-build proposal manifest covering Developer (for Action server scripts) and ATF Author (for flow tests). Adopts `skills/flow-designer-specialist/SKILL.md`.
 - `agents/integration-specialist.md` — Integration Specialist sub-agent. Dispatched for integration architecture design (REST/SOAP, Scripted REST API, IntegrationHub spokes, MID Server, auth). Returns integration architecture specification(s) and a §6.2 post-build proposal manifest covering Developer (for custom scripts) and Flow Designer Specialist (for orchestration). Adopts `skills/integration-specialist/SKILL.md`.
 - `agents/atf-author.md` — ATF Author sub-agent (**batch mode**). Dispatched to generate a full-app ATF test suite across a scoped application when full-app coverage is chosen at the §6.2 step. Returns a suite design (suite map + per-test step definitions + coverage matrix + mandatory deployment notes) and a §6.2 manifest covering Code Reviewer for any custom step config scripts. Adopts `skills/atf-author/SKILL.md`. Single-component coverage runs as the skill in the main thread instead.
+- `agents/story-writer.md` — Story Writer sub-agent. Dispatched to convert requirements/Discovery Output into sprint-ready Gherkin Feature files. Returns Feature file(s) and a §6.2 manifest covering Technical Designer (downstream design) and ATF Author (test coverage). Adopts `skills/story-writer/SKILL.md`.
+- `agents/hld-lld-writer.md` — HLD/LLD Writer sub-agent. Dispatched to produce HLD / LLD / PDD design documents. Returns design document(s) and a §6.2 manifest covering reviewer workflow and Operational Documentation. Adopts `skills/hld-lld-writer/SKILL.md`.
+- `agents/technical-designer.md` — Technical Designer sub-agent. Dispatched to produce component design specifications (table model, ACL matrix, business rule list, client logic, flow outline). Returns design spec(s) and a §6.2 manifest covering Developer / Flow Designer Specialist / Integration Specialist and routing-time consult flags. Adopts `skills/technical-designer/SKILL.md`.
+- `agents/now-assist-specialist.md` — Now Assist Specialist sub-agent. Dispatched for AI capability design (AI Agents, agentic workflows, Now Assist skills, Virtual Agent topics, AI Search, AI Control Tower governance). Returns AI capability specification(s) and a §6.2 manifest covering Developer (custom Action tools), Flow Designer Specialist (orchestration), Integration Specialist (non-baseline LLM providers), and Security & GRC (AI Control Tower attestations). Adopts `skills/now-assist-specialist/SKILL.md`. *(Registry note: its frontmatter `description` must stay free of `": "` colon-space — that YAML plain-scalar hazard previously blocked its registration; enforced now by `scripts/verify-structure.sh`.)*
 
 ### Reviewers and quality (skills only)
 
@@ -232,7 +236,7 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 - For factual ServiceNow claims, prefer reading from `ServiceNowDocs/` first. Cite the path used.
 - If the doc is not available, say so and offer to fetch the live ServiceNow docs URL.
 - If the user is on a different release family, confirm before answering version-sensitive questions.
-- For any new SKILL.md being authored or updated in this session, run a doc-verification pass against the relevant `markdown/` subfolder before committing.
+- For any new SKILL.md **or EXAMPLES.md** being authored or updated in this session, run a doc-verification pass against the relevant `markdown/` subfolder before committing. `scripts/verify-citations.sh` (wired into `.githooks/pre-commit`) enforces this automatically across the whole `skills/` tree — citations are scanned in both SKILL.md and EXAMPLES.md.
 
 ## Artefact standards
 
@@ -379,7 +383,7 @@ This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restore
 
 ## Maintenance reminders
 
-- After authoring or updating any SKILL.md, run a doc-verification pass against the relevant `ServiceNowDocs/markdown/` subfolder before committing.
+- After authoring or updating any SKILL.md **or EXAMPLES.md**, run a doc-verification pass against the relevant `ServiceNowDocs/markdown/` subfolder before committing. This is now enforced automatically by `scripts/verify-citations.sh` + `scripts/verify-structure.sh` via `.githooks/pre-commit`; a dead citation or structural-integrity break blocks the commit.
 - After any SKILL.md change, re-upload to Tier 1 (claude.ai personal skills) within 24 hours.
 - Update `taxonomy.md` whenever a routing ambiguity is observed in real use.
 - Update `prompt-patterns.md` whenever a new task type recurs three or more times.

@@ -617,12 +617,22 @@ Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6.
 
 ## Test Run History
 
-| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | Result |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
-| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (full suite, updated criteria) |
-| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
-| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 13/13 PASS — T-01–T-10 ✅ above; **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
-| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Added with the v2.7–v2.7.4 work (5th gateway, Security & GRC, ATF Author, Operational Documentation, citation audit). Full T-01–T-16 regression + Tier 1 re-run pending |
-| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass (11 skills) + v2.7.5/v2.7.6 skill build-out. T-01–T-06/T-08–T-16 behavioural exec; T-07 mechanical (`--check` exit 0, hook wired via core.hooksPath=.githooks, mirrors in sync). No routing regression (depth pass touched skill bodies only). **Tier 1 (Claude.ai) re-run still pending.** |
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | T-13 | T-14 | T-15 | T-16 | Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | — | 7/7 (T-08+ not yet defined) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | — | — | — | — | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | 10/10 PASS (full suite, updated criteria) |
+| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
+| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 13/13 PASS — **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
+| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Full T-01–T-16 regression + Tier 1 re-run pending |
+| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass + v2.7.5/v2.7.6 build-out. T-07 mechanical; no routing regression. **Tier 1 (Claude.ai) re-run still pending.** |
+
+---
+
+## Structural / Engine Integrity Runs
+
+Mechanical (non-behavioural) audit of the agents/skills roster, separate from the T-NN behavioural suite. Now enforced automatically at commit time by `scripts/verify-structure.sh` + `scripts/verify-citations.sh` (wired into `.githooks/pre-commit`).
+
+| Date | CLAUDE.md | Mirror parity | Frontmatter | name↔dir | Doc path refs | Agent→skill refs | ServiceNowDocs citations | Result |
+|---|---|---|---|---|---|---|---|---|
+| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 162/162 (0 dead) | **12/12 dimensions PASS.** Surfaced + fixed 16 dead citations in itom-discovery/hrsd/story-writer; bumped 8 sub-agents to opus-4-8; added the two verification gates above. Negative-tested: injected dead citation → gate exit 1 (blocks commit). |

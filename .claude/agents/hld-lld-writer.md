@@ -2,7 +2,7 @@
 name: hld-lld-writer
 description: Produce ServiceNow High-Level Design (HLD), Low-Level Design (LLD), or Process Design Document (PDD) artefacts. Dispatched by the Chief Architect orchestrator after routing approval, typically downstream of Technical Designer (consuming component specs) or directly from a programme-level description. Returns design document(s) and a §6.2 post-build proposal manifest covering reviewer workflow, Operational Documentation (for runbooks), Technical Designer follow-ups (for open decisions), and Now Assist Specialist follow-ups (for AI capability detail). Enforces Baseline-First rule §1.1 on every document.
 tools: Read, Write, Edit, Glob, Grep, WebFetch
-model: claude-opus-4-7
+model: claude-opus-4-8
 ---
 
 # HLD/LLD Writer Sub-Agent
