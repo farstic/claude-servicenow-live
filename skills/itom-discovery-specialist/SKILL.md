@@ -26,17 +26,17 @@ You ground every factual claim about baseline ServiceNow ITOM behaviour in the *
 |---|---|
 | ITOM publication index | `markdown/it-operations-management/index.md` |
 | Discovery | `markdown/it-operations-management/discovery/` |
-| MID Server | `markdown/it-operations-management/mid-server/` |
+| MID Server | `markdown/it-operations-management/configure-a-mid-server.md` |
 | Service Mapping | `markdown/it-operations-management/service-mapping/` |
 | Event Management | `markdown/it-operations-management/event-management/` |
-| Cloud Discovery | `markdown/it-operations-management/cloud-discovery/` |
-| Service Graph Connectors | `markdown/it-operations-management/service-graph-connectors/` |
-| CMDB core | `markdown/now-platform/cmdb/` (or `markdown/it-operations-management/cmdb/` depending on Australia organisation) |
-| CSDM (Common Service Data Model) | `markdown/now-platform/csdm/` |
-| IRE rules | `markdown/now-platform/cmdb/identification-reconciliation/` |
-| Certificate Management | `markdown/it-operations-management/certificate-management/` |
-| Discovery patterns | `markdown/it-operations-management/discovery/patterns/` |
-| Probes and sensors | `markdown/it-operations-management/discovery/probes-sensors/` |
+| Cloud Discovery | `markdown/it-operations-management/cloud-discovery-workspace/` |
+| Service Graph Connectors | `markdown/servicenow-platform/service-graph-connectors/` |
+| CMDB core | `markdown/servicenow-platform/configuration-management-database-cmdb/` |
+| CSDM (Common Service Data Model) | `markdown/servicenow-platform/common-service-data-model-csdm/` |
+| IRE rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
+| Certificate Management | `markdown/it-operations-management/discovery/cert-invt-mgmt-patterns.md` |
+| Discovery patterns | `markdown/it-operations-management/discovery-and-service-mapping-patterns/` |
+| Probes and sensors | `markdown/it-operations-management/discovery/` |
 
 ### Citation format
 
@@ -225,7 +225,7 @@ Cite where Verdict B/C is in play.]
 
 [Hard constraints. Examples:
 - **Do not create a custom CI class duplicating a baseline class.** Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md
-- **Do not write custom dedup logic in Business Rules.** Use IRE. Citation: markdown/now-platform/cmdb/identification-reconciliation/
+- **Do not write custom dedup logic in Business Rules.** Use IRE. Citation: markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md
 - **Do not bypass the ECC queue protocol.** All MID Server traffic flows through the queue. Citation: markdown/it-operations-management/configure-a-mid-server.md]
 
 ---
@@ -360,16 +360,16 @@ Cite where Verdict B/C is in play.]
 
 | Anti-pattern | Why it's wrong | Baseline alternative | Citation |
 |---|---|---|---|
-| Custom CI class duplicating baseline class | Breaks IRE rules, reporting consistency, upgrade path | Extend baseline class via dictionary | `markdown/now-platform/cmdb/` |
-| Custom dedup Business Rule | Bypasses IRE | Configure IRE identification + reconciliation rules | `markdown/now-platform/cmdb/identification-reconciliation/` |
-| Custom Discovery probe duplicating baseline pattern | Maintenance burden, breaks on baseline pattern updates | Extend baseline pattern or use pattern override | `markdown/it-operations-management/discovery/patterns/` |
-| Custom MID Server script bypassing ECC queue | Security risk, breaks observability | Use ECC queue protocol | `markdown/it-operations-management/mid-server/` |
+| Custom CI class duplicating baseline class | Breaks IRE rules, reporting consistency, upgrade path | Extend baseline class via dictionary | `markdown/servicenow-platform/configuration-management-database-cmdb/` |
+| Custom dedup Business Rule | Bypasses IRE | Configure IRE identification + reconciliation rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
+| Custom Discovery probe duplicating baseline pattern | Maintenance burden, breaks on baseline pattern updates | Extend baseline pattern or use pattern override | `markdown/it-operations-management/discovery-and-service-mapping-patterns/` |
+| Custom MID Server script bypassing ECC queue | Security risk, breaks observability | Use ECC queue protocol | `markdown/it-operations-management/configure-a-mid-server.md` |
 | Custom service-map table | Duplicates `cmdb_rel_ci` semantics | Use `cmdb_rel_ci` with appropriate relationship types | `markdown/it-operations-management/service-mapping/` |
 | Custom event correlation table | Duplicates `em_alert_rules` | Use `em_alert_rules` configuration | `markdown/it-operations-management/event-management/` |
-| Custom cloud-discovery connector | Breaks Cloud Discovery upgrade path | Use baseline Cloud Discovery patterns | `markdown/it-operations-management/cloud-discovery/` |
-| Custom CMDB Health rules table | `cmdb_health_dashboard` rules cover it | Configure CMDB Health rules | `markdown/now-platform/cmdb/cmdb-health/` |
+| Custom cloud-discovery connector | Breaks Cloud Discovery upgrade path | Use baseline Cloud Discovery patterns | `markdown/it-operations-management/cloud-discovery-workspace/` |
+| Custom CMDB Health rules table | `cmdb_health_dashboard` rules cover it | Configure CMDB Health rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBHealth.md` |
 | New top-level CI class without "new technology" justification | Almost always covered by baseline class hierarchy | Extend existing baseline class | `markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md` |
-| CMDB CI without IRE identifier defined | CI becomes orphan, prone to duplicates | Define identification rule before inserting CIs | `markdown/now-platform/cmdb/identification-reconciliation/` |
+| CMDB CI without IRE identifier defined | CI becomes orphan, prone to duplicates | Define identification rule before inserting CIs | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
 
 ---
 

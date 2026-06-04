@@ -38,9 +38,9 @@ For role and table-name accuracy, ground in `ServiceNowDocs/` (Australia branch)
 
 - ITSM roles and tables: `markdown/it-service-management/...`
 - CSM roles and tables: `markdown/customer-service-management/...`
-- HRSD roles and tables: `markdown/hr-service-delivery/...`
+- HRSD roles and tables: `markdown/employee-service-management/...`
 - ITOM roles and tables: `markdown/it-operations-management/...`
-- Workspace and portal naming: `markdown/now-experience/...`
+- Workspace and portal naming: `markdown/platform-user-interface/...`
 
 Cite the doc path when you reference a role or table the user may not recognise. If the role doesn't exist in baseline, flag it as engagement-specific in `OPEN QUESTIONS`.
 

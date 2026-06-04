@@ -342,12 +342,12 @@ Before any specialist may be dispatched, §1.1 requires honest evaluation. This 
    b. Use `cmdb_ci_appl_cluster` with a child reference to a new "AceGrid metadata" table
       - Covers: cluster identity baseline; AceGrid-specific data in a separate sidecar table
       - Falls short: indirection through a sidecar table makes queries and reports more complex than necessary; sidecar is itself a custom table (similar §1.1 cost to a child CI class but with worse semantics)
-      - Citation: markdown/now-platform/cmdb/ (CMDB data-model principles)
+      - Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ (CMDB data-model principles)
 
    c. Use baseline `cmdb_ci_appl` (generic application) with multiple tag-based or list-based attributes
       - Covers: storage of arbitrary attributes
       - Falls short: loses the cluster semantic (no first-class relationships to nodes as cluster members), bad for IRE and Discovery (no clear identifier), bad for reporting
-      - Citation: markdown/now-platform/cmdb/ (cluster semantics)
+      - Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ (cluster semantics)
 
    d. Don't create a CI; track AceGrid via tags on the host servers
       - Covers: lightweight "this Linux server runs AceGrid" tracking
@@ -400,7 +400,7 @@ Recommendation if approved: dispatch Technical Designer + Performance & Scale co
 Recommendation if rejected: adopt Alternative A. Document schema-bloat trade-off.
 ```
 
-(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md, markdown/it-operations-management/discovery/patterns/)
+(citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md, markdown/it-operations-management/discovery-and-service-mapping-patterns/)
 
 ## Part 4 — Routing Recommendation
 
