@@ -45,14 +45,14 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 5 | Integration Specialist | ✅ | ✅ |
 | 6 | Flow Designer Specialist | ✅ | ✅ |
 | 7 | Developer | ✅ | ✅ |
-| 8 | ATF Author | ✅ | ❌ (batch mode planned) |
+| 8 | ATF Author | ✅ | ✅ (batch sub-agent) |
 
 ### Reviewers and Quality
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
 | 9 | Code Reviewer | ✅ | ❌ |
-| 10 | Performance & Scale Specialist | ⚠️ planned | ❌ |
+| 10 | Performance & Scale Specialist | ✅ | ❌ |
 
 ### Domain experts (modules)
 
@@ -62,14 +62,14 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 12 | CSM Specialist | ✅ | ❌ |
 | 13 | HRSD Specialist | ✅ | ❌ |
 | 14 | ITOM/Discovery Specialist | ✅ | ❌ |
-| 15 | SPM Specialist | ⚠️ planned | ❌ |
+| 15 | SPM Specialist | ✅ | ❌ |
 | 16 | Security & GRC Specialist | ✅ (consult/review skill) | ❌ |
 | 17 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
-| 18 | App Engine Specialist | ⚠️ planned | ❌ |
-| 19 | Migration Specialist | ⚠️ planned | ❌ |
+| 18 | App Engine Specialist | ✅ | ❌ |
+| 19 | Migration Specialist | ✅ | ❌ |
 | 20 | UI/UX Specialist | ✅ | ❌ |
-| 21 | Reporting & Analytics Specialist | ⚠️ planned | ❌ |
-| 22 | DevOps / Release Manager | ⚠️ planned | ❌ |
+| 21 | Reporting & Analytics Specialist | ✅ | ❌ |
+| 22 | DevOps / Release Manager | ✅ | ❌ |
 
 ### Consultants and Documentation
 
@@ -80,7 +80,7 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 
 **Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
 
-(Numbering is presentational. The roster has 22 distinct specialists. ATF Author's batch sub-agent is planned but not yet built — 7 sub-agent files exist today.)
+(Numbering is presentational. The roster has 22 distinct specialists. ATF Author has both a skill and a batch sub-agent (agents/atf-author.md) — 8 sub-agent files exist today.)
 
 ---
 

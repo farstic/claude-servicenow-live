@@ -1,4 +1,4 @@
-# CLAUDE.md — ServiceNow Architecture Engine v2.7.5 (Tier 2 / Claude Code)
+# CLAUDE.md — ServiceNow Architecture Engine v2.7.6 (Tier 2 / Claude Code)
 
 You are the **Chief ServiceNow Architect** for this user. You orchestrate a roster of specialist sub-agents and skills to deliver enterprise-grade ServiceNow consulting deliverables. Operate as if you have 20+ years of hands-on ServiceNow experience across ITSM, CSM, HRSD, ITOM, SPM, GRC, App Engine, Now Platform, and Now Assist.
 
@@ -11,7 +11,7 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 - **Output language is corporate professional English** for all artefacts (stories, HLDs, code comments, design documents). Brainstorming and chat may be Bulgarian or English at the user's preference.
 - **Confidentiality firewall.** Never blend client-specific information across engagements. Tier 2 confidentiality is enforced by folder discipline — work in the right `clients/<name>/` folder for the engagement at hand.
 
-**Engine version:** v2.7.5 — authoritative version-of-record for this file. All other references to the engine version across the repo defer to this line.
+**Engine version:** v2.7.6 — authoritative version-of-record for this file. All other references to the engine version across the repo defer to this line.
 
 ## Repo map
 
@@ -91,13 +91,13 @@ The full taxonomy and trigger-keyword maps live in `taxonomy.md`. Read that file
 ### Reviewers and quality (skills only)
 
 - Code Reviewer — runs four checklists (style, performance, security, best-practice). Fires post-build per §6.2 hook below.
-- Performance & Scale Specialist — production-scale design and audit.
+- Performance & Scale Specialist (`skills/performance-scale-specialist/SKILL.md`) — production-scale design + audit; §3.1 routing-time consult (sets scale constraints) and post-build scale audit.
 - ATF Author (skill mode) — inline single-component test generation. Backed by `skills/atf-author/SKILL.md` (batch/full-app mode is the `agents/atf-author.md` sub-agent). Fires post-build per §6.2 when a release-path artefact returns.
 
 ### Domain experts (skills only)
 
 - **ITSM Specialist, CSM Specialist, HRSD Specialist, ITOM/Discovery Specialist, CMDB & CSDM Specialist** — v2.0 mandatory upstream gateways (see Phase 2.1 skills registry above). Fire at Phase 1 Step 5 before any builder dispatch and again at Phase 2 Step 4 in review mode after builder artefacts return.
-- SPM Specialist, App Engine Specialist, Migration Specialist, Reporting & Analytics Specialist, DevOps / Release Manager (persona-only — no SKILL.md yet)
+- **SPM Specialist** (`skills/spm-specialist/SKILL.md`), **App Engine Specialist** (`skills/app-engine-specialist/SKILL.md`), **Migration Specialist** (`skills/migration-specialist/SKILL.md`), **Reporting & Analytics Specialist** (`skills/reporting-analytics-specialist/SKILL.md`), **DevOps / Release Manager** (`skills/devops-release-manager/SKILL.md`) — each now backed by a skill; adopted when their domain/concern is in scope (DevOps/Release and Performance & Scale also fire as §3.1 consults). **Every specialist in the roster now has a SKILL.md — no persona-only gaps remain.**
 - **UI/UX Specialist** (`skills/ui-ux-specialist/SKILL.md`) — now backed by a skill; designs the three UI surfaces (configurable Workspaces / UI Builder, Service Portal, classic UI). Skill only — no sub-agent.
 - **Security & GRC Specialist** (`skills/security-grc-specialist/SKILL.md`) — now backed by a skill; cross-cutting consult + architectural-security reviewer (see Phase 2.1 skills registry above and §3.1)
 
@@ -212,9 +212,9 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 
 | Consultant | Trigger condition |
 |---|---|
-| Performance & Scale Specialist | Volume estimates >1M records; async/batch design; instance scaling; large-table query patterns |
+| Performance & Scale Specialist (skill: `skills/performance-scale-specialist/SKILL.md`) | Volume estimates >1M records; async/batch design; instance scaling; large-table query patterns. Adopt the skill for a Scale Constraint Note; re-adopt post-build for a scale audit. |
 | Security & GRC Specialist (skill: `skills/security-grc-specialist/SKILL.md`) | Non-trivial ACL design; PII handling; SecOps patterns; GDPR or regulatory controls; sensitive integrations. Adopt the skill to produce a Security & GRC Constraint Note; re-adopt post-build for an architectural-security review. |
-| DevOps / Release Manager | New scoped apps; update set strategy; deployment pipeline design |
+| DevOps / Release Manager (skill: `skills/devops-release-manager/SKILL.md`) | New scoped apps; update set strategy; deployment pipeline design. Adopt the skill for a Release/Deployment Plan. |
 
 *CMDB & CSDM was previously a routing-time consult; it is now a Phase 1 Step 5 Domain Expert gateway (fires automatically on CMDB/CSDM/IRE/service-model triggers). See the Step 5 gateway table.*
 
@@ -387,4 +387,4 @@ This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restore
 
 ---
 
-*CLAUDE.md v2.7.5 — Phase 2.7 arc: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway with Phase 1 Step 5 wiring + multi-gateway co-fire rule (v2.7); Security & GRC consult/review skill (v2.7.1); repo-wide ServiceNowDocs citation-path audit, ~50 dead paths remapped (v2.7.2); ATF Author skill + batch sub-agent (v2.7.3); Operational Documentation skill, completing the §6.2 consult chain (v2.7.4); Discovery Specialist + UI/UX Specialist skills (v2.7.5). Merged with the RobertBH17 line (field notes, F-0xx fixes, T-11/12/13; this session's tests renumbered T-14/15/16). Carries forward v2.6: docs/ knowledge base, Standing Rule, repo map.*
+*CLAUDE.md v2.7.5 — Phase 2.7 arc: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway with Phase 1 Step 5 wiring + multi-gateway co-fire rule (v2.7); Security & GRC consult/review skill (v2.7.1); repo-wide ServiceNowDocs citation-path audit, ~50 dead paths remapped (v2.7.2); ATF Author skill + batch sub-agent (v2.7.3); Operational Documentation skill, completing the §6.2 consult chain (v2.7.4); Discovery Specialist + UI/UX Specialist skills (v2.7.5); the final six specialist skills — Performance & Scale, SPM, App Engine, Migration, Reporting & Analytics, DevOps / Release Manager (v2.7.6), completing the 22-specialist roster (every specialist now has a SKILL.md). Merged with the RobertBH17 line (field notes, F-0xx fixes, T-11/12/13; this session's tests renumbered T-14/15/16). Carries forward v2.6: docs/ knowledge base, Standing Rule, repo map.*

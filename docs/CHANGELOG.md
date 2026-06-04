@@ -9,6 +9,31 @@ The engine follows a minor-version cadence where the **first digit** signals a m
 
 ---
 
+## v2.7.6 — Final six specialist skills — roster is now 100% skill-backed
+
+**Released:** June 2026
+**Trigger:** Six roster specialists were still persona-only (no SKILL.md), so "all specialists available for any engagement" wasn't literally true. This closes them.
+
+### Added (skills/, mirrored in .claude/skills/)
+
+- **performance-scale-specialist** — §3.1 consult + post-build scale audit. Query design (GlideAggregate/index/no-nested-loops), async/batch, data growth & archival, transaction limits, reporting-at-volume. §1.1: a shadow/summary table is the wrong reflex — use a PA indicator/index.
+- **spm-specialist** — Strategic Portfolio Management: demand→idea→project/program→portfolio, investment funding, resource management, agile/SAFe. Grounded in `it-business-management/`.
+- **app-engine-specialist** — custom low-code app architecture (scope strategy, App Engine Studio, decision tables, document templates, AEMC). **§1.1-critical** — proceeds only on an explicit Chief-Architect-approved custom app, and stays baseline-first inside it.
+- **migration-specialist** — one-time data migration (data sources → import sets → transform maps → coalesce → reconcile → cutover/rollback). Bounded against Integration (ongoing sync). §1.1: map to the baseline target, no custom "legacy data" table, no custom dedup (coalesce/IRE).
+- **reporting-analytics-specialist** — reports, dashboards, Performance Analytics; makes the explicit **report-vs-PA** call. §1.1: a PA indicator, never a custom rollup/data-mart table.
+- **devops-release-manager** — §3.1 consult: update-set strategy, App Repository/AEMC, DevOps Change Velocity, CI/CD APIs, environment/clone strategy, backout. Bounded against Integration (the CI-tool wire). §1.1: baseline release mechanics, no custom deployment framework.
+
+All grounded in verified ServiceNowDocs paths (0 missing citations); skill-only (no sub-agents).
+
+### Changed / fixed
+- taxonomy §1: the six rows marked ✅ — **every one of the 22 specialists now has a SKILL.md**. Also fixed a merge-residual: ATF Author's batch sub-agent was wrongly shown as "planned / 7 sub-agent files" — corrected to ✅ batch sub-agent / **8 sub-agent files** (it was built in v2.7.3).
+- CLAUDE.md: registries updated, §3.1 consult rows point at the Performance & Scale and DevOps/Release skills, persona-only line retired. TECHNICAL-ARCHITECTURE roster count 19 → **25 skills**. Engine version-of-record → v2.7.6.
+
+### Roster state
+**8 sub-agents, 25 skill directories, 22 specialists — all skill-backed.** No persona-only gaps and no referenced-but-missing files remain.
+
+---
+
 ## v2.7.5 — Discovery Specialist + UI/UX Specialist skills
 
 **Released:** June 2026
