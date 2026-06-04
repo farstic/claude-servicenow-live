@@ -1,72 +1,107 @@
-# Performance & Scale Specialist v1.0 — Worked Examples
+# Performance & Scale Specialist v1.1 — Worked Examples
 
-Two examples: a routing-time Scale Constraint Note and a post-build audit. Read alongside `SKILL.md`.
+Three examples: a routing-time Scale Constraint Note, a post-build Scale Audit (REWORK), and a §1.1 halt on a summary table. Read alongside `SKILL.md`.
 
 ---
 
 ## Example 1 — Routing-time consult (Scale Constraint Note)
 
 ### Context
-A Script Include will compute SLA-breach risk per incident from assignment-group history. ~3M historical incidents, ~500k `task_sla`. §3.1 fired (volume >1M + historical aggregation).
+A Script Include will compute SLA-breach risk per incident from assignment-group history. §3.1 fired (volume + historical aggregation).
 
 ```markdown
-# Scale Constraint Note — SLA breach-risk scoring from assignment-group history
+# Scale Constraint Note — SLA breach-risk from assignment-group history
 
-**Triggers that fired:** >1M records; historical aggregation; runs in incident context
+**Triggers:** >1M rows; historical aggregation; runs in incident context
 
 ## Volume model
-~3M incident, ~500k task_sla; growth ~15%/yr. Score requested at incident open (interactive) and/or nightly.
+~3M incident, ~500k task_sla; +15%/yr. Score wanted at incident open (interactive) and nightly.
+Access: read-heavy aggregate over a large historical window. Freshness: daily is fine.
 
 ## Query constraints
-- Compute group history with a **single `GlideAggregate`** (count + AVG business_percentage, grouped by assignment_group, windowed to last 90 days) — NOT a GlideRecord loop over 3M rows.
-- Window the aggregate by an **indexed** `sys_created_on`/`closed_at`; confirm an index on assignment_group + the date column.
+- Group history via a **single `GlideAggregate`** (COUNT + AVG(business_percentage), GROUP BY assignment_group), windowed to the last 90 days — NOT a GlideRecord loop over 3M rows.
+- Window on an **indexed** date column; confirm an index on (assignment_group, the date column).
+- No leading-wildcard LIKE; bounded result.
 
 ## Async/batch constraints
-- Do NOT compute the 90-day aggregate synchronously on every incident open. **Precompute** per-group scores on a **nightly scheduled job** into a cached lookup (a PA indicator or a small keyed cache), and read the cached value at open.
+- Do **not** compute the 90-day aggregate synchronously on every incident open. **Precompute** per-group scores on a **nightly scheduled job**; cache the result (PA indicator or a keyed system-property cache) and read the cached value at open. Idempotent re-run.
 
 ## Data-lifecycle constraints
-- 3M+ incidents: confirm Table Rotation/Archive policy so the aggregate window stays fast.
+- 3M+ incidents: confirm Table Rotation/Archive so the 90-day window query stays fast as history grows.
 
 ## Reporting-at-scale constraints
-- If this feeds a dashboard, use a **PA indicator**, not a live aggregate per page load.
+- If this also drives a dashboard, use a **PA indicator**, not a live aggregate per page load.
 
 ## §1.1 verdict
-**Design/config only — PROCEED.** GlideAggregate + scheduled precompute + index. The "cache" is a PA indicator or system-property/keyed store — **not** a new custom table unless approved.
+**Design/config — PROCEED.** GlideAggregate + scheduled precompute + index + (optional) PA indicator. The "cache" is a PA indicator / system-property store — **not** a new custom table unless approved.
 
 ## Validation
-Run Performance Analyzer on the scheduled job; load-test the aggregate before go-live.
+Performance Analyzer on the nightly job; load-test the aggregate at full history before go-live.
 ```
 
 ---
 
-## Example 2 — Post-build audit
+## Example 2 — Post-build audit (REWORK)
 
 ### Context
-Developer's returned Script Include loops `GlideRecord` over `incident` and increments a JS counter to compute the group's breach rate, called synchronously from a `before` Business Rule on incident insert.
+Developer returned a Script Include that loops `GlideRecord` over `incident` and increments a JS counter to compute the group breach rate, called **synchronously from a `before` BR on incident insert**.
 
 ```markdown
 # Scale Audit: SLABreachRiskCalculator
 **Verdict: REWORK**
 
-### [SCALE][block] Synchronous full-table loop on insert
-**Issue:** `calculate()` runs a GlideRecord loop over ~3M incidents on every insert, in a before BR.
-**Impact:** Each incident insert does a 3M-row scan — interactive transaction will time out / crater throughput at volume.
-**Recommendation:** Replace the loop with a single `GlideAggregate` windowed to 90 days; move the computation to a nightly scheduled precompute; read the cached value in the BR. (Per the Scale Constraint Note.)
+### [QUERY][block] Synchronous full-table loop on insert
+**Issue:** `calculate()` runs a GlideRecord loop over ~3M incidents on every insert, in a `before` BR.
+**Impact:** Each insert triggers a 3M-row scan inside an interactive transaction — timeouts and
+throughput collapse under any real create rate; transaction-quota risk.
+**Recommendation:** Replace with a single `GlideAggregate` windowed to 90 days; move to the nightly
+precompute; read the cached value in the BR (per the Constraint Note).
 
-### [PERF][fix-before-prod] Counting via .next()
+### [QUERY][fix-before-prod] Counting via .next()
 **Issue:** Breach count derived by iterating and incrementing.
 **Recommendation:** `GlideAggregate` COUNT with `has_breached=true`.
 
+### [DATA][consider] No archival assumption
+**Issue:** Window query degrades as `incident` grows past 3 years.
+**Recommendation:** Confirm Table Rotation/Archive policy.
+
 ## Verdict rationale
-The synchronous 3M-row scan is a hard production blocker — rework to the precompute pattern before merge.
+The synchronous 3M-row scan in an interactive transaction is a hard production blocker — rework to the
+precompute pattern before merge; the counting and archival items follow.
+```
+
+---
+
+## Example 3 — §1.1 halt: proposed summary table
+
+### Context
+"Let's stage nightly per-group breach stats in a new `u_group_breach_stats` table so reads are instant."
+
+```markdown
+# Scale Constraint Note — group breach stats cache
+## §1.1 verdict — HALT
+
+OPEN QUESTION — CUSTOM OBJECT PROPOSAL (§1.1 blocking)
+1. Baseline evaluated: a **PA indicator** (group breach rate, daily collection, breakdown by group) gives
+   the pre-aggregated, instant-read, trended value — exactly the need. An indexed aggregate covers ad-hoc.
+   (citation: markdown/application-development/performance-analyzer/exploring-performance-analyzer.md)
+   Why the custom table falls short: it's a hand-rolled PA — you'd rebuild collection jobs, retention,
+   breakdowns, and scoring that PA already provides, and own it through every upgrade.
+2. Custom object proposed: `u_group_breach_stats` — rejected as unnecessary.
+3. Consequences if approved: a bespoke rollup table + its own jobs to maintain; off-PA, so no native
+   trend/score/target features; upgrade exposure.
+4. Alternative (recommended): a **PA indicator** with a per-group breakdown; an index for ad-hoc.
+
+Recommendation: REJECT the custom table; use a PA indicator (+ index). No build proceeds until decided.
 ```
 
 ---
 
 ## Reading these examples
-- The consult **quantifies the volume** first, then constrains: aggregate-not-loop, precompute-not-synchronous, index, archival, PA-for-reporting.
-- The audit blocks the classic killer (full-table loop in an interactive transaction) and points to the precompute pattern — no new table needed.
+- **Example 1** quantifies first, then constrains: aggregate-not-loop, precompute-not-synchronous, index, archival, PA-for-reporting.
+- **Example 2** blocks the classic killer — a full-table loop in an interactive transaction — and routes the rewrite to Developer/Code Reviewer.
+- **Example 3** halts the reflexive summary table in favour of a PA indicator (§1.1).
 
 ---
 
-*End of Performance & Scale Specialist EXAMPLES.md v1.0.*
+*End of Performance & Scale Specialist EXAMPLES.md v1.1.*

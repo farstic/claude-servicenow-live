@@ -32,6 +32,9 @@ All grounded in verified ServiceNowDocs paths (0 missing citations); skill-only 
 ### Roster state
 **8 sub-agents, 25 skill directories, 22 specialists — all skill-backed.** No persona-only gaps and no referenced-but-missing files remain.
 
+### Depth pass (skill v1.1)
+The six v2.7.6 specialist skills were deepened to the rigour of the ITSM/CSM/HRSD gateways — each gained explicit **citation discipline**, **rigorous process/mechanics coverage** (e.g. Migration's transform-script lifecycle + data-type pattern table; Performance's six scale checklists; SPM's full demand→portfolio→agile map; DevOps's release-mechanics detail), a **domain anti-pattern table** (anti-pattern · baseline alternative · citation), **§1.1 hot-spots**, a **post-build review mode**, **termination conditions**, and a **hand-offs table** — while keeping each skill's correct output shape (a design/consult deliverable, not a forced 5-Part Envelope). All citations verified (0 dead). EXAMPLES for Migration/Performance/SPM expanded to multi-example.
+
 ---
 
 ## v2.7.5 — Discovery Specialist + UI/UX Specialist skills
