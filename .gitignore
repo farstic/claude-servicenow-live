@@ -20,3 +20,6 @@ nowaikit-example.ts
 
 # Editor workspace settings — machine-specific.
 .vscode/
+
+# Local rendered diagram previews (SVGs/HTML) — scratch viewing only, regenerable from .mmd.
+diagram-preview/

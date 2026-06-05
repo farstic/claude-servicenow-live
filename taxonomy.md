@@ -30,7 +30,7 @@ See `governance-rules.md` for the full text of all rules, halt protocols, and vi
 
 ## 1. Specialist roster overview
 
-The system's 22 specialists fall into four functional groups:
+The system's 23 specialists fall into four functional groups:
 
 ### Builders — Tier 2 sub-agent execution
 
@@ -46,41 +46,42 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 6 | Flow Designer Specialist | ✅ | ✅ |
 | 7 | Developer | ✅ | ✅ |
 | 8 | ATF Author | ✅ | ✅ (batch sub-agent) |
+| 9 | Diagramming Specialist | ✅ | ✅ (batch sub-agent) |
 
 ### Reviewers and Quality
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 9 | Code Reviewer | ✅ | ❌ |
-| 10 | Performance & Scale Specialist | ✅ | ❌ |
+| 10 | Code Reviewer | ✅ | ❌ |
+| 11 | Performance & Scale Specialist | ✅ | ❌ |
 
 ### Domain experts (modules)
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 11 | ITSM Specialist | ✅ | ❌ |
-| 12 | CSM Specialist | ✅ | ❌ |
-| 13 | HRSD Specialist | ✅ | ❌ |
-| 14 | ITOM/Discovery Specialist | ✅ | ❌ |
-| 15 | SPM Specialist | ✅ | ❌ |
-| 16 | Security & GRC Specialist | ✅ (consult/review skill) | ❌ |
-| 17 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
-| 18 | App Engine Specialist | ✅ | ❌ |
-| 19 | Migration Specialist | ✅ | ❌ |
-| 20 | UI/UX Specialist | ✅ | ❌ |
-| 21 | Reporting & Analytics Specialist | ✅ | ❌ |
-| 22 | DevOps / Release Manager | ✅ | ❌ |
+| 12 | ITSM Specialist | ✅ | ❌ |
+| 13 | CSM Specialist | ✅ | ❌ |
+| 14 | HRSD Specialist | ✅ | ❌ |
+| 15 | ITOM/Discovery Specialist | ✅ | ❌ |
+| 16 | SPM Specialist | ✅ | ❌ |
+| 17 | Security & GRC Specialist | ✅ (consult/review skill) | ❌ |
+| 18 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
+| 19 | App Engine Specialist | ✅ | ❌ |
+| 20 | Migration Specialist | ✅ | ❌ |
+| 21 | UI/UX Specialist | ✅ | ❌ |
+| 22 | Reporting & Analytics Specialist | ✅ | ❌ |
+| 23 | DevOps / Release Manager | ✅ | ❌ |
 
 ### Consultants and Documentation
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 23 | Discovery Specialist | ✅ | ❌ |
-| 24 | Operational Documentation | ✅ | ❌ |
+| 24 | Discovery Specialist | ✅ | ❌ |
+| 25 | Operational Documentation | ✅ | ❌ |
 
 **Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
 
-(Numbering is presentational. The roster has 22 distinct specialists. ATF Author has both a skill and a batch sub-agent (agents/atf-author.md) — 8 sub-agent files exist today.)
+(Numbering is presentational. The roster has 23 distinct specialists. ATF Author and Diagramming Specialist each have both a skill and a batch sub-agent — 9 sub-agent files exist today.)
 
 ---
 
@@ -98,6 +99,10 @@ When a task could plausibly route to two or more specialists, this table determi
 | **Integration Specialist** vs **Migration Specialist** | Integration = ongoing, steady-state. Migration = one-time, project-phase. | Temporality of the data flow. Continuous bidirectional/unidirectional sync → Integration. One-time historical load with cutover → Migration. | "Sync ServiceNow with Azure DevOps" → Integration. "Migrate Remedy incidents into ServiceNow" → Migration. |
 | **Integration Specialist** vs **Flow Designer Specialist** | Integration designs the *integration architecture* (REST messages, IntegrationHub spokes, MID Server, authentication, error handling). Flow Designer designs the *orchestration* that uses those integrations. | What's being designed. The endpoint, payload, auth, retry logic → Integration. The flow that calls the endpoint as a step → Flow Designer. | "Design the REST integration with Azure DevOps" → Integration. "Design the flow that triggers the Azure pipeline when a CHG is approved" → Flow Designer. |
 | **ATF Author skill** vs **ATF Author sub-agent** | Skill = inline single-component test generation. Sub-agent = batch test-suite generation across an app. | Scope. One method / one Script Include → skill. Whole scoped app → sub-agent. | "Write ATF for ConflictAssessmentUtils" → skill. "Generate the full ATF suite for the x_acme_itsm app" → sub-agent. |
+| **Diagramming Specialist** vs **HLD/LLD Writer** | HLD/LLD Writer authors the document and may embed simple inline figures in its narrative. Diagramming Specialist produces the standalone/complex diagram artefacts and the consistent batch pack. | What's wanted. The prose document → HLD/LLD. A dedicated figure, a complex diagram, a client-ready SVG, or the whole figure set for the doc → Diagramming. | "Write the HLD" → HLD/LLD. "Draw the sequence/ERD/context diagrams for the HLD" / "give me the diagram pack" → Diagramming. |
+| **Diagramming Specialist** vs **Technical Designer** | Technical Designer decides the model (tables, ACLs, flows). Diagramming Specialist depicts a model that already exists in a spec. | Decide vs depict. "What should the model be" → Technical Designer. "Draw the model the spec already defines" → Diagramming. | "Design the table model" → Technical Designer. "Turn that table model into an ERD" → Diagramming. |
+| **Diagramming Specialist** vs **UI/UX Specialist** | Diagramming draws architecture/process/data/project diagrams. UI/UX designs the actual product screens users interact with. | Diagram of a system vs design of a screen. Architecture/sequence/ERD/roadmap → Diagramming. Form layout, portal page, workspace, wireframe/mockup → UI/UX. | "Draw the integration topology" → Diagramming. "Design the case form layout / portal page" → UI/UX. |
+| **Diagramming Specialist** vs **Reporting & Analytics Specialist** | Diagramming produces static, design-time depictions. Reporting & Analytics produces live visualisations of instance data. | Design-time picture vs runtime data viz. A figure of how something is built → Diagramming. A chart/dashboard/PA widget over real records → Reporting & Analytics. | "Diagram the escalation process" → Diagramming. "Build a dashboard of escalations this quarter" → Reporting & Analytics. |
 
 ### 2.2 Reviewer boundaries
 
@@ -152,6 +157,7 @@ Evaluated by the Chief Architect *after* a builder sub-agent returns its artefac
 | **Code Reviewer** (skill only — no sub-agent) | Developer sub-agent; or any builder that emits server-side or client-side script (Flow Designer Specialist custom Action scripts, App Engine Specialist business rules, ATF Author step scripts) | Returned artefact contains a JavaScript code block (Script Include, Business Rule, Client Script, UI Script, Scheduled Job, custom Flow Action script, ATF step script). | Chief Architect proposes Code Reviewer handoff verbatim: *"Code artefact produced. Proposing a Code Reviewer pass (style, performance, security, best-practice) before final delivery — proceed?"* On approval, adopt Code Reviewer skill in main thread (no sub-agent dispatch) and run the four checklists against the artefact. |
 | **ATF Author** (skill or sub-agent) | Developer, Flow Designer Specialist, App Engine Specialist | New code or flow definition returned and the artefact is destined for a release path (i.e., not throwaway analysis or PoC). | Chief Architect proposes: *"Build artefact produced. Proposing ATF coverage before sign-off — single-component (skill) or full-app suite (sub-agent)?"* |
 | **Operational Documentation** | Any builder, when feature is approaching production readiness | User signal of imminent go-live (`"ready for prod"`, `"sign-off"`, `"release"`, `"go-live"`, `"cutover"`, `"deploy"`); or completion of an end-to-end feature spanning multiple builders. | Chief Architect proposes: *"Approaching production readiness. Proposing runbook + KBA authoring before go-live — proceed?"* |
+| **Diagramming Specialist** (skill or sub-agent) | HLD/LLD Writer, Technical Designer, Integration Specialist; or any returned design artefact | A design artefact returns (HLD / LLD / Technical Design / integration spec) whose architecture, process, or data model warrants a figure; or the user asks for a diagram. | Chief Architect proposes: *"Design artefact produced. Proposing a Diagramming Specialist pass to render the architecture/process/data diagrams (Mermaid by default; draw.io or SVG for client-ready) before delivery — proceed?"* On approval, adopt the skill (single figure) or dispatch the sub-agent (batch pack). |
 
 These post-build consult triggers are **mandatory**: the Chief Architect must surface the proposal even if the user did not request it. The user may decline, but the offer must be made.
 
@@ -216,6 +222,7 @@ When the user's task contains certain keywords or phrases, the router has a stro
 | "runbook", "KBA", "knowledge article", "training material", "user guide" | Operational Documentation | — |
 | "workshop", "elicit requirements", "current state", "target state", "gap analysis", "transcript", "extract from this transcript" | Discovery Specialist | Story Writer (if convergence to stories is the next step) |
 | "ATF", "Automated Test Framework", "test case", "test suite" | ATF Author | — |
+| "diagram", "draw", "Mermaid", "draw.io", "ERD", "sequence diagram", "architecture diagram", "C4", "swimlane", "state diagram", "roadmap", "Gantt", "RACI" | Diagramming Specialist | HLD/LLD Writer or Technical Designer (if the underlying design is also requested) |
 
 ---
 
@@ -234,6 +241,9 @@ Explicit "do not route X to Y" cases to prevent known confusion.
 | Do NOT route "what does the customer need" to Technical Designer. | That's a Discovery question. Technical Designer answers "how do we build it." |
 | Do NOT route "design for high volume" to Code Reviewer. | Forward-looking design questions go to Performance & Scale. Code Reviewer reviews what already exists. |
 | Do NOT skip the §6.2 post-build evaluation when a code-emitting builder sub-agent returns. | The Code Reviewer consult is mandatory whenever code is generated. Even if the user did not ask for review, the proposal must be surfaced. The user may decline, but the offer must be made. |
+| Do NOT route "draw the form layout / wireframe / mockup" to Diagramming Specialist. | Product screens and wireframes are the UI/UX Specialist's. Diagramming owns architecture / process / data / project diagrams, not the product UI surface. |
+| Do NOT route "chart / dashboard of <live data>" to Diagramming Specialist. | Live-data visualisation is Reporting & Analytics. Diagramming produces static, design-time depictions, not runtime charts over instance records. |
+| Do NOT let Diagramming Specialist render an unapproved custom object as accepted. | A diagram must not launder a §1.1 violation. An unapproved custom table/scope/state is drawn dashed + PENDING and flagged back; the Chief Architect owns the ruling. |
 
 ---
 
@@ -280,4 +290,4 @@ Updates are committed to git with a clear message: `taxonomy: <change-summary>`.
 
 ---
 
-*End of taxonomy.md v1.2 — CMDB & CSDM Specialist promoted from planned routing-time consult to active v2.0 Domain Expert gateway: roster marked ✅, §3.1 consult row retired with promotion note, §3.2 post-build Domain Expert row and §6.1 Step 7 gateway list updated, co-fire boundary with ITOM/Discovery documented.*
+*End of taxonomy.md v1.3 — Diagramming Specialist added as the 23rd specialist and 9th sub-agent (skill + batch diagram-pack sub-agent): roster renumbered to 23, §2.1 builder boundaries added (vs HLD/LLD Writer, Technical Designer, UI/UX, Reporting & Analytics), §3.2 post-build consult row added, §4.5 trigger row added, three §5 anti-routing rules added (UI/UX wireframe boundary, Reporting live-data boundary, §1.1 PENDING-render guard). Prior — v1.2: CMDB & CSDM Specialist promoted from planned routing-time consult to active v2.0 Domain Expert gateway (roster marked ✅, §3.1 consult row retired with promotion note, §3.2 post-build Domain Expert row and §6.1 Step 7 gateway list updated, co-fire boundary with ITOM/Discovery documented).*
