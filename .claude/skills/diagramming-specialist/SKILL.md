@@ -41,18 +41,18 @@ This is a **notation** skill, not a platform-fact skill, so it carries no Servic
 | **Decomposition / mind map** | requirement or feature breakdown | Mermaid `mindmap` |
 
 ## Notation standard (matches the engine's Artefact standard)
-- **Hand-crafted designed SVG is the default delivery format** — author the figure directly as `.svg` to the house style (see House style below). The SVG *is* the deliverable: it embeds straight into HLD/LLD/PDD and client decks with no render step, and it carries the designed look (gradient cards, soft shadow, real type, legend) on **every** figure.
-- **Mermaid is a draft tool only — never the delivered figure.** Use `.mmd` for a quick private sketch to think through structure, or when a user explicitly asks for editable Mermaid; render with `scripts/render-diagrams.ps1` / `.sh` (house theme `scripts/mermaid-theme.json`). A themed Mermaid still reads as Mermaid, so it does not ship as the figure in a document.
-- **draw.io / diagrams.net XML** — only when a client wants an editable source to open in diagrams.net.
+- **Hand-crafted, designed draw.io (`.drawio`) is the default delivery format — always.** Author every figure as a `.drawio` (mxGraph XML) styled to the house palette via mxCell `style=` strings. It is **editable** in draw.io / diagrams.net, in VS Code (Draw.io Integration extension), and **imports into Lucidchart** — so the user can change anything. The `.drawio` is the editable source of truth.
+- **Export SVG/PNG for documents.** From the `.drawio`, export an `.svg` (or `.png`) to embed in HLD/LLD/PDD and client decks; keep the `.drawio` alongside as the editable source. The export carries the same designed look.
+- **Mermaid is a draft tool only — never the delivered figure.** Use `.mmd` for a quick private sketch, or when a user explicitly asks for editable Mermaid; render with `scripts/render-diagrams.ps1` / `.sh` (house theme `scripts/mermaid-theme.json`). A themed Mermaid still reads as Mermaid, so it does not ship as the figure.
 - **PlantUML / ASCII** — only on explicit request, or a throwaway inline sketch in chat.
-State the chosen format and why; the default for every delivered figure is hand-crafted designed SVG.
+State the chosen format and why; the default for every delivered figure is a hand-crafted, designed `.drawio` (with an SVG/PNG export for docs).
 
-## House style — designed-first (always hand-crafted, like the reference hero)
-**Every delivered figure is a hand-crafted, designed SVG** — gradient cards, a soft drop shadow, real typography, a legend, and the §1.1 dashed-PENDING treatment. This is the standard for *all* diagrams, always — context, ERD, sequence, flow, deployment, project visuals alike. Match the quality of the reference hero, **not** a recolored Mermaid. The hand-crafted SVG *is* the deliverable (no render step) and embeds straight into HLD/LLD/PDD.
+## House style — designed-first, always editable (`.drawio`)
+**Every delivered figure is a hand-crafted, designed `.drawio`** — gradient cards, a soft drop shadow, real typography, a legend, and the §1.1 dashed-PENDING treatment, all expressed in mxCell styles so the user can edit anything in draw.io / diagrams.net / Lucidchart. This is the standard for *all* diagrams, always — context, ERD, sequence, flow, deployment, project visuals alike. Match the quality of the reference, **not** a recolored Mermaid. Export an SVG/PNG from the `.drawio` for embedding; the `.drawio` is the editable source.
 
-**Reference template:** `skills/diagramming-specialist/templates/house-style-reference.svg` — reuse its `<defs>` (gradients, drop shadow, arrowheads) and card components verbatim, then lay out the figure's nodes. Copy-paste skeleton in EXAMPLES (Example 6).
+**Reference template:** `skills/diagramming-specialist/templates/house-style-reference.drawio` — open it and reuse its mxCell `style=` strings (per-element fill/stroke/font, the `swimlane` group, dashed PENDING/manual) verbatim, then lay out the figure's nodes. Copy-paste style strings in EXAMPLES (Example 6). (A rendered `.svg` companion shows the same look.)
 
-**Construction discipline (so hand-crafted stays consistent):** one shared `<defs>` per figure; align nodes on a grid; fixed card height; one legend; left-to-right or top-down reading order; label nodes exactly as the spec does. A many-node figure is still hand-crafted — split it into several designed figures rather than dropping to raw Mermaid.
+**Construction discipline (so figures stay consistent):** one shared style vocabulary per figure (the palette strings below); align nodes on the grid; fixed card height; one legend; left-to-right or top-down reading order; label nodes exactly as the spec does; use a `swimlane` cell for a group/module box and `edge` cells for arrows. A many-node figure is still hand-crafted in `.drawio` — split it into several designed figures rather than dropping to raw Mermaid.
 
 **Shared palette**
 | Element | Fill (top → bottom) | Stroke | Text |
@@ -64,23 +64,24 @@ State the chosen format and why; the default for every delivered figure is hand-
 | **Custom object — PENDING §1.1** | `#fff5f5` → `#fde4e4` | `#dc2626` **dashed** | `#b91c1c` |
 | Canvas | `#fbfcfe` → `#f4f6fa` | — | title `#0f172a`, muted `#64748b` |
 
-Type: `Segoe UI, system-ui, …`. Corner radius `14`. Shadow: `dy 2, blur 3.2, #1f2937 @ 16%`. Colour semantics match the ServiceNow visual grammar below — baseline solid, custom dashed/PENDING.
+In draw.io: `rounded=1;arcSize=12;shadow=1` on boxes, `fontFamily=Helvetica` (or Segoe UI), `gradientColor=<lighter>`, and `dashed=1;dashPattern=7 5` for PENDING/manual. Colour semantics match the ServiceNow visual grammar below — baseline solid, custom dashed/PENDING.
 
-Whole packs are hand-crafted to this palette so every figure in a document looks like one set. A `.mmd` draft may precede a figure, but the figure that ships is always the designed SVG.
+Whole packs are hand-crafted to this palette so every figure in a document looks like one set. A `.mmd` draft may precede a figure, but the figure that ships is always the designed, editable `.drawio` (with an SVG/PNG export for the doc).
 
-## SVG export & embedding into HLD / LLD / PDD
-Figures are hand-crafted designed SVGs (House style above). They are authored as files that drop straight into the design documents and client decks — no render step.
+## Editable source (`.drawio`) + export & embedding into HLD / LLD / PDD
+The deliverable is the editable `.drawio`; an exported SVG/PNG is what gets embedded in a document.
 
 **Save**
-- Author each figure directly as `fig-NN-<slug>.svg` in a `diagrams/` folder beside the document — e.g. `clients/<client>/<doc-name>/diagrams/fig-01-context.svg`. Numbered in document order, one shared palette across the set.
-- An optional `.mmd` draft may sit alongside while you think through structure; if you do draft in Mermaid, render it locally with `scripts/render-diagrams.ps1` / `.sh` (house theme). **Confidentiality — non-negotiable:** render LOCALLY only; never send a diagram to an external render service (kroki.io, mermaid.ink, …) — a ServiceNow architecture diagram can carry client-identifying structure.
+- Author each figure as `fig-NN-<slug>.drawio` in a `diagrams/` folder beside the document — e.g. `clients/<client>/<doc-name>/diagrams/fig-01-context.drawio`. Numbered in document order, one shared palette across the set.
+- **Export** an `.svg` (or `.png`) from each `.drawio` for embedding — via draw.io / diagrams.net, the VS Code Draw.io Integration extension, or the `drawio` CLI (`drawio -x -f svg -o out.svg in.drawio`). Keep the `.drawio` as the editable source.
+- An optional `.mmd` draft may precede a figure; render Mermaid drafts locally with `scripts/render-diagrams.ps1` / `.sh`. **Confidentiality — non-negotiable:** never send a diagram to an external render service (kroki.io, mermaid.ink, …) — a ServiceNow architecture diagram can carry client-identifying structure.
 
 **Embed into the document**
-- Place each figure with a numbered caption — `![Figure 3 — Case lifecycle](diagrams/fig-03-lifecycle.svg)`. SVG embeds in markdown, Word, and PDF.
-- Keep the figure's source in a **Diagram Sources appendix** (the `diagrams/` folder) so every figure stays regenerable/editable.
-- Use the **same numbered caption** (`Figure N — …`) in the document body and in this skill's output, so the HLD/LLD Writer can place each figure in the right section without ambiguity.
+- Place the exported image with a numbered caption — `![Figure 3 — Case lifecycle](diagrams/fig-03-lifecycle.svg)`. The `.svg`/`.png` embeds in markdown, Word, and PDF.
+- Keep the `.drawio` source in a **Diagram Sources appendix** (the `diagrams/` folder) so every figure stays editable in draw.io / Lucidchart.
+- Use the **same numbered caption** (`Figure N — …`) in the document body and in this skill's output.
 
-**Handoff with the HLD/LLD Writer:** the Writer owns the document and its section numbering; this skill delivers the hand-crafted `.svg` figure set, the ready-to-paste `![…]()` embed snippets, and the appendix block. The Writer drops them into the matching sections.
+**Handoff with the HLD/LLD Writer:** the Writer owns the document and its section numbering; this skill delivers the editable `.drawio` set + the exported `.svg`/`.png`, the ready-to-paste `![…]()` embed snippets, and the appendix block. The Writer drops them into the matching sections.
 
 ## ServiceNow visual grammar (the conventions that make a diagram *ServiceNow*)
 - **Legend always.** Define shape/colour up front: ServiceNow platform = one band of colour, external systems = another, actors = a third, data stores = cylinders.
@@ -108,7 +109,7 @@ Figures are hand-crafted designed SVGs (House style above). They are authored as
 ## <Figure N …>
 ## Fidelity notes   [each node mapped to the spec element it represents; any element omitted + why]
 ## §1.1 flags   [custom objects depicted PENDING, with what approval is missing — empty if none]
-## Export & embed   [`.mmd` sources + rendered `.svg` paths + ready-to-paste `![Figure N — caption](diagrams/fig-NN.svg)` snippets + a Diagram Sources appendix block]
+## Export & embed   [`.drawio` source per figure + exported `.svg`/`.png` + ready-to-paste `![Figure N — caption](diagrams/fig-NN.svg)` snippets + a Diagram Sources appendix block]
 ## §6.2 manifest   [handback to source author for any inconsistency found; UI/UX if product screens were requested]
 ## Open questions   [spec gaps that blocked a faithful render]
 ```
@@ -139,7 +140,7 @@ Re-adopt to validate a returned diagram (or your own before delivery):
 - **Clarity** — one message per figure; legend present; readable flow; node count sane.
 - **Consistency** — colour/shape/legend identical across a pack; naming consistent.
 - **§1.1** — no unapproved custom object drawn as accepted.
-- **Renders** — Mermaid parses; export note present for client-ready.
+- **Renders** — the `.drawio` opens cleanly and the exported `.svg`/`.png` renders; styles and legend consistent.
 **Verdict:** APPROVE / APPROVE-WITH-FIXES / REWORK.
 
 ## Termination

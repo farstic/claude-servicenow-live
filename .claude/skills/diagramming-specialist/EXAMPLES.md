@@ -208,29 +208,32 @@ The `.mmd` is the source of truth; the `.svg` is the artefact. After any edit, r
 
 ---
 
-## Example 6 — Tier-2 hand-crafted SVG house style (copy-paste skeleton)
+## Example 6 — house style as draw.io (`.drawio`) — copy-paste mxCell styles
 
-The designed look (gradients, soft shadow, palette, legend) for hero/client-facing figures. Author SVG directly to this skeleton — `<defs>` carries the house gradients, shadow, and arrowheads; cards are rounded rects with two text lines; baseline solid, custom dashed/PENDING.
+Every delivered figure is an editable `.drawio` styled to the house palette. Reuse these mxCell `style=` strings; the SVG/PNG you embed in a doc is just an export of the result.
 
-```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" font-family="'Segoe UI', system-ui, Arial, sans-serif">
-  <defs>
-    <linearGradient id="gPlat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eafaf1"/><stop offset="1" stop-color="#d6f0e1"/></linearGradient>
-    <linearGradient id="gPend" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff5f5"/><stop offset="1" stop-color="#fde4e4"/></linearGradient>
-    <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="3.2" flood-color="#1f2937" flood-opacity="0.16"/></filter>
-    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker>
-  </defs>
-  <g filter="url(#sh)"><rect x="30" y="54" width="170" height="72" rx="14" fill="url(#gPlat)" stroke="#18a558" stroke-width="1.6"/></g>
-  <text x="115" y="86" text-anchor="middle" font-size="15" font-weight="600" fill="#0a5c38">ServiceNow</text>
-  <text x="115" y="106" text-anchor="middle" font-size="11.5" fill="#3b7a5a">incident</text>
-  <line x1="200" y1="90" x2="288" y2="90" stroke="#94a3b8" stroke-width="2.2" marker-end="url(#arr)"/>
-  <g filter="url(#sh)"><rect x="290" y="54" width="210" height="72" rx="14" fill="url(#gPend)" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="7 5"/></g>
-  <text x="395" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="#b91c1c">x_acme_custom</text>
-  <text x="395" y="106" text-anchor="middle" font-size="11" fill="#dc2626">CUSTOM &#183; PENDING &#167;1.1</text>
-</svg>
+| Element | mxCell `style=` |
+|---|---|
+| ServiceNow / baseline | `rounded=1;html=1;fillColor=#eafaf1;gradientColor=#d6f0e1;strokeColor=#18a558;fontColor=#0a5c38;shadow=1;arcSize=12;` |
+| Actor / role | `…;fillColor=#eef1ff;gradientColor=#e0e4fd;strokeColor=#6366f1;fontColor=#3730a3;` |
+| External system | `…;fillColor=#f7f8fa;gradientColor=#eceef1;strokeColor=#94a3b8;fontColor=#334155;` |
+| Custom field (config) | `…;fillColor=#fff7ea;gradientColor=#fdeccf;strokeColor=#f59e0b;fontColor=#92400e;` |
+| **Custom — PENDING §1.1 / manual** | add `dashed=1;dashPattern=7 5;` (red `#dc2626` / amber `#f59e0b`) |
+| Group / module | `swimlane;rounded=1;startSize=32;fillColor=#eafaf1;swimlaneFillColor=#fbfcfe;strokeColor=#cbd5e1;fontColor=#0a5c38;fontStyle=1;` |
+| Edge / arrow | `endArrow=block;strokeColor=#94a3b8;strokeWidth=2;` |
+
+Minimal `.drawio` skeleton (a baseline node → a PENDING node):
+
+```xml
+<mxfile><diagram name="fig"><mxGraphModel><root>
+  <mxCell id="0"/><mxCell id="1" parent="0"/>
+  <mxCell id="n1" value="incident" style="rounded=1;html=1;fillColor=#eafaf1;gradientColor=#d6f0e1;strokeColor=#18a558;fontColor=#0a5c38;shadow=1;arcSize=12;" vertex="1" parent="1"><mxGeometry x="40" y="40" width="160" height="56" as="geometry"/></mxCell>
+  <mxCell id="n2" value="x_acme_custom (PENDING §1.1)" style="rounded=1;html=1;fillColor=#fff5f5;gradientColor=#fde4e4;strokeColor=#dc2626;fontColor=#b91c1c;dashed=1;dashPattern=7 5;arcSize=12;" vertex="1" parent="1"><mxGeometry x="260" y="40" width="220" height="56" as="geometry"/></mxCell>
+  <mxCell id="e1" style="endArrow=block;strokeColor=#94a3b8;strokeWidth=2;" edge="1" parent="1" source="n1" target="n2"><mxGeometry relative="1" as="geometry"/></mxCell>
+</root></mxGraphModel></diagram></mxfile>
 ```
 
-Full worked reference: `skills/diagramming-specialist/templates/house-style-reference.svg` (the committed hero). **Hand-craft every delivered figure to this standard** — node labels exact-to-spec, the shared palette, one shared legend across the figure set; never ship a recolored Mermaid as the figure.
+Full reference: `skills/diagramming-specialist/templates/house-style-reference.drawio` (open in draw.io / VS Code / Lucidchart). **Hand-craft every delivered figure to this standard** — labels exact-to-spec, the shared palette, one shared legend; export an SVG/PNG for the doc; never ship a recolored Mermaid as the figure.
 
 ---
 

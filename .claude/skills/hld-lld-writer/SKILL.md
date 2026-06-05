@@ -101,7 +101,7 @@ For a Process Design Document (less common — usually requested when the audien
 | Metadata table | Document version, author, reviewers, approvers, status, release family, last updated. |
 | Change log | Version history table — date, author, change summary. |
 | Section numbering | Decimal (1.1, 1.2, 2.1) — never bullet-only. |
-| Diagrams | Hand-crafted designed SVGs from the Diagramming Specialist (`skills/diagramming-specialist/SKILL.md`), embedded via `![Figure N — caption](diagrams/fig-NN.svg)` with a numbered caption; source kept in a Diagram Sources appendix. Every figure carries the designed house style — not raw/themed Mermaid. |
+| Diagrams | Editable `.drawio` figures from the Diagramming Specialist (`skills/diagramming-specialist/SKILL.md`), exported to SVG/PNG and embedded via `![Figure N — caption](diagrams/fig-NN.svg)` with a numbered caption; the `.drawio` source kept in a Diagram Sources appendix. Every figure carries the designed house style — not raw/themed Mermaid. |
 | Tables | Markdown tables for any tabular data — never paragraphs masquerading as lists. |
 | Open Decisions | Numbered `OD-NN` with status, options, recommendation, owner, decision-by date. |
 | Cross-references | Internal links to other sections (`[See §3.2](#32-...)`). |
@@ -118,7 +118,7 @@ This skill inherits the conventions from `skills/technical-designer/SKILL.md`. W
 |---|---|---|
 | HLD or LLD? | **HLD** if the deliverable is for a review board, sign-off panel, or programme-level governance. **LLD** if the deliverable is for build sign-off on specific components. | Hybrid documents are rejected — HLD and LLD have different audiences. Produce two documents if both are needed. |
 | Length of Executive Summary | **One to two pages.** | Major programmes (>6-month delivery) may justify three pages. Never more. |
-| Diagram production | **Hand the figure set to the Diagramming Specialist** — it delivers hand-crafted designed SVGs (the house style), embedded via image links with numbered captions. | draw.io XML only when a client wants an editable source; Mermaid only as an optional draft, never the shipped figure. |
+| Diagram production | **Hand the figure set to the Diagramming Specialist** — it delivers editable `.drawio` figures (the house style), exported to SVG/PNG and embedded via image links with numbered captions. | The `.drawio` is the editable source (opens in draw.io / Lucidchart); Mermaid only as an optional draft, never the shipped figure. |
 | Inline content vs reference | **Inline** if the reader needs it to understand the decision. **Reference** if it's reused across documents. | Avoid inlining content that is owned by another specialist (Story Writer's Gherkin, Now Assist Specialist's skill definition, Operational Documentation's runbook). Reference, don't duplicate. |
 | Number of Open Decisions | **As many as exist.** | Zero is suspicious — an HLD with no open decisions usually means the writer hid them rather than that they don't exist. |
 
