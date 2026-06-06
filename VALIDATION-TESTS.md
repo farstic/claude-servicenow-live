@@ -534,6 +534,80 @@ hidden from ITSM support staff who can see the related incident.
 
 ---
 
+## T-17 — Licensing & Entitlement consult (skill-only) fires + prices the §1.1 path
+
+**Covers:** §3.1 routing-time licensing consult with a backing skill (engine v2.8.0); custom-table/scoped-app + new-fulfiller-role triggers; the consult *prices* the §1.1 path so the verdict is made with cost visible; verify-against-subscription discipline; ADR touchpoint (governance §4.1)
+**Tiers:** Claude Code ✅ · Claude.ai ⬜ (pending Tier 1 upload)
+
+### Prompt
+
+```
+We want to give our 400 field engineers — currently self-service/requester
+users — write access to log their work in a new custom "field job log" table
+we'd stand up in a new scoped app.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **§1.1 evaluation (Phase 1 Step 4) HALTS** — custom table + new scoped app, unapproved. No design artefact or build in the same turn.
+3. **Licensing & Entitlement consult fires (§3.1)** — custom table/scoped app (App Engine units) + 400 requester→write (fulfiller-subscription delta) triggers. The Architect adopts `skills/licensing-specialist/SKILL.md` and produces a **Licensing Constraint Note**.
+4. The Note **prices** the custom path (≈400 fulfiller subscriptions + App Engine units + build/upgrade) and feeds that into the §1.1 ruling — it does **not** approve the custom object.
+5. SKU/tier claims (e.g., FSM ownership) are flagged "verify against the engagement's subscription"; no prices quoted.
+6. The §1.1 ruling, once made, is recorded as an **ADR** (governance §4.1).
+
+### Pass criteria
+
+- Licensing consult surfaced at routing time with a backing skill (Constraint Note), not just named.
+- Treated as a **consult**, not a 6th gateway (no 5-Part Envelope, no gateway-style pipeline halt of its own — the halt here is §1.1's).
+- Prices the custom path and defers the §1.1 approval to the Architect; ADR touchpoint noted.
+- "Verify against subscription" applied to tier/SKU claims; no currency figures.
+
+### Fail signals
+
+- Licensing consult named but no Constraint Note produced.
+- The skill **approves/ratifies** the custom table/scoped app (it must only price it).
+- A price/currency figure quoted, or a SKU/tier asserted from memory without a verify flag.
+- A custom license-tracking table proposed.
+
+---
+
+## T-18 — Estimation & Sizing consult (skill-only) produces a defensible range
+
+**Covers:** on-demand sizing consult with a backing skill (engine v2.8.0); range-not-point + complexity rubric + named contingency; baseline-vs-custom §1.1 delta; RAID + baseline-SPM routing; cross-consult hand-offs
+**Tiers:** Claude Code ✅ · Claude.ai ⬜ (pending Tier 1 upload)
+
+### Prompt
+
+```
+Rough order of magnitude — how big is migrating ~50k assets from spreadsheets
+into ServiceNow and standing up a basic SAM dashboard?
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **Estimation & Sizing consult fires** — "rough order of magnitude / how big" trigger. The Architect adopts `skills/estimation-specialist/SKILL.md` and produces an **Estimate**.
+3. The Estimate is a **range at ROM ±50%** (not a single number), with method, user-confirmable assumptions, the ServiceNow complexity rubric applied, and explicit **contingency tied to a named risk** (source data quality).
+4. **Baseline-first vs custom-object paths are sized separately** (the §1.1 delta shown).
+5. Risks routed to **RAID** (governance §4.3); the estimate **records into baseline SPM** (Demand assessment / cost plan); the licensing question (is SAM licensed?) handed to the **Licensing Specialist**; the one-time/ongoing fork handed back to scope.
+
+### Pass criteria
+
+- Estimate is a range with a confidence band, **never a single point**.
+- Complexity rubric applied (migration/test/release drivers counted, not just "the build").
+- Contingency is a named, explained line — not silent padding.
+- Baseline-vs-custom §1.1 delta shown; records into baseline SPM; no custom estimate table.
+
+### Fail signals
+
+- A single-point number, or false precision (committed ±10%) on a one-line scope.
+- Happy-path-only sizing (migration / dedup / reconciliation / test effort omitted).
+- Hidden padding instead of an explicit contingency line.
+- A custom "estimate/sizing" table proposed.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)
@@ -617,15 +691,16 @@ Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6.
 
 ## Test Run History
 
-| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | T-13 | T-14 | T-15 | T-16 | Result |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | — | 7/7 (T-08+ not yet defined) |
-| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | — | — | — | — | 3/3 (T-08–10 first run) |
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | 10/10 PASS (full suite, updated criteria) |
-| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
-| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 13/13 PASS — **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
-| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Full T-01–T-16 regression + Tier 1 re-run pending |
-| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass + v2.7.5/v2.7.6 build-out. T-07 mechanical; no routing regression. **Tier 1 (Claude.ai) re-run still pending.** |
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | T-13 | T-14 | T-15 | T-16 | T-17 | T-18 | Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | — | — | — | 7/7 (T-08+ not yet defined) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 10/10 PASS (full suite, updated criteria) |
+| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
+| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | 13/13 PASS — **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
+| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Full T-01–T-16 regression + Tier 1 re-run pending |
+| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass + v2.7.5/v2.7.6 build-out. T-07 mechanical; no routing regression. **Tier 1 (Claude.ai) re-run still pending.** |
+| 2026-06-06 | v2.8.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | **T-17/T-18 ✅ live-fired (Claude Code)** — Licensing consult priced the §1.1 path (≈400 fulfiller + App Engine units, FSM-SKU flagged "verify"); Estimation produced a ROM range + complexity rubric + baseline-vs-custom §1.1 delta + RAID/SPM routing. Full T-01–T-18 regression + Tier 1 re-run pending. |
 
 ---
 
@@ -636,3 +711,4 @@ Mechanical (non-behavioural) audit of the agents/skills roster, separate from th
 | Date | CLAUDE.md | Mirror parity | Frontmatter | name↔dir | Doc path refs | Agent→skill refs | ServiceNowDocs citations | Result |
 |---|---|---|---|---|---|---|---|---|
 | 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 162/162 (0 dead) | **12/12 dimensions PASS.** Surfaced + fixed 16 dead citations in itom-discovery/hrsd/story-writer; bumped 8 sub-agents to opus-4-8; added the two verification gates above. Negative-tested: injected dead citation → gate exit 1 (blocks commit). |
+| 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 175/175 (0 dead) | **PASS.** Added Licensing & Estimation skills (+13 citations → 175) + `reference/` delivery-governance templates; mirrors synced; structure + citations green at commit (681b4ef). |
