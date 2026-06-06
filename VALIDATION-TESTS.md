@@ -701,6 +701,7 @@ Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6.
 | 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Full T-01–T-16 regression + Tier 1 re-run pending |
 | 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass + v2.7.5/v2.7.6 build-out. T-07 mechanical; no routing regression. **Tier 1 (Claude.ai) re-run still pending.** |
 | 2026-06-06 | v2.8.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | **T-17/T-18 ✅ live-fired (Claude Code)** — Licensing consult priced the §1.1 path (≈400 fulfiller + App Engine units, FSM-SKU flagged "verify"); Estimation produced a ROM range + complexity rubric + baseline-vs-custom §1.1 delta + RAID/SPM routing. Full T-01–T-18 regression + Tier 1 re-run pending. |
+| 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | **18/18 PASS (Claude Code)** — full T-01–T-18 regression on v2.8.0; no routing regression from the delivery-governance layer (5 gateways, §1.1 halts, §6.2 hooks, MCP gates, existing consults all unchanged). T-05/T-06 write-gates demonstrated without a live MCP write; T-07 mechanical (mirrors in sync). **Tier 1 (Claude.ai) re-run still pending.** |
 
 ---
 
