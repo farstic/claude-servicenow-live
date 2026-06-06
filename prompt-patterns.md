@@ -1,7 +1,7 @@
 # prompt-patterns.md — Reusable Prompt Templates
 
-**Version:** 1.1
-**For:** ServiceNow Architecture Engine v2.7.5
+**Version:** 1.2
+**For:** ServiceNow Architecture Engine v2.8.0
 **Purpose:** Copy-paste prompt templates for common operations against the Chief Architect orchestrator.
 
 ## How to use
@@ -413,6 +413,97 @@ Conventions:
 
 ---
 
+## Group G — Planning, estimation, and delivery governance
+
+### PP-20: Estimation and sizing
+**When to use:** You need a defensible effort estimate for a scope, a story set, or a design. The Estimation & Sizing Specialist picks a method, applies the ServiceNow complexity rubric, and returns a *range* with assumptions and contingency — not a single number.
+
+**Template:**
+> Estimation & Sizing Specialist task: estimate {{SCOPE_OR_BACKLOG_OR_DESIGN}}.
+>
+> Basis available: {{ONE-PARAGRAPH SCOPE / STORY LIST / DESIGN OR LLD REFERENCE}}
+> Confidence wanted: {{ROM ±50% / budgetary ±25% / committed ±10%}}
+> Baseline-vs-custom: {{known baseline path / custom object in play — show the §1.1 delta}}
+> Team velocity: {{POINTS_PER_SPRINT_IF_KNOWN — else say unknown}}
+> Out of scope: {{EXPLICIT EXCLUSIONS}}
+>
+> Return: method, assumptions, complexity breakdown, range, contingency, risks → RAID, where it records in SPM.
+
+**Example (filled):**
+> Estimation & Sizing Specialist task: estimate the equipment-request manager-approval feature (portal approval + 2-business-day reminder + pending-approvals report).
+> Basis available: one-paragraph scope, no design yet.
+> Confidence wanted: ROM ±50%.
+> Baseline-vs-custom: baseline approval engine assumed; show the delta if a custom approval table were required.
+> Team velocity: unknown.
+> Out of scope: delegation chains, mobile layout, data migration.
+
+---
+
+### PP-21: Licensing and entitlement check
+**When to use:** Before committing to a design, you want to know what it costs to *license* — subscriptions, SKU/tier coverage, App Engine units for custom tables, Now Assist Assists consumption, or third-party SaaS entitlement impact.
+
+**Template:**
+> Licensing & Entitlement Specialist task: {{CONSTRAINT_NOTE (pre-build) / REVIEW (post-build)}} for {{DESIGN_OR_ARTEFACT}}.
+>
+> Capabilities used: {{MODULES / FEATURES / AI / INTEGRATIONS}}
+> Custom objects in play: {{NONE / custom table(s) / scoped app}}
+> New roles: {{ROLE(S) and the population they'd be granted to}}
+> Known subscription: {{PRODUCTS + TIERS OWNED, AI SKU — or "unknown, flag what to verify"}}
+>
+> Return: subscription/fulfiller impact, SKU coverage (flag verify-against-subscription), App Engine footprint, AI consumption, third-party SaaS, constraints for the builder.
+
+**Example (filled):**
+> Licensing & Entitlement Specialist task: constraint note for the equipment-request approval design.
+> Capabilities used: catalog, Flow Designer approval, notification, report.
+> Custom objects in play: none (baseline approval engine).
+> New roles: proposed `x_acme_equip.approver` (write) for ≈600 managers — assess fulfiller impact.
+> Known subscription: unknown — flag what to verify.
+
+---
+
+### PP-22: Capture an Architecture Decision Record (ADR)
+**When to use:** A significant decision was made — a §1.1 custom-object approval/rejection, a baseline-vs-custom call, a routing override, or a choice between two viable ServiceNow patterns — and you want it recorded durably (governance §4.1).
+
+**Template:**
+> Capture an ADR for the decision below using `reference/templates/adr-template.md`.
+>
+> Decision: {{ONE-SENTENCE DECISION}}
+> Context: {{FORCES / REQUIREMENT / CONSTRAINTS / VOLUMES}}
+> Options considered: {{A (chosen) / B / C}}
+> §1.1 relevance: {{none / custom-object approved / rejected / baseline confirmed}}
+> Decision owner: {{NAME / ROLE}}
+> Engagement: {{client}} — {{module}}
+>
+> Write to clients/{{client-short-name}}/decisions/ADR-{{NNN}}-{{slug}}.md and add the ADR ref to the traceability matrix.
+
+---
+
+### PP-23: Update the traceability matrix / gap check
+**When to use:** After a builder returns an artefact, or before a release sign-off, to keep the golden thread current and surface coverage gaps (governance §4.2).
+
+**Template:**
+> Update the requirements traceability matrix at clients/{{client-short-name}}/traceability.md (template: `reference/templates/traceability-matrix-template.md`).
+>
+> Requirement(s): {{REQ_ID(S)}}
+> New link to record: {{story / design / build artefact / ATF test / update set}}
+> Then: produce the gap report — every in-scope requirement with no test or no build coverage.
+
+---
+
+### PP-24: RAID / NFR capture
+**When to use:** At discovery/design time, to capture risks, assumptions, issues, dependencies, and the non-functional targets the design must hit (governance §4.3).
+
+**Template:**
+> Capture {{RAID / NFR / BOTH}} for {{CAPABILITY_OR_PROGRAMME}} using `reference/templates/raid-log-template.md` and `reference/templates/nfr-checklist-template.md`.
+>
+> Context: {{WHAT WE'RE DESIGNING}}
+> Known risks/assumptions/dependencies: {{LIST_IF_ANY}}
+> NFR targets known: {{PERFORMANCE / AVAILABILITY / SECURITY / ACCESSIBILITY / LICENSING — or "unknown, mark as RAID assumptions"}}
+>
+> Write to clients/{{client-short-name}}/raid-log.md; hand each NFR to its owning consult; convert unconfirmed targets to RAID assumptions.
+
+---
+
 ## Maintenance
 
 This file is updated when:
@@ -424,4 +515,4 @@ Updates committed with message: `prompt-patterns: <change-summary>`.
 
 ---
 
-*End of prompt-patterns.md v1.1.*
+*End of prompt-patterns.md v1.2 — added Group G (PP-20 Estimation & sizing, PP-21 Licensing & entitlement check, PP-22 ADR capture, PP-23 Traceability update / gap check, PP-24 RAID / NFR capture) for the engine v2.8.0 delivery-governance layer.*
