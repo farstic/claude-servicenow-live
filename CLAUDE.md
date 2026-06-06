@@ -253,6 +253,7 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 | Technical design | Table model, ACL matrix, business rule list with rationale, flow steps; see `skills/technical-designer/SKILL.md` |
 | Code | Scoped (`x_<vendor>_<app>`), commented in English, ServiceNow security/perf best practices, no hardcoded sys_ids; see `skills/developer/SKILL.md` |
 | Diagrams | Mermaid in markdown (default); draw.io XML on request; SVG for client-ready output. Owned by the Diagramming Specialist — see `skills/diagramming-specialist/SKILL.md` (single figure) / `agents/diagramming-specialist.md` (batch pack) |
+| Word / PDF export | Convert any Word-ready markdown to a styled `.docx` with `scripts/md-to-docx.ps1` — navy title banner, blue-header striped tables, inline-code, shaded callouts, embedded `![](file.png)` images, page-numbered footer (pass the client name via `-FooterText`, never hard-code it). Verify visually with `scripts/render-pdf-pages.ps1`. Windows/PowerShell; no Pandoc/Python needed. |
 | Runbooks / KBAs / training | Per `skills/operational-documentation/SKILL.md` |
 | ATF tests | Per `skills/atf-author/SKILL.md`, with explicit deployment notes |
 
