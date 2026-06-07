@@ -263,9 +263,9 @@ Run directly, the same server comes up clean and fast (`[INFO] ServiceNow MCP To
 ```
 The CLI bin is `dist/cli/index.js` (from the package's `bin.servicenow-mcp`). `cwd` must be the local checkout so the relative path and `.env`/env resolve. After editing, **restart the session** — a `/mcp` reconnect alone may not pick up a changed `command`.
 
-**General principle:** for any stdio MCP server that flakes on connect under `npx`, prefer a direct `node <entrypoint>` launch. It removes the cold-resolve latency, the update-check banner, and the npx wrapper from the handshake path.
+**General principle:** for any stdio MCP server that flakes on connect under `npx`, prefer a direct `node <entrypoint>` launch. It removes the cold-resolve latency, the update-check banner, and the npx wrapper from the handshake path. It also pins you to *your* checkout rather than whatever `npx` resolves from the registry — important here because the server is a maintained fork, not the npm release.
 
-> Note: the package is published as `servicenow-mcp` (the historical "nowaikit" name in these docs is legacy). Server name in `.mcp.json` here is `snow-mcp`.
+**Source of truth:** the MCP server is a local clone, not the npm package. The package name `servicenow-mcp` (and the legacy "nowaikit" name in these docs) is incidental — the running code is the fork `github.com/RobertBH17/snow-mcp` (upstream `github.com/farstic/snow-mcp`), checked out locally and built to `dist/`. Server name in `.mcp.json` here is `snow-mcp`. Do NOT "update" it via `npx servicenow-mcp@latest` — pull/rebuild the fork instead (`git pull && npm run build`). Keep the launch pointed at the local `dist/` so version is whatever the checkout is built to.
 
 ---
 
