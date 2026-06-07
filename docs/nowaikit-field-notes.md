@@ -4,7 +4,7 @@
 **Audience:** Architects and developers operating the engine against a live PDI; anyone debugging an MCP write that did not behave as expected.
 **Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed.
 **Related:** `MCP-OPERATIONS-GUIDE.md` (the playbook these notes support) · `TECHNICAL-ARCHITECTURE.md` (§2.1 write gate, §2.2 Update Set capture).
-**Last updated:** 2026-06-01
+**Last updated:** 2026-06-08
 
 ---
 
@@ -231,6 +231,41 @@ quirk — behaviour on production instances may differ.
 **Implication for implementations:** do not assume event registrations are permanent. They can
 be removed from the UI. Plan cleanup Update Sets to include the event registration deletion
 alongside the handler (Script Action) and trigger (Business Rule) deletions.
+
+---
+
+## 11. MCP Server "Failed to connect" via npx on Windows — Launch Directly with node (confirmed 2026-06-08)
+
+**Symptom:** `claude mcp list` reports the ServiceNow MCP server as `✗ Failed to connect`, and `/mcp` reconnect fails with `-32000` (JSON-RPC connection error). No `mcp__*` tools attach to the session.
+
+**This is NOT an instance or credential problem.** Verify that first to isolate the layer:
+```
+curl -s -o /dev/null -w "HTTP %{http_code}\n" -u "<user>:<pass>" \
+  "https://<instance>.service-now.com/api/now/table/sys_user?sysparm_limit=1"
+# HTTP 200 → instance up, creds valid → the fault is the local MCP spawn, not ServiceNow
+```
+
+**Root cause:** launching the server through `npx servicenow-mcp start` is unreliable on Windows + Node 24:
+- cold `npx` package-resolve (registering ~394 tools) can exceed Claude Code's MCP handshake timeout
+- an `npx` "Update available" banner can land on the stream during the handshake
+- a Node-24/Windows libuv flake surfaces as `Assertion failed: !(handle->flags & UV_HANDLE_CLOSING), file src\win\async.c, line 94`
+
+Run directly, the same server comes up clean and fast (`[INFO] ServiceNow MCP Toolkit server running on stdio [394 tools]`).
+
+**Fix — point `.mcp.json` at the local entrypoint instead of npx:**
+```jsonc
+"snow-mcp": {
+  "command": "node",
+  "args": ["dist/cli/index.js", "start"],   // was: "npx", ["servicenow-mcp","start"]
+  "cwd": "<path-to-local-servicenow-mcp-checkout>",
+  "env": { /* unchanged */ }
+}
+```
+The CLI bin is `dist/cli/index.js` (from the package's `bin.servicenow-mcp`). `cwd` must be the local checkout so the relative path and `.env`/env resolve. After editing, **restart the session** — a `/mcp` reconnect alone may not pick up a changed `command`.
+
+**General principle:** for any stdio MCP server that flakes on connect under `npx`, prefer a direct `node <entrypoint>` launch. It removes the cold-resolve latency, the update-check banner, and the npx wrapper from the handshake path.
+
+> Note: the package is published as `servicenow-mcp` (the historical "nowaikit" name in these docs is legacy). Server name in `.mcp.json` here is `snow-mcp`.
 
 ---
 
