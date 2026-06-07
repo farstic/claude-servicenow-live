@@ -263,6 +263,26 @@ Run directly, the same server comes up clean and fast (`[INFO] ServiceNow MCP To
 ```
 The CLI bin is `dist/cli/index.js` (from the package's `bin.servicenow-mcp`). `cwd` must be the local checkout so the relative path and `.env`/env resolve. After editing, **restart the session** — a `/mcp` reconnect alone may not pick up a changed `command`.
 
+**Correction (confirmed 2026-06-08) — use an ABSOLUTE entrypoint path; do NOT rely on `cwd` for a relative `args` path.** The relative-path + `cwd` form above is unreliable on Claude Code/Windows: Claude Code does **not** apply the configured `cwd` to Node's module resolution. With `args: ["dist/cli/index.js", "start"]` + `cwd: "<checkout>"`, the spawned `node` resolves the relative path against the **project directory** (the session's cwd), not the configured `cwd`, and dies instantly:
+```
+Error: Cannot find module 'C:\...\claude-servicenow-live\dist\cli\index.js'  (code: MODULE_NOT_FOUND)
+→ MCP error -32000: Connection closed
+```
+This presents identically to the §11 flake (`Failed to connect`, `-32000` on `/mcp` reconnect, no `mcp__*` tools) but is deterministic, not intermittent — the giveaway is in the MCP log under `mcp-logs-snow-mcp` (`%LOCALAPPDATA%\claude-cli-nodejs\Cache\<project>\mcp-logs-snow-mcp\*.jsonl`): a `MODULE_NOT_FOUND` for a path rooted at the *project* dir rather than the checkout. The server still launches fine standalone (`cd <checkout> && node dist/cli/index.js start`), which masks the cause.
+
+**Fix — make the entrypoint absolute in `args` (then `cwd` only matters for `.env`/relative env resolution):**
+```jsonc
+"snow-mcp": {
+  "command": "node",
+  "args": ["C:\\Users\\<user>\\snow-mcp\\dist\\cli\\index.js", "start"],  // ABSOLUTE, not "dist/cli/index.js"
+  "cwd": "C:\\Users\\<user>\\snow-mcp",
+  "env": { /* unchanged */ }
+}
+```
+Verify before restarting: `cd <project-dir> && node "<absolute-entrypoint>" start` must print `running on stdio [394 tools]` from the project dir (not just from the checkout). Then restart the session.
+
+**Diagnostic checklist when `snow-mcp` shows `Failed to connect`:** (1) instance + creds — `curl -u user:pass <instance>/api/now/table/sys_user?sysparm_limit=1` → expect HTTP 200; (2) entrypoint exists; (3) standalone launch from checkout; (4) **read the MCP log** — `MODULE_NOT_FOUND` rooted at the project dir ⇒ this absolute-path bug; an `UV_HANDLE_CLOSING` libuv assert ⇒ the §11 intermittent flake (retry/restart).
+
 **General principle:** for any stdio MCP server that flakes on connect under `npx`, prefer a direct `node <entrypoint>` launch. It removes the cold-resolve latency, the update-check banner, and the npx wrapper from the handshake path. It also pins you to *your* checkout rather than whatever `npx` resolves from the registry — important here because the server is a maintained fork, not the npm release.
 
 **Source of truth:** the MCP server is a local clone, not the npm package. The package name `servicenow-mcp` (and the legacy "nowaikit" name in these docs) is incidental — the running code is the fork `github.com/RobertBH17/snow-mcp` (upstream `github.com/farstic/snow-mcp`), checked out locally and built to `dist/`. Server name in `.mcp.json` here is `snow-mcp`. Do NOT "update" it via `npx servicenow-mcp@latest` — pull/rebuild the fork instead (`git pull && npm run build`). Keep the launch pointed at the local `dist/` so version is whatever the checkout is built to.
