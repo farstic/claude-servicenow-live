@@ -301,3 +301,26 @@ CMDB_WRITE_ENABLED: false
 ATF_ENABLED: false
 MCP_TOOL_PACKAGE: full
 ```
+
+---
+
+## 12. records_query — `orderBy` descending prefix (`-field`) is ignored; use `ORDERBYDESC` in the encoded query (confirmed 2026-06-08)
+
+**Symptom:** `snow_core_records_query` (and the same `orderBy` param on sibling index/query tools) does **not** honour the documented `-` descending prefix. A call with `orderBy: "-sys_created_on"` returns records in **ascending** order — silently, with no error — so "most recent N" queries return the *oldest* N instead.
+
+**Confirmed example:** `incident` ordered `orderBy:"-sys_created_on"` returned 2014–2016 records (the oldest); the genuinely newest were from 2026.
+
+**Root cause:** the tool appears to strip/ignore the leading `-` and apply a plain ascending sort on the field. Plain `orderBy:"field"` (ascending) works correctly; only the descending prefix is broken.
+
+**Fix — put the sort in the encoded `query` instead of `orderBy`:**
+```jsonc
+// BROKEN — returns ascending (oldest first):
+{ "table": "incident", "orderBy": "-sys_created_on", "limit": 5 }
+
+// WORKS — genuine most-recent first:
+{ "table": "incident", "query": "ORDERBYDESCsys_created_on", "limit": 5 }
+// combine with filters: "active=true^ORDERBYDESCsys_created_on"
+```
+ServiceNow's native encoded-query operators `ORDERBYDESC<field>` / `ORDERBY<field>` are passed straight through to `sysparm_query` and sort correctly. Prefer them over the `orderBy` param whenever direction matters.
+
+**General principle:** for any "latest / most-recent / top-N by date" read, encode the sort in `query` (`ORDERBYDESC...`), not in `orderBy`. Treat a date-ordered result as suspect until you've eyeballed the first row's timestamp.
