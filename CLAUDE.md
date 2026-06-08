@@ -402,13 +402,19 @@ When a technical problem is solved, a tool limitation is discovered, or a workin
 2. Instance-specific values (URLs, sys_ids, usernames) go in `memory/MEMORY.md` (local, never committed).
 3. Commit and push `docs/nowaikit-field-notes.md` immediately after updating it.
 
-**What counts as a finding worth documenting:**
-- MCP tool bug or unexpected behaviour with a confirmed workaround
-- A ServiceNow API pattern that works vs one that fails (especially on PDI)
-- A deployment gotcha (e.g. field not set by a `create_*` tool, must patch via `update_record`)
-- Any pattern that required multiple attempts to get right
+**MCP-server / MCP-tool findings are EXCLUDED from this repo (repo-owner decision, 2026-06-08).**
+Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json` launch configuration, MCP tool-level bugs and their workarounds — are **not** committed or pushed to `claude-servicenow-live`. Keep them in local memory (`memory/`, never committed) and/or contribute them to the `snow-mcp` repo (the tool's own home). Do **not** add them to `docs/nowaikit-field-notes.md`. Steps 1 and 3 therefore apply only to ServiceNow *platform/API* patterns that are independent of the MCP tooling.
 
-This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restores full operational knowledge on any laptop.
+**What counts as a finding worth documenting (platform/API — in-repo):**
+- A ServiceNow API or data-model pattern that works vs one that fails (especially on PDI)
+- A platform behaviour that required multiple attempts to get right
+
+**Routed out of this repo (local memory or `snow-mcp` repo, per the exclusion above):**
+- MCP tool bug or unexpected behaviour with a confirmed workaround
+- MCP connection / launch-config issues
+- A gotcha specific to an MCP `create_*` / `update_*` tool
+
+This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restores in-repo operational knowledge on any laptop, while MCP-tooling specifics stay out of this repository.
 
 ## Maintenance reminders
 
