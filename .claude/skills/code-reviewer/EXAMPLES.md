@@ -35,7 +35,7 @@ The artefact meets the spec and follows ServiceNow coding standards. Role check,
 **Issue:** Priority weights `{1:100, 2:75, 3:50, 4:25, 5:10}` are hardcoded.
 **Impact:** Domain-stable, but if business decides to retune (e.g., make P1 vs P2 more aggressive), this requires a code change rather than a configuration change.
 **Recommendation:** Externalise to a JSON-typed system property `x_acme_itsm.sla_breach.priority_weights` with the current values as default. Cast on read with `JSON.parse(gs.getProperty(...))`.
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/system-properties.md`
+**Source:** `ServiceNowDocs/markdown/platform-administration/r_AvailableSystemProperties.md`
 
 ## Strengths
 - Header comment includes spec reference — easy to trace back to LLD §4.2.
@@ -130,7 +130,7 @@ groups.addQuery('active', true);
 groups.addQuery('name', c.category.toString());
 groups.query();
 ```
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/security/secure-coding.md`
+**Source:** `ServiceNowDocs/markdown/platform-security/bp-before-query-business-rules.md`
 
 ### [SEC][block] No role check on a client-reachable endpoint
 **Location:** Top of `route()`.
@@ -143,7 +143,7 @@ if (!gs.hasRole('x_acme_csm.case_router')) {
 }
 ```
 The Script Include must also explicitly mark the client_callable surface — currently absent from the prototype declaration.
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/security/access-control-rules.md`
+**Source:** `ServiceNowDocs/markdown/platform-security/access-control/access-control-rules.md`
 
 ### [SEC][block] PII leaked into logs
 **Location:** `gs.log` call at end of method.
@@ -154,7 +154,7 @@ The Script Include must also explicitly mark the client_callable surface — cur
 gs.info('routed case ' + caseId + ' account=' + acct + ' caseCount=' + count);
 ```
 If contact-level traceability is needed, log the contact `sys_id`, not `email`.
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/security/audit-logging.md`
+**Source:** `ServiceNowDocs/markdown/platform-security/audit-mgmt-console.md`
 
 ### [PERF][block] JS-side counting against case volume
 **Location:** The `while (cases.next()) { count++; }` block.
@@ -169,7 +169,7 @@ agg.query();
 var count = agg.next() ? parseInt(agg.getAggregate('COUNT'), 10) : 0;
 ```
 Better yet — reconsider whether `count` is needed at all; the log line is the only consumer.
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/performance/script-performance.md`
+**Source:** `ServiceNowDocs/markdown/application-development/business-rules-and-script-includes.md`
 
 ### [BEST][block] No `c.get(caseId)` return-value check
 **Location:** `route()`, second line.
@@ -275,7 +275,7 @@ Structurally sound: thin async BR delegating to a Script Include, header comment
 gs.error('PIINotifier failure: ' + e.message + ' caseNumber=' + (details && details.caseNumber));
 ```
 If detail is needed for triage, write the full details to a separate, ACL-restricted log table (`x_acme_hrsd_pii_failure_log`) with retention policy aligned to PII rules.
-**Source:** `ServiceNowDocs/markdown/servicenow-platform/security/audit-logging.md`
+**Source:** `ServiceNowDocs/markdown/platform-security/audit-mgmt-console.md`
 
 ### [BEST][consider] `details` referenced in catch outside its declaring try
 **Location:** Catch block.

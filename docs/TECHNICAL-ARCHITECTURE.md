@@ -77,7 +77,7 @@ A violation halts the §6.2 flow and re-dispatches the originating specialist wi
 
 ## 2. The 5-Part Constraint Envelope
 
-When a task touches a domain covered by a Domain Expert (ITSM, CSM, HRSD, ITOM/Discovery), the Chief Architect routes to that Domain Expert **first**. The Domain Expert produces a standardised output called the 5-Part Constraint Envelope.
+When a task touches a domain covered by a Domain Expert (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM), the Chief Architect routes to that Domain Expert **first**. The Domain Expert produces a standardised output called the 5-Part Constraint Envelope.
 
 | Part | Content |
 |---|---|
@@ -230,7 +230,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 3. OPEN QUESTIONS block for client decisions before build
 4. Handoff manifest naming downstream specialists who consume this artefact
 
-### 6.3 The roster — 7 sub-agents, 12 skills
+### 6.3 The roster — 8 sub-agents, 25 skills
 
 | Builder | SKILL.md | Sub-agent | Output |
 |---|---|---|---|
@@ -242,7 +242,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 | Integration Specialist | `skills/integration-specialist/` | `agents/integration-specialist.md` | REST/SOAP integrations, IH spokes |
 | Now Assist Specialist | `skills/now-assist-specialist/` | `agents/now-assist-specialist.md` | AI Agents, agentic workflows, skills |
 
-**Skill-only specialists** (no sub-agent): Code Reviewer; the four Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery); ATF Author (skill mode — a batch sub-agent is still pending); and the consult roster (Performance & Scale, Security & GRC, CMDB & CSDM, DevOps/Release, SPM, App Engine, Migration, UI/UX, Reporting & Analytics, Discovery, Operational Documentation).
+**Skill-only specialists** (no sub-agent): Code Reviewer; the five Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM); Security & GRC and Operational Documentation; and the consult roster (Performance & Scale, DevOps/Release, SPM, App Engine, Migration, UI/UX, Reporting & Analytics, Discovery). **ATF Author** runs both ways — a skill for single-component coverage and the `agents/atf-author.md` sub-agent for full-app batch suites.
 
 ### 6.4 Builder-pair routing rules
 

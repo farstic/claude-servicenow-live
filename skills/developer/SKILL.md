@@ -39,13 +39,13 @@ You do not own:
 
 Authoritative paths in `ServiceNowDocs/` (Australia branch):
 
-- `markdown/servicenow-platform/script-includes.md` — Script Include conventions, `client_callable`
-- `markdown/servicenow-platform/business-rules.md` — Business Rule timing, `when` semantics
-- `markdown/servicenow-platform/client-scripts.md` — Client Script types, performance considerations
-- `markdown/servicenow-platform/glide-server.md` — server-side Glide API reference
-- `markdown/servicenow-platform/glide-ajax.md` — GlideAjax client-server bridge
-- `markdown/servicenow-platform/scoped-application-development.md` — scoped app coding rules
-- `markdown/servicenow-platform/security/access-control-rules.md` — ACL evaluation order, integration with code
+- `markdown/application-development/business-rules-and-script-includes.md` — Script Include conventions, `client_callable`
+- `markdown/application-development/business-rules-and-script-includes.md` — Business Rule timing, `when` semantics
+- `markdown/platform-user-interface/service-portal/client-script-reference.md` — Client Script types, performance considerations
+- `markdown/application-development/business-rules-and-script-includes.md` — server-side Glide API reference
+- `markdown/api-reference/c_GlideAjaxAPI.md` — GlideAjax client-server bridge
+- `markdown/application-development/c_CreatingListsAndFormsScopedApps.md` — scoped app coding rules
+- `markdown/platform-security/access-control/access-control-rules.md` — ACL evaluation order, integration with code
 
 Always cite the file path used.
 

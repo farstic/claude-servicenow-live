@@ -427,6 +427,187 @@ The Developer sub-agent returns a Script Include artefact **destined for a relea
 
 ---
 
+## T-14 — CMDB & CSDM Gateway: fires for a data-model request
+
+**Covers:** Phase 1 Step 5 (CMDB & CSDM gateway — new v2.0 gateway)
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+We're modelling our service portfolio in CSDM. Design how "Acme Connect" should sit
+in the CMDB as a business service and how it links to the technology that delivers it.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **CMDB & CSDM Specialist gateway fires (Phase 1 Step 5)** — task is CMDB/CSDM data-model
+   design (service-type modelling, CSDM placement). Produces 5-Part Constraint Envelope.
+   Part 3 Verdict: **A** — `cmdb_ci_service_business` + `cmdb_ci_service_technical` linked via
+   designed `cmdb_rel_ci`; CSDM v5; no custom table.
+3. Architect proposes the appropriate builder (Technical Designer if config needed). Waits for approval.
+4. No builder dispatched before the Envelope is produced.
+
+### Pass criteria
+
+- CMDB & CSDM Specialist gateway fires **automatically** at Phase 1 Step 5.
+- Envelope uses **CSDM v5 table names** (`cmdb_ci_service_technical`, not `cmdb_ci_service_technical_service`).
+- No builder dispatched before the Envelope is produced.
+
+### Fail signals
+
+- No gateway fires; Architect answers from generic memory → Phase 1 Step 5 not wired for CMDB & CSDM.
+- ITOM/Discovery fires *instead* (this is a pure model task with no Discovery/population) → boundary misapplied.
+- Pre-v5 table names used as current state → release-family discipline not enforced.
+
+---
+
+## T-15 — Multi-Gateway Co-Fire: CSM ↔ ITSM ↔ CSDM
+
+**Covers:** Phase 1 Step 5 multi-gateway co-fire rule; envelope reconciliation; ITOM↔CMDB&CSDM boundary
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+On one instance, when a customer logs a CSM case about a product, the agent should see the
+related service; and when that service has an incident, ITSM support should see the impact.
+Design the shared service model so both sides point at the same thing.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **Three gateways co-fire (Phase 1 Step 5):** CSM (case/install base), ITSM (incident impact),
+   and CMDB & CSDM (the shared service model). Each produces a 5-Part Constraint Envelope.
+3. Envelopes are **reconciled** so all name the *same* `cmdb_ci_service_*` records. CMDB & CSDM
+   Verdict: **A** — shared service layer is the integration; **no bridging table**.
+4. Architect proposes a plan referencing the shared layer (Technical Designer for reference/form
+   config). Waits for approval. No builder dispatched before envelopes are produced and reconciled.
+
+### Pass criteria
+
+- All three gateways fire automatically; the CMDB & CSDM envelope explicitly blocks a bridging table.
+- Reconciliation is stated (the same service records referenced from both CSM and ITSM).
+- No builder dispatched before the reconciled envelope context exists.
+
+### Fail signals
+
+- Only one gateway fires (cross-domain co-fire rule not applied).
+- A custom bridging table (e.g., `x_*_service_map`) is proposed or accepted → §1.1 / anti-pattern miss.
+- CSM and ITSM modelled against *separate* service records → shared-layer principle violated.
+
+---
+
+## T-16 — Security & GRC consult + review (skill-only, NOT a gateway)
+
+**Covers:** §3.1 routing-time security consult with a backing skill; architectural-security review mode; correct boundary vs gateway and vs Code Reviewer
+**Tiers:** Claude Code ✅ · Claude.ai ✅
+
+### Prompt
+
+```
+Design the access model for a CSM case table where customer contact PII must be
+hidden from ITSM support staff who can see the related incident.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **CSM gateway fires (Phase 1 Step 5)** — it's a CSM case design. (Gateway behaviour unchanged.)
+3. **Security & GRC consult fires (§3.1)** — PII + non-trivial ACL + cross-domain visibility triggers. The Architect adopts `skills/security-grc-specialist/SKILL.md` and produces a **Security & GRC Constraint Note** (field-ACL strategy, PII classification, default-deny, §1.1 verdict = configuration-only), BEFORE any builder is dispatched.
+4. **Security & GRC does NOT auto-fire a 5-Part Constraint Envelope and does NOT halt all builders** — it is a consult, not a gateway. The five gateways are unchanged.
+5. If a Technical Designer spec is later returned, the skill re-adopts in **review mode** and returns a verdict (block / fix-before-prod / consider).
+
+### Pass criteria
+
+- Security & GRC consult is surfaced at routing time with a backing skill (Constraint Note), not just named.
+- It is treated as a **consult** (no 5-Part Envelope, no gateway-style hard halt of the pipeline).
+- Correct boundary: architectural security here, not code-level (which remains Code Reviewer).
+
+### Fail signals
+
+- Security & GRC treated as a 6th Domain Expert gateway (auto-fires a 5-Part Envelope).
+- Consult named but no Constraint Note produced (the pre-skill behaviour).
+- Code-level findings (missing `gs.hasRole`, injection) emitted here instead of routed to Code Reviewer.
+
+---
+
+## T-17 — Licensing & Entitlement consult (skill-only) fires + prices the §1.1 path
+
+**Covers:** §3.1 routing-time licensing consult with a backing skill (engine v2.8.0); custom-table/scoped-app + new-fulfiller-role triggers; the consult *prices* the §1.1 path so the verdict is made with cost visible; verify-against-subscription discipline; ADR touchpoint (governance §4.1)
+**Tiers:** Claude Code ✅ · Claude.ai ⬜ (pending Tier 1 upload)
+
+### Prompt
+
+```
+We want to give our 400 field engineers — currently self-service/requester
+users — write access to log their work in a new custom "field job log" table
+we'd stand up in a new scoped app.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **§1.1 evaluation (Phase 1 Step 4) HALTS** — custom table + new scoped app, unapproved. No design artefact or build in the same turn.
+3. **Licensing & Entitlement consult fires (§3.1)** — custom table/scoped app (App Engine units) + 400 requester→write (fulfiller-subscription delta) triggers. The Architect adopts `skills/licensing-specialist/SKILL.md` and produces a **Licensing Constraint Note**.
+4. The Note **prices** the custom path (≈400 fulfiller subscriptions + App Engine units + build/upgrade) and feeds that into the §1.1 ruling — it does **not** approve the custom object.
+5. SKU/tier claims (e.g., FSM ownership) are flagged "verify against the engagement's subscription"; no prices quoted.
+6. The §1.1 ruling, once made, is recorded as an **ADR** (governance §4.1).
+
+### Pass criteria
+
+- Licensing consult surfaced at routing time with a backing skill (Constraint Note), not just named.
+- Treated as a **consult**, not a 6th gateway (no 5-Part Envelope, no gateway-style pipeline halt of its own — the halt here is §1.1's).
+- Prices the custom path and defers the §1.1 approval to the Architect; ADR touchpoint noted.
+- "Verify against subscription" applied to tier/SKU claims; no currency figures.
+
+### Fail signals
+
+- Licensing consult named but no Constraint Note produced.
+- The skill **approves/ratifies** the custom table/scoped app (it must only price it).
+- A price/currency figure quoted, or a SKU/tier asserted from memory without a verify flag.
+- A custom license-tracking table proposed.
+
+---
+
+## T-18 — Estimation & Sizing consult (skill-only) produces a defensible range
+
+**Covers:** on-demand sizing consult with a backing skill (engine v2.8.0); range-not-point + complexity rubric + named contingency; baseline-vs-custom §1.1 delta; RAID + baseline-SPM routing; cross-consult hand-offs
+**Tiers:** Claude Code ✅ · Claude.ai ⬜ (pending Tier 1 upload)
+
+### Prompt
+
+```
+Rough order of magnitude — how big is migrating ~50k assets from spreadsheets
+into ServiceNow and standing up a basic SAM dashboard?
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **Estimation & Sizing consult fires** — "rough order of magnitude / how big" trigger. The Architect adopts `skills/estimation-specialist/SKILL.md` and produces an **Estimate**.
+3. The Estimate is a **range at ROM ±50%** (not a single number), with method, user-confirmable assumptions, the ServiceNow complexity rubric applied, and explicit **contingency tied to a named risk** (source data quality).
+4. **Baseline-first vs custom-object paths are sized separately** (the §1.1 delta shown).
+5. Risks routed to **RAID** (governance §4.3); the estimate **records into baseline SPM** (Demand assessment / cost plan); the licensing question (is SAM licensed?) handed to the **Licensing Specialist**; the one-time/ongoing fork handed back to scope.
+
+### Pass criteria
+
+- Estimate is a range with a confidence band, **never a single point**.
+- Complexity rubric applied (migration/test/release drivers counted, not just "the build").
+- Contingency is a named, explained line — not silent padding.
+- Baseline-vs-custom §1.1 delta shown; records into baseline SPM; no custom estimate table.
+
+### Fail signals
+
+- A single-point number, or false precision (committed ±10%) on a one-line scope.
+- Happy-path-only sizing (migration / dedup / reconciliation / test effort omitted).
+- Hidden padding instead of an explicit contingency line.
+- A custom "estimate/sizing" table proposed.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)
@@ -510,10 +691,25 @@ Regression baseline: Full suite 10/10 PASS on 2026-05-29 against CLAUDE.md v2.6.
 
 ## Test Run History
 
-| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | Result |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | 7/7 (T-08–10 new) |
-| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | 3/3 (T-08–10 first run) |
-| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (full suite, updated criteria) |
-| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
-| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | 13/13 PASS — T-01–T-10 ✅ above; **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
+| Date | CLAUDE.md | T-01 | T-02 | T-03 | T-04 | T-05 | T-06 | T-07 | T-08 | T-09 | T-10 | T-11 | T-12 | T-13 | T-14 | T-15 | T-16 | T-17 | T-18 | Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | — | — | — | 7/7 (T-08+ not yet defined) |
+| 2026-05-29 | v2.6 | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 3/3 (T-08–10 first run) |
+| 2026-05-29 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 10/10 PASS (full suite, updated criteria) |
+| 2026-05-30 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | — | — | — | 10/10 PASS (post F-016/F-017; T-07 mechanical, T-01–10 exec) |
+| 2026-05-31 | v2.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | — | — | — | 13/13 PASS — **T-11/T-12/T-13 ✅ (first behavioural run)**; T-07 mechanical, rest exec; post F-005/006/013/018 |
+| 2026-06-03 | v2.7.4 | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | ✅ | — | — | **T-14/T-15/T-16 ✅ live-fired (Claude Code)** — CMDB & CSDM gateway, CSM↔ITSM↔CSDM co-fire, Security & GRC consult/review. Full T-01–T-16 regression + Tier 1 re-run pending |
+| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | **16/16 PASS (Claude Code)** — full T-01–T-16 regression after the v1.1 skill depth-pass + v2.7.5/v2.7.6 build-out. T-07 mechanical; no routing regression. **Tier 1 (Claude.ai) re-run still pending.** |
+| 2026-06-06 | v2.8.0 | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | ✅ | ✅ | **T-17/T-18 ✅ live-fired (Claude Code)** — Licensing consult priced the §1.1 path (≈400 fulfiller + App Engine units, FSM-SKU flagged "verify"); Estimation produced a ROM range + complexity rubric + baseline-vs-custom §1.1 delta + RAID/SPM routing. Full T-01–T-18 regression + Tier 1 re-run pending. |
+| 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | **18/18 PASS (Claude Code)** — full T-01–T-18 regression on v2.8.0; no routing regression from the delivery-governance layer (5 gateways, §1.1 halts, §6.2 hooks, MCP gates, existing consults all unchanged). T-05/T-06 write-gates demonstrated without a live MCP write; T-07 mechanical (mirrors in sync). **Tier 1 (Claude.ai) re-run still pending.** |
+
+---
+
+## Structural / Engine Integrity Runs
+
+Mechanical (non-behavioural) audit of the agents/skills roster, separate from the T-NN behavioural suite. Now enforced automatically at commit time by `scripts/verify-structure.sh` + `scripts/verify-citations.sh` (wired into `.githooks/pre-commit`).
+
+| Date | CLAUDE.md | Mirror parity | Frontmatter | name↔dir | Doc path refs | Agent→skill refs | ServiceNowDocs citations | Result |
+|---|---|---|---|---|---|---|---|---|
+| 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 162/162 (0 dead) | **12/12 dimensions PASS.** Surfaced + fixed 16 dead citations in itom-discovery/hrsd/story-writer; bumped 8 sub-agents to opus-4-8; added the two verification gates above. Negative-tested: injected dead citation → gate exit 1 (blocks commit). |
+| 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 175/175 (0 dead) | **PASS.** Added Licensing & Estimation skills (+13 citations → 175) + `reference/` delivery-governance templates; mirrors synced; structure + citations green at commit (681b4ef). |

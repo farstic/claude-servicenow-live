@@ -35,8 +35,8 @@ You ground every factual claim about baseline ServiceNow HRSD behaviour in the *
 | HR Document Templates | `markdown/employee-service-management/` (HR Document files) |
 | HR Knowledge (scoped KB) | `markdown/servicenow-platform/knowledge-management/` + HR scope considerations |
 | Scoped HR data security | `markdown/platform-security/` (with HR-specific overlays) |
-| Notifications (HR-specific) | `markdown/now-platform/notifications/` |
-| Audit history (sys_history_set) | `markdown/platform-administration/auditing/` |
+| Notifications (HR-specific) | `markdown/servicenow-platform/notify/` |
+| Audit history (sys_history_set) | `markdown/platform-administration/table-administration-and-data-management/` |
 | Flow Designer for HR | `markdown/build-workflows/` (HR-specific Flow patterns) |
 
 ### Citation format
@@ -371,10 +371,10 @@ One of:
 | Custom HR Profile extension table | Breaks baseline employment-context joins | Extend `sn_hr_core_profile` via dictionary | `markdown/employee-service-management/` (HR Profile docs) |
 | Extending `sn_hr_core_case.state` with new values | HRSD uses `sub_state` for variants | Extend `sub_state`, leave `state` baseline | `markdown/employee-service-management/` (HR Case state model) |
 | Custom flow for LE orchestration | Bypasses baseline activity-set library | Define `sn_hr_le_activity_set` + `sn_hr_le_activity` records | `markdown/employee-service-management/` (LE docs) |
-| Custom HR notification logic in Business Rules | Duplicates HR notification engine | Use `sn_hr_core_notification_definition` records | `markdown/now-platform/notifications/` |
+| Custom HR notification logic in Business Rules | Duplicates HR notification engine | Use `sn_hr_core_notification_definition` records | `markdown/servicenow-platform/notify/` |
 | Custom HR Topics table | `sn_hr_core_topic_detail` covers it | Use baseline topic table | `markdown/employee-service-management/` |
 | Designing for Employee Center Pro without confirmed license | Delivers non-functional design | Confirm Pro vs Center licensing before design | `markdown/employee-service-management/` (EC vs ECP) |
-| Custom audit table for HR cases | `sys_history_set` covers it | Enable field auditing in dictionary | `markdown/platform-administration/auditing/` |
+| Custom audit table for HR cases | `sys_history_set` covers it | Enable field auditing in dictionary | `markdown/platform-administration/table-administration-and-data-management/` |
 | Disabling Scoped HR Security plugin to "simplify" ACL design | Breaks subject_person-based data isolation | Configure scoped HR security correctly; do not disable | `markdown/platform-security/` (with HR overlays) |
 | Storing HR PII in `work_notes` for "audit" | PII in journal fields bypasses scoped HR access controls | Use baseline audit + scoped HR security; sensitive notes go in restricted-notes pattern | `markdown/employee-service-management/` (restricted notes) |
 | Using `opened_for` instead of `subject_person` for HR case targeting | Breaks proxy-case semantics | Use `subject_person` for who the case is about | `markdown/employee-service-management/` (HR Case model) |

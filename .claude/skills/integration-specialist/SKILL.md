@@ -53,16 +53,16 @@ You do not own:
 
 Authoritative paths in `ServiceNowDocs/` (Australia branch):
 
-- `markdown/now-platform/integration-hub/` — IntegrationHub overview
-- `markdown/now-platform/integration-hub/spoke-development.md` — building new spokes
-- `markdown/now-platform/integration-hub/spoke-consumption.md` — consuming spokes (cross-reference for Flow Designer Specialist)
-- `markdown/now-platform/scripted-rest-api/` — inbound Scripted REST APIs
-- `markdown/now-platform/rest-messages/` — outbound REST Messages
-- `markdown/now-platform/mid-server/` — MID Server topology, capabilities, affinities
-- `markdown/now-platform/mid-server/ecc-queue.md` — ECC queue semantics
-- `markdown/now-platform/connection-credential-aliases.md` — alias indirection
-- `markdown/now-platform/security/oauth2.md` — OAuth2 flows
-- `markdown/now-platform/security/mutual-tls.md` — mTLS configuration
+- `markdown/integrate-applications/integration-hub/building-integrations-ih.md` — IntegrationHub overview
+- `markdown/integrate-applications/integration-hub/building-integrations-ih.md` — building new spokes
+- `markdown/integrate-applications/integration-hub/request-ih-overview.md` — consuming spokes (cross-reference for Flow Designer Specialist)
+- `markdown/api-reference/rest-apis/` — inbound Scripted REST APIs
+- `markdown/api-reference/web-services/` — outbound REST Messages
+- `markdown/it-operations-management/configure-a-mid-server.md` — MID Server topology, capabilities, affinities
+- `markdown/it-operations-management/configure-a-mid-server.md` — ECC queue semantics
+- `markdown/integrate-applications/credentials.md` — alias indirection
+- `markdown/platform-security/authentication/c_OAuthApplications.md` — OAuth2 flows
+- `markdown/platform-security/authentication/c_MutualAuthentication.md` — mTLS configuration
 
 Always cite the file path used.
 

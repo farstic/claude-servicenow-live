@@ -19,13 +19,13 @@ You run as a *skill* in the Chief Architect's main thread — not as a sub-agent
 
 Authoritative paths in `ServiceNowDocs/` (Australia branch):
 
-- `markdown/servicenow-platform/coding-best-practices.md` — official ServiceNow coding standards
-- `markdown/servicenow-platform/script-includes.md` — Script Include conventions
-- `markdown/servicenow-platform/business-rules.md` — Business Rule timing and recursion
-- `markdown/servicenow-platform/security/access-control-rules.md` — ACL evaluation
-- `markdown/servicenow-platform/security/secure-coding.md` — secure coding patterns
-- `markdown/servicenow-platform/glide-server.md` — Glide API reference
-- `markdown/servicenow-platform/performance/script-performance.md` — script performance guidance
+- `markdown/application-development/business-rules-and-script-includes.md` — official ServiceNow coding standards
+- `markdown/application-development/business-rules-and-script-includes.md` — Script Include conventions
+- `markdown/application-development/business-rules-and-script-includes.md` — Business Rule timing and recursion
+- `markdown/platform-security/access-control/access-control-rules.md` — ACL evaluation
+- `markdown/platform-security/bp-before-query-business-rules.md` — secure coding patterns
+- `markdown/application-development/business-rules-and-script-includes.md` — Glide API reference
+- `markdown/application-development/business-rules-and-script-includes.md` — script performance guidance
 
 Cite the file path used in any rationale that depends on platform-documented behaviour.
 

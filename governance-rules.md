@@ -60,7 +60,7 @@ When detected, the Chief Architect halts the post-build §6.2 flow and re-dispat
 
 ### Scope of application
 
-This rule applies to all 22 specialists at all tiers — builders, reviewers, domain experts, consultants, documentation specialists. It overrides any prior "default to scoped app" or "create a dedicated table" language that may exist in earlier-phase SKILL.md files. Where conflict exists, §1.1 wins.
+This rule applies to all 25 specialists at all tiers — builders, reviewers, domain experts, consultants, documentation specialists. It overrides any prior "default to scoped app" or "create a dedicated table" language that may exist in earlier-phase SKILL.md files. Where conflict exists, §1.1 wins.
 
 ### Routing-time vs post-build enforcement
 
@@ -113,6 +113,46 @@ Before executing any `create_*` or `update_*` MCP write operation that produces 
 
 ---
 
+## §4 — Delivery Artefact Governance (ADR · Traceability · RAID & NFR)
+
+> **Numbering note.** This file deliberately skips §3 to avoid collision with the high-traffic routing-consult namespace (taxonomy/CLAUDE.md **§3.1** routing-time consults, **§3.2** post-build consults). Governance rule families are §1 (Baseline-First), §2 (MCP), §4 (Delivery Artefact Governance). Always cite these as "governance-rules.md §4.x".
+
+These rules turn isolated specialist artefacts into auditable enterprise delivery. They are **engagement-scoped**: the living instances live under `clients/<name>/` (gitignored — confidentiality firewall), seeded from the engine-level templates in `reference/templates/`. They apply across every module. None of these artefacts is a ServiceNow object — they are delivery governance, so they never themselves trigger §1.1; but each must respect §1.1 when it *records* a decision or requirement that implies a custom object.
+
+### §4.1 — Architecture Decision Records (ADR)
+
+A significant architectural decision must be captured as an ADR before it is treated as settled. Template: `reference/templates/adr-template.md`. Location: `clients/<name>/decisions/ADR-<NNN>-<slug>.md`.
+
+**An ADR is mandatory for:**
+- Every §1.1 custom-object **approval or rejection** (the ADR is the durable record of the dispatch-envelope decision — it is where "the user approved this custom table on this date" lives).
+- Every baseline-vs-custom call, every routing override, and every choice between two viable ServiceNow patterns (spoke vs Scripted REST, report vs PA, flow vs business rule, workspace vs portal, etc.).
+- Any release/scope/security/licensing trade-off a reviewer would later challenge with "why did we…?".
+
+**Discipline:** one decision per file; ADRs are immutable once Accepted — a changed decision is a *new* ADR that supersedes the old one (status `Superseded by ADR-NNN`). The Chief Architect proposes the ADR; the decision owner is the user (or named authority). An ADR does not replace the §1.1 approval gate — it records the outcome of it.
+
+### §4.2 — Requirements Traceability (the golden thread)
+
+Every requirement on a release path must be traceable through story → design → build → test → deployment. Template: `reference/templates/traceability-matrix-template.md`. Location: `clients/<name>/traceability.md` (one living matrix per engagement or per release/PI).
+
+**Discipline:** the matrix is **append-as-you-go**, not retro-fitted. Each specialist adds its reference to the relevant row as it produces an artefact — Story Writer the story ID, Technical Designer / HLD-LLD Writer the design ref, Developer / Flow Designer the build artefact, ATF Author the test ID, DevOps / Release Manager the update set. The Chief Architect updates the matrix at the Phase 2 post-build step and surfaces any **coverage gap** (a requirement with no test, or no build) as an OPEN QUESTION before sign-off. A release should not be declared done while the matrix shows a `❌ gap` on an in-scope requirement.
+
+### §4.3 — RAID and NFR capture
+
+**RAID** (Risks, Assumptions, Issues, Dependencies) and **NFRs** (non-functional requirements) are captured at discovery/design time and maintained through delivery. Templates: `reference/templates/raid-log-template.md`, `reference/templates/nfr-checklist-template.md`. Locations: `clients/<name>/raid-log.md`, and the NFR checklist alongside the design it constrains.
+
+**Discipline:**
+- **Every unresolved `OPEN QUESTION` becomes a RAID item** so it survives the gap between sessions/laptops rather than evaporating. Estimation surfaces sizing risks/assumptions; Discovery surfaces dependencies; Performance/Security/Licensing each surface their own risks.
+- **NFRs are design constraints, not afterthoughts.** Capture them before build and hand each to its owning consult (Performance & Scale, Security & GRC, Licensing, UI/UX, Integration). An NFR with an unconfirmed target is a RAID Assumption until the client confirms it. Never assert an NFR target from memory.
+
+### Enforcement points
+
+- **Routing-time (Phase 1):** when a §1.1 custom-object question is raised, the Chief Architect notes that approval will be recorded as an ADR (§4.1); NFRs and RAID items surfaced during assumptions go into the engagement logs (§4.3).
+- **Post-build (Phase 2):** after a builder returns, the Chief Architect updates the traceability matrix (§4.2) and records any decision taken during the build as an ADR (§4.1) before presenting the artefact as final.
+
+These rules are advisory scaffolding, not a hard halt like §1.1/§2.1 — but skipping them is a delivery-governance defect the Chief Architect should flag, the same way a missing Code Reviewer pass is flagged.
+
+---
+
 ## Maintenance
 
 This file is the canonical source for global architecture rules. Updates committed with message: `governance: <rule-id> <change-summary>`.
@@ -128,4 +168,4 @@ Drift between this file and downstream references is a maintenance bug. Resolve 
 
 ---
 
-*End of governance-rules.md v1.2.*
+*End of governance-rules.md v1.3 — added §4 Delivery Artefact Governance (ADR §4.1, Requirements Traceability §4.2, RAID & NFR §4.3), seeded from `reference/templates/`; §3 deliberately skipped to avoid the routing-consult §3.x namespace; §1.1 scope updated 22 → 25 specialists. Prior — v1.2: §2.1 MCP write gate + §2.2 update-set capture.*

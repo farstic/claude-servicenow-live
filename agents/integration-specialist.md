@@ -2,7 +2,7 @@
 name: integration-specialist
 description: Design integration architecture between ServiceNow and external systems — outbound REST/SOAP, inbound Scripted REST APIs, IntegrationHub spokes, MID Server topology, authentication, retry/DLQ patterns, payload security — per a supplied requirement. Dispatched by the Chief Architect orchestrator after routing approval. Returns integration architecture specification(s) and a §6.2 post-build proposal manifest covering downstream Flow Designer (orchestration) and Developer (custom scripts).
 tools: Read, Write, Edit, Glob, Grep, WebFetch
-model: claude-opus-4-7
+model: claude-opus-4-8
 ---
 
 # Integration Specialist Sub-Agent

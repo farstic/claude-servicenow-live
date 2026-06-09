@@ -35,7 +35,7 @@ Both tiers share the same `.claude/skills/` directory so expertise is authored o
 Claude.ai Projects (Tier 1)          Claude Code CLI (Tier 2)
 ─────────────────────────────         ──────────────────────────────────────────
 Master Project                        Chief Architect orchestrator (CLAUDE.md)
-  └─ global skills                      ├─ 22 specialists (7 with sub-agents)
+  └─ global skills                      ├─ 22 specialists (8 with sub-agents)
 Satellite Projects (per client)         ├─ ServiceNowDocs/ (official docs submodule)
   └─ client knowledge + skills          └─ NowAIKit MCP ──► Live ServiceNow instance
 ```
@@ -354,7 +354,7 @@ Expected: Claude returns the connected instance URL and ServiceNow version.
    | `.claude/skills/technical-designer/SKILL.md` | Table models, ACLs, business rule design |
    | `.claude/skills/now-assist-specialist/SKILL.md` | AI Agents, Now Assist skills, agentic workflows |
 
-   Start with the four Domain Expert skills (itsm, csm, hrsd, itom) and the developer + code-reviewer pair — those cover 90% of daily use.
+   Start with the five Domain Expert skills (itsm, csm, hrsd, itom, cmdb-csdm) and the developer + code-reviewer pair — those cover 90% of daily use.
 
 ### 5c — Create Satellite Projects (one per active client)
 
@@ -394,7 +394,7 @@ For each client engagement:
 ```
 User request
   → Chief Architect restates + surfaces assumptions
-  → Domain Expert gateway fires (ITSM / CSM / HRSD / ITOM)
+  → Domain Expert gateway fires (ITSM / CSM / HRSD / ITOM / CMDB & CSDM)
   → Developer sub-agent dispatched (with constraint envelope)
   → Code Reviewer pass proposed (§6.2 hook)
   → ATF Author pass proposed
@@ -594,7 +594,7 @@ To invoke manually:
 
 > **Note on versioning:** the roadmap below uses a `v1.x` product-release cadence. The engine's internal `CLAUDE.md` version (currently v2.6) tracks protocol and governance changes on a separate increment. Both version numbers are maintained; they do not conflict.
 
-**v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
+**v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
 **v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. NowAIKit MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
 

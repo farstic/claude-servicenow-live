@@ -2,7 +2,7 @@
 name: developer
 description: Implement ServiceNow code (Script Includes, Business Rules, Client Scripts, UI Scripts, Scheduled Jobs, Background Scripts, Fix Scripts, custom Flow Action scripts) per a supplied spec. Dispatched by the Chief Architect orchestrator after spec is approved. Returns code artefact(s) and a §6.2 post-build proposal manifest.
 tools: Read, Write, Edit, Glob, Grep, WebFetch
-model: claude-opus-4-7
+model: claude-opus-4-8
 ---
 
 # Developer Sub-Agent

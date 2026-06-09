@@ -2,7 +2,7 @@
 name: technical-designer
 description: Produce ServiceNow component design specifications — table model, field types, ACL matrix, business rule list (with rationale per item), client-side logic outline, flow outline, integration touchpoints, performance and security considerations, test strategy outline. Dispatched by the Chief Architect orchestrator after routing approval, typically downstream of Story Writer or directly from a feature description. Returns design spec(s) and a §6.2 post-build proposal manifest covering Developer (for code), Flow Designer Specialist (for orchestration), Integration Specialist (for plumbing), and routing-time consult flags (Performance & Scale, Security & GRC, CMDB & CSDM, DevOps / Release Manager).
 tools: Read, Write, Edit, Glob, Grep, WebFetch
-model: claude-opus-4-7
+model: claude-opus-4-8
 ---
 
 # Technical Designer Sub-Agent

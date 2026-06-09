@@ -23,6 +23,8 @@ This taxonomy operates under the global architecture rules in `governance-rules.
 
 **§2.2 — MCP Update Set Capture Mandatory Pre-Write Protocol.** Before any configuration write via MCP, the `sys_user_preference` record (`name=sys_update_set`) for the authenticated user must be set to the target Update Set. Without this, objects are not captured and cannot be promoted. See `governance-rules.md` §2.2.
 
+**§4 — Delivery Artefact Governance (ADR · Traceability · RAID & NFR).** Significant decisions are recorded as Architecture Decision Records (§4.1); every release-path requirement is traceable through story → design → build → test → deploy via the engagement traceability matrix (§4.2); RAID and NFRs are captured at design time, and every unresolved OPEN QUESTION becomes a RAID item (§4.3). Engagement-scoped artefacts seeded from `reference/templates/`. Advisory scaffolding (not a hard halt), enforced at routing-time (record the ADR for any §1.1 ruling) and post-build (update the matrix, record build-time decisions). See `governance-rules.md` §4.
+
 See `governance-rules.md` for the full text of all rules, halt protocols, and violation handling.
 
 ---
@@ -30,7 +32,7 @@ See `governance-rules.md` for the full text of all rules, halt protocols, and vi
 
 ## 1. Specialist roster overview
 
-The system's 22 specialists fall into four functional groups:
+The system's 27 specialists fall into four functional groups:
 
 ### Builders — Tier 2 sub-agent execution
 
@@ -45,42 +47,45 @@ These specialists run as isolated sub-agents in Claude Code. They read files, wr
 | 5 | Integration Specialist | ✅ | ✅ |
 | 6 | Flow Designer Specialist | ✅ | ✅ |
 | 7 | Developer | ✅ | ✅ |
-| 8 | ATF Author | ✅ | ❌ (batch mode planned) |
+| 8 | ATF Author | ✅ | ✅ (batch sub-agent) |
+| 9 | Diagramming Specialist | ✅ | ✅ (batch sub-agent) |
 
 ### Reviewers and Quality
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 9 | Code Reviewer | ✅ | ❌ |
-| 10 | Performance & Scale Specialist | ⚠️ planned | ❌ |
+| 10 | Code Reviewer | ✅ | ❌ |
+| 11 | Performance & Scale Specialist | ✅ | ❌ |
 
 ### Domain experts (modules)
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 11 | ITSM Specialist | ✅ | ❌ |
-| 12 | CSM Specialist | ✅ | ❌ |
-| 13 | HRSD Specialist | ✅ | ❌ |
-| 14 | ITOM/Discovery Specialist | ✅ | ❌ |
-| 15 | SPM Specialist | ⚠️ planned | ❌ |
-| 16 | Security & GRC Specialist | ⚠️ planned | ❌ |
-| 17 | CMDB & CSDM Specialist | ⚠️ planned | ❌ |
-| 18 | App Engine Specialist | ⚠️ planned | ❌ |
-| 19 | Migration Specialist | ⚠️ planned | ❌ |
-| 20 | UI/UX Specialist | ⚠️ planned | ❌ |
-| 21 | Reporting & Analytics Specialist | ⚠️ planned | ❌ |
-| 22 | DevOps / Release Manager | ⚠️ planned | ❌ |
+| 12 | ITSM Specialist | ✅ | ❌ |
+| 13 | CSM Specialist | ✅ | ❌ |
+| 14 | HRSD Specialist | ✅ | ❌ |
+| 15 | ITOM/Discovery Specialist | ✅ | ❌ |
+| 16 | SPM Specialist | ✅ | ❌ |
+| 17 | Security & GRC Specialist | ✅ (consult/review skill) | ❌ |
+| 18 | CMDB & CSDM Specialist | ✅ (v2.0 gateway) | ❌ |
+| 19 | App Engine Specialist | ✅ | ❌ |
+| 20 | Migration Specialist | ✅ | ❌ |
+| 21 | UI/UX Specialist | ✅ | ❌ |
+| 22 | Reporting & Analytics Specialist | ✅ | ❌ |
+| 23 | DevOps / Release Manager | ✅ | ❌ |
 
-### Consultants and Documentation
+### Consultants, Advisory and Documentation
 
 | # | Specialist | Has skill | Has sub-agent |
 |---|---|---|---|
-| 23 | Discovery Specialist | ⚠️ planned | ❌ |
-| 24 | Operational Documentation | ⚠️ planned | ❌ |
+| 24 | Discovery Specialist | ✅ | ❌ |
+| 25 | Operational Documentation | ✅ | ❌ |
+| 26 | Licensing & Entitlement Specialist | ✅ (consult/review skill) | ❌ |
+| 27 | Estimation & Sizing Specialist | ✅ (consult skill) | ❌ |
 
 **Legend:** ✅ = SKILL.md exists in repo · ⚠️ planned = persona is active in the orchestrator but SKILL.md not yet authored · ❌ = no sub-agent file
 
-(Numbering is presentational. The roster has 22 distinct specialists. ATF Author's batch sub-agent is planned but not yet built — 7 sub-agent files exist today.)
+(Numbering is presentational. The roster has 27 distinct specialists. ATF Author and Diagramming Specialist each have both a skill and a batch sub-agent — 9 sub-agent files exist today. Licensing & Entitlement and Estimation & Sizing are skill-only cross-cutting consults added in engine v2.8.0.)
 
 ---
 
@@ -98,6 +103,10 @@ When a task could plausibly route to two or more specialists, this table determi
 | **Integration Specialist** vs **Migration Specialist** | Integration = ongoing, steady-state. Migration = one-time, project-phase. | Temporality of the data flow. Continuous bidirectional/unidirectional sync → Integration. One-time historical load with cutover → Migration. | "Sync ServiceNow with Azure DevOps" → Integration. "Migrate Remedy incidents into ServiceNow" → Migration. |
 | **Integration Specialist** vs **Flow Designer Specialist** | Integration designs the *integration architecture* (REST messages, IntegrationHub spokes, MID Server, authentication, error handling). Flow Designer designs the *orchestration* that uses those integrations. | What's being designed. The endpoint, payload, auth, retry logic → Integration. The flow that calls the endpoint as a step → Flow Designer. | "Design the REST integration with Azure DevOps" → Integration. "Design the flow that triggers the Azure pipeline when a CHG is approved" → Flow Designer. |
 | **ATF Author skill** vs **ATF Author sub-agent** | Skill = inline single-component test generation. Sub-agent = batch test-suite generation across an app. | Scope. One method / one Script Include → skill. Whole scoped app → sub-agent. | "Write ATF for ConflictAssessmentUtils" → skill. "Generate the full ATF suite for the x_acme_itsm app" → sub-agent. |
+| **Diagramming Specialist** vs **HLD/LLD Writer** | HLD/LLD Writer authors the document and may embed simple inline figures in its narrative. Diagramming Specialist produces the standalone/complex diagram artefacts and the consistent batch pack. | What's wanted. The prose document → HLD/LLD. A dedicated figure, a complex diagram, a client-ready SVG, or the whole figure set for the doc → Diagramming. | "Write the HLD" → HLD/LLD. "Draw the sequence/ERD/context diagrams for the HLD" / "give me the diagram pack" → Diagramming. |
+| **Diagramming Specialist** vs **Technical Designer** | Technical Designer decides the model (tables, ACLs, flows). Diagramming Specialist depicts a model that already exists in a spec. | Decide vs depict. "What should the model be" → Technical Designer. "Draw the model the spec already defines" → Diagramming. | "Design the table model" → Technical Designer. "Turn that table model into an ERD" → Diagramming. |
+| **Diagramming Specialist** vs **UI/UX Specialist** | Diagramming draws architecture/process/data/project diagrams. UI/UX designs the actual product screens users interact with. | Diagram of a system vs design of a screen. Architecture/sequence/ERD/roadmap → Diagramming. Form layout, portal page, workspace, wireframe/mockup → UI/UX. | "Draw the integration topology" → Diagramming. "Design the case form layout / portal page" → UI/UX. |
+| **Diagramming Specialist** vs **Reporting & Analytics Specialist** | Diagramming produces static, design-time depictions. Reporting & Analytics produces live visualisations of instance data. | Design-time picture vs runtime data viz. A figure of how something is built → Diagramming. A chart/dashboard/PA widget over real records → Reporting & Analytics. | "Diagram the escalation process" → Diagramming. "Build a dashboard of escalations this quarter" → Reporting & Analytics. |
 
 ### 2.2 Reviewer boundaries
 
@@ -123,6 +132,10 @@ When a task could plausibly route to two or more specialists, this table determi
 | **Discovery Specialist** vs **Technical Designer** | Discovery defines *what*. Technical Designer defines *how*. | Question type. "What does the customer need" → Discovery. "How do we build it in ServiceNow" → Technical Designer. | "What's the gap between current and target state" → Discovery. "How do we structure the table model for the target state" → Technical Designer. |
 | **HLD/LLD Writer** vs **Operational Documentation** | HLD/LLD = enterprise design documents for review boards (audience: architects). Operational Documentation = runbooks, training, KBA, user guides (audience: operators, end users). | Audience. Architects, reviewers, sign-off panels → HLD/LLD. Operators, support engineers, end users → Operational Documentation. | "Write the HLD for X" → HLD/LLD. "Write a runbook for X" / "Author a KBA for X" / "Create training for X" → Operational Documentation. |
 | **HLD/LLD Writer** vs **Process Design Document author** | PDDs are operational process descriptions. They sit between architectural designs and runbooks. | We do not have a separate PDD specialist. PDDs route to HLD/LLD with explicit "PDD format" instruction, OR to Operational Documentation if the audience is operators rather than architects. | "Write a PDD for the change management process" → HLD/LLD with PDD section template. "Write the process the GSC follows when a P1 lands" → Operational Documentation. |
+| **Estimation & Sizing** vs **SPM Specialist** | Estimation owns the sizing *method and the number*. SPM owns the demand/agile/PPM *process and tables* where the number is recorded. | Method/number vs process/table. "How big is this / size these stories" → Estimation. "How does demand→project→sprint run, what tables" → SPM. | "Give me a ROM for this feature" → Estimation. "Set up the demand intake and the project portfolio" → SPM. |
+| **Estimation & Sizing** vs **Discovery Specialist** | Discovery elicits *what* the scope is. Estimation sizes a scope that is already defined. | Elicit vs size. "What does the client need / what's in scope" → Discovery. "How much effort is the defined scope" → Estimation. | "Extract requirements from this transcript" → Discovery. "Estimate the extracted backlog" → Estimation (after Discovery). |
+| **Licensing & Entitlement** vs **DevOps / Release Manager** | Licensing owns what the design *costs to license* (subscriptions, SKU, App Engine units, AI Assists). DevOps owns *how it is deployed*. | Cost-to-license vs how-to-deploy. "Does this need more subscriptions / which SKU / App Engine units" → Licensing. "Update set strategy, App Repository, pipeline, backout" → DevOps. | "What's the licensing impact of this scoped app" → Licensing. "How do we promote the scoped app dev→test→prod" → DevOps. |
+| **Licensing & Entitlement** vs **App Engine Specialist** | Licensing owns the licensing *footprint* of the custom app. App Engine owns *designing* the app. | Footprint vs design. "What does this custom app cost in App Engine units / which tier" → Licensing. "How do we structure the scoped app, tables, decision tables" → App Engine. | "Price the App Engine footprint of this design" → Licensing. "Design the App Engine Studio app" → App Engine. |
 
 ---
 
@@ -138,8 +151,11 @@ Evaluated by the Chief Architect *before* the primary specialist is invoked, as 
 |---|---|---|
 | **Performance & Scale Specialist** | Technical Designer, Developer | Volume estimates exceed 1M records, async/batch design choices, instance scaling questions, query patterns on large tables. |
 | **Security & GRC Specialist** | Technical Designer, Developer, Integration Specialist | Non-trivial ACL design, PII handling in scope, SecOps pattern involvement, GDPR or regulatory controls, integration with sensitive external systems. |
-| **CMDB & CSDM Specialist** | Technical Designer, ITOM/Discovery Specialist, Integration Specialist | CI relationship modelling involved, IRE rule design, integration writes to `cmdb_*` tables, CSDM phase decisions. |
 | **DevOps / Release Manager** | Technical Designer, App Engine Specialist | When new scoped apps are designed (update set strategy, App Repository workflow, deployment pipeline). |
+| **Licensing & Entitlement Specialist** | Technical Designer, App Engine Specialist, Now Assist Specialist, Integration Specialist | A design implies a custom table/scoped app (App Engine units), a new role granting fulfiller/write access to a sizeable population, a Now Assist or premium-SKU (Pro/Enterprise) capability, or consumption of a third-party SaaS entitlement. Sets the licensing constraint *before* build; re-fires post-build as a licensing review. |
+| **Estimation & Sizing Specialist** | Chief Architect, Discovery Specialist, Technical Designer | Before a delivery commitment, or when the user asks "how long / how big / ballpark / LOE / story points". Sizes the scope (baseline-first vs custom delta shown) and records into baseline SPM. On demand rather than auto-firing on every build. |
+
+> **Note — CMDB & CSDM promoted to gateway (v2.0).** CMDB & CSDM Specialist was formerly a routing-time consult here. It is now a mandatory Phase 1 Step 5 / §6.1 Step 7 Domain Expert gateway (`skills/cmdb-csdm-specialist/SKILL.md`) that fires automatically on CMDB/CSDM/IRE/service-model triggers (§4.4) and produces a 5-Part Constraint Envelope. It co-fires with the ITOM/Discovery gateway when a task spans CI population and CI model (ITOM owns population; CMDB & CSDM owns the model).
 
 ### 3.2 Post-build consults
 
@@ -147,10 +163,11 @@ Evaluated by the Chief Architect *after* a builder sub-agent returns its artefac
 
 | Consultant specialist | Triggered by completion of | Detection signal | Action |
 |---|---|---|---|
-| **Domain Expert gateway** (ITSM / CSM / HRSD / ITOM — skill only) | Any builder sub-agent whose task was routed through a Domain Expert gateway at Phase 1 Step 5 | Task was domain-tagged at routing time (incident, problem, change, SLA, case, HR case, Discovery, etc.) | Re-adopt the same Domain Expert skill in review mode (Phase 2 Step 4). Validate the returned artefact against the Constraint Envelope produced at Phase 1 — confirm no baseline construct has been silently replaced by a custom object, and all table/field/state references are consistent with the Envelope's Data Model Alignment. If a deviation is found, surface it as a §1.1 violation and re-dispatch the builder with findings before surfacing any other post-build proposal. |
+| **Domain Expert gateway** (ITSM / CSM / HRSD / ITOM / CMDB & CSDM — skill only) | Any builder sub-agent whose task was routed through a Domain Expert gateway at Phase 1 Step 5 | Task was domain-tagged at routing time (incident, problem, change, SLA, case, HR case, Discovery, CMDB/CSDM/IRE/service-model, etc.) | Re-adopt the same Domain Expert skill in review mode (Phase 2 Step 4). Validate the returned artefact against the Constraint Envelope produced at Phase 1 — confirm no baseline construct has been silently replaced by a custom object, and all table/field/state references are consistent with the Envelope's Data Model Alignment. If a deviation is found, surface it as a §1.1 violation and re-dispatch the builder with findings before surfacing any other post-build proposal. |
 | **Code Reviewer** (skill only — no sub-agent) | Developer sub-agent; or any builder that emits server-side or client-side script (Flow Designer Specialist custom Action scripts, App Engine Specialist business rules, ATF Author step scripts) | Returned artefact contains a JavaScript code block (Script Include, Business Rule, Client Script, UI Script, Scheduled Job, custom Flow Action script, ATF step script). | Chief Architect proposes Code Reviewer handoff verbatim: *"Code artefact produced. Proposing a Code Reviewer pass (style, performance, security, best-practice) before final delivery — proceed?"* On approval, adopt Code Reviewer skill in main thread (no sub-agent dispatch) and run the four checklists against the artefact. |
 | **ATF Author** (skill or sub-agent) | Developer, Flow Designer Specialist, App Engine Specialist | New code or flow definition returned and the artefact is destined for a release path (i.e., not throwaway analysis or PoC). | Chief Architect proposes: *"Build artefact produced. Proposing ATF coverage before sign-off — single-component (skill) or full-app suite (sub-agent)?"* |
 | **Operational Documentation** | Any builder, when feature is approaching production readiness | User signal of imminent go-live (`"ready for prod"`, `"sign-off"`, `"release"`, `"go-live"`, `"cutover"`, `"deploy"`); or completion of an end-to-end feature spanning multiple builders. | Chief Architect proposes: *"Approaching production readiness. Proposing runbook + KBA authoring before go-live — proceed?"* |
+| **Diagramming Specialist** (skill or sub-agent) | HLD/LLD Writer, Technical Designer, Integration Specialist; or any returned design artefact | A design artefact returns (HLD / LLD / Technical Design / integration spec) whose architecture, process, or data model warrants a figure; or the user asks for a diagram. | Chief Architect proposes: *"Design artefact produced. Proposing a Diagramming Specialist pass to render the architecture/process/data diagrams (Mermaid by default; draw.io or SVG for client-ready) before delivery — proceed?"* On approval, adopt the skill (single figure) or dispatch the sub-agent (batch pack). |
 
 These post-build consult triggers are **mandatory**: the Chief Architect must surface the proposal even if the user did not request it. The user may decline, but the offer must be made.
 
@@ -215,6 +232,9 @@ When the user's task contains certain keywords or phrases, the router has a stro
 | "runbook", "KBA", "knowledge article", "training material", "user guide" | Operational Documentation | — |
 | "workshop", "elicit requirements", "current state", "target state", "gap analysis", "transcript", "extract from this transcript" | Discovery Specialist | Story Writer (if convergence to stories is the next step) |
 | "ATF", "Automated Test Framework", "test case", "test suite" | ATF Author | — |
+| "diagram", "draw", "Mermaid", "draw.io", "ERD", "sequence diagram", "architecture diagram", "C4", "swimlane", "state diagram", "roadmap", "Gantt", "RACI" | Diagramming Specialist | HLD/LLD Writer or Technical Designer (if the underlying design is also requested) |
+| "license", "licensing", "subscription", "SKU", "entitlement", "fulfiller", "Now Assist Assists", "App Engine units", "Pro vs Enterprise" | Licensing & Entitlement Specialist | App Engine / Now Assist / Integration (whichever the licensed capability sits in) |
+| "estimate", "estimation", "sizing", "LOE", "level of effort", "story points", "T-shirt size", "how long", "how big", "ballpark", "ROM", "rough order of magnitude" | Estimation & Sizing Specialist | Discovery (if scope is unclear) or SPM (to record the estimate) |
 
 ---
 
@@ -233,6 +253,9 @@ Explicit "do not route X to Y" cases to prevent known confusion.
 | Do NOT route "what does the customer need" to Technical Designer. | That's a Discovery question. Technical Designer answers "how do we build it." |
 | Do NOT route "design for high volume" to Code Reviewer. | Forward-looking design questions go to Performance & Scale. Code Reviewer reviews what already exists. |
 | Do NOT skip the §6.2 post-build evaluation when a code-emitting builder sub-agent returns. | The Code Reviewer consult is mandatory whenever code is generated. Even if the user did not ask for review, the proposal must be surfaced. The user may decline, but the offer must be made. |
+| Do NOT route "draw the form layout / wireframe / mockup" to Diagramming Specialist. | Product screens and wireframes are the UI/UX Specialist's. Diagramming owns architecture / process / data / project diagrams, not the product UI surface. |
+| Do NOT route "chart / dashboard of <live data>" to Diagramming Specialist. | Live-data visualisation is Reporting & Analytics. Diagramming produces static, design-time depictions, not runtime charts over instance records. |
+| Do NOT let Diagramming Specialist render an unapproved custom object as accepted. | A diagram must not launder a §1.1 violation. An unapproved custom table/scope/state is drawn dashed + PENDING and flagged back; the Chief Architect owns the ruling. |
 
 ---
 
@@ -248,7 +271,7 @@ The algorithm runs in two phases that map directly onto the CLAUDE.md routing pr
 4. **If multiple candidates** — apply the relevant boundary table (§2) using the trigger differentiator.
 5. **If still ambiguous** — apply anti-routing rules (§5) to eliminate impossible routes.
 6. **If still ambiguous after §5** — the task may legitimately require *multiple* specialists in sequence. Propose a sequenced plan: "Specialist A produces X, then Specialist B consumes X to produce Y."
-7. **Apply the Domain Expert gateway (mandatory — this is CLAUDE.md Phase 1 Step 5).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder. The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). No builder sub-agent is dispatched until the Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
+7. **Apply the Domain Expert gateway (mandatory — this is CLAUDE.md Phase 1 Step 5).** Check whether the task falls within a domain covered by a v2.0 gateway (ITSM, CSM, HRSD, ITOM, CMDB & CSDM — see §4.4 domain triggers). If yes, load and adopt the relevant Domain Expert skill before dispatching any builder — **or before finalizing a domain-scoped *document* deliverable (implementation proposal, scoping document, HLD/LLD/PDD) that asserts baseline-process, data-model, or §1.1 claims about a gateway domain.** The Domain Expert produces its 5-Part Constraint Envelope (OOB Process Map · Data Model Alignment · §1.1 Verdict · Routing Recommendation · Anti-Patterns). **For document deliverables** the gateway grounds/ratifies the document's domain claims even with no builder dispatched; for a multi-domain document each touched gateway fires and sections are marked *gateway-ratified* vs *freehand, pending gateway*. **Multiple gateways co-fire** for cross-domain tasks (e.g., CSM ↔ ITSM ↔ CSDM) — reconcile their envelopes into one dispatch context. For the CMDB & CSDM ↔ ITOM/Discovery boundary, ITOM owns CI *population* and CMDB & CSDM owns the CI *model*; fire both only when the task spans both. No builder sub-agent is dispatched until every Envelope is produced and the §1.1 Verdict is resolved. Verdict C (custom object required) is a hard stop — surface the OPEN QUESTION and wait for explicit user approval before proceeding.
 8. **Surface routing-time consult relationships (§3.1).** Mention any cross-cutting consultants whose trigger conditions fire. Do not invoke them yet — surface them as part of the proposal.
 9. **Stop and wait** for user approval before proceeding to specialist invocation.
 
@@ -279,4 +302,4 @@ Updates are committed to git with a clear message: `taxonomy: <change-summary>`.
 
 ---
 
-*End of taxonomy.md v1.1.*
+*End of taxonomy.md v1.5 — Delivery-governance layer (engine v2.8.0): two skill-only cross-cutting consults added — Licensing & Entitlement Specialist (26) and Estimation & Sizing Specialist (27); roster renumbered to 27; §0 governance reference gains §4 (Delivery Artefact Governance — ADR/RTM/RAID-NFR); §2.4 boundary rows added (Estimation vs SPM, Estimation vs Discovery, Licensing vs DevOps, Licensing vs App Engine); §3.1 routing-time consult rows added for both; §4.5 trigger rows added for both. Prior — v1.4: §6.1 Step 7 extended: Domain Expert gateways fire before finalizing domain-scoped document deliverables (proposals, scoping docs, HLD/LLD/PDD) that make domain claims, not only before builder dispatch (document-gateway rule; aligns with CLAUDE.md v2.7.8). Prior — v1.3: Diagramming Specialist added as the 23rd specialist and 9th sub-agent (skill + batch diagram-pack sub-agent): roster renumbered to 23, §2.1 builder boundaries added (vs HLD/LLD Writer, Technical Designer, UI/UX, Reporting & Analytics), §3.2 post-build consult row added, §4.5 trigger row added, three §5 anti-routing rules added (UI/UX wireframe boundary, Reporting live-data boundary, §1.1 PENDING-render guard). Prior — v1.2: CMDB & CSDM Specialist promoted from planned routing-time consult to active v2.0 Domain Expert gateway (roster marked ✅, §3.1 consult row retired with promotion note, §3.2 post-build Domain Expert row and §6.1 Step 7 gateway list updated, co-fire boundary with ITOM/Discovery documented).*

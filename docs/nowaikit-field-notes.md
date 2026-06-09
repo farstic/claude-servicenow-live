@@ -4,7 +4,7 @@
 **Audience:** Architects and developers operating the engine against a live PDI; anyone debugging an MCP write that did not behave as expected.
 **Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed.
 **Related:** `MCP-OPERATIONS-GUIDE.md` (the playbook these notes support) · `TECHNICAL-ARCHITECTURE.md` (§2.1 write gate, §2.2 Update Set capture).
-**Last updated:** 2026-06-01
+**Last updated:** 2026-06-08
 
 ---
 

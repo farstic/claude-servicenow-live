@@ -26,23 +26,23 @@ You ground every factual claim about baseline ServiceNow ITOM behaviour in the *
 |---|---|
 | ITOM publication index | `markdown/it-operations-management/index.md` |
 | Discovery | `markdown/it-operations-management/discovery/` |
-| MID Server | `markdown/it-operations-management/mid-server/` |
+| MID Server | `markdown/it-operations-management/configure-a-mid-server.md` |
 | Service Mapping | `markdown/it-operations-management/service-mapping/` |
 | Event Management | `markdown/it-operations-management/event-management/` |
-| Cloud Discovery | `markdown/it-operations-management/cloud-discovery/` |
-| Service Graph Connectors | `markdown/it-operations-management/service-graph-connectors/` |
-| CMDB core | `markdown/now-platform/cmdb/` (or `markdown/it-operations-management/cmdb/` depending on Australia organisation) |
-| CSDM (Common Service Data Model) | `markdown/now-platform/csdm/` |
-| IRE rules | `markdown/now-platform/cmdb/identification-reconciliation/` |
-| Certificate Management | `markdown/it-operations-management/certificate-management/` |
-| Discovery patterns | `markdown/it-operations-management/discovery/patterns/` |
-| Probes and sensors | `markdown/it-operations-management/discovery/probes-sensors/` |
+| Cloud Discovery | `markdown/it-operations-management/cloud-discovery-workspace/` |
+| Service Graph Connectors | `markdown/servicenow-platform/service-graph-connectors/` |
+| CMDB core | `markdown/servicenow-platform/configuration-management-database-cmdb/` |
+| CSDM (Common Service Data Model) | `markdown/servicenow-platform/common-service-data-model-csdm/` |
+| IRE rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
+| Certificate Management | `markdown/it-operations-management/discovery/cert-invt-mgmt-patterns.md` |
+| Discovery patterns | `markdown/it-operations-management/discovery-and-service-mapping-patterns/` |
+| Probes and sensors | `markdown/it-operations-management/discovery/` |
 
 ### Citation format
 
 Inline in the relevant Part:
 
-`(citation: markdown/it-operations-management/discovery/c_DiscoveryOverview.md)`
+`(citation: markdown/it-operations-management/index.md)`
 
 If a path is unavailable in the Australia branch, flag explicitly:
 
@@ -70,7 +70,7 @@ Fire automatically when the user request mentions any of:
 
 ## When NOT to use this skill
 
-- **Pure CMDB data-model design without Discovery involvement** → if a dedicated CMDB & CSDM Specialist v2.0 exists, route there. If not (current state), this skill handles CMDB design with explicit consult flag.
+- **Pure CMDB data-model design without Discovery involvement** → route to the **CMDB & CSDM Specialist** gateway (`skills/cmdb-csdm-specialist/SKILL.md`), which owns the CI/CSDM *model*. This skill owns CI *population* (Discovery/MID/patterns/Service Mapping execution). When a task spans both, both gateways co-fire and reconcile their envelopes.
 - **ITSM (incident/problem/change) questions** → ITSM Specialist.
 - **CSM customer questions** → CSM Specialist.
 - **HRSD questions** → HRSD Specialist.
@@ -215,7 +215,7 @@ Cite where Verdict B/C is in play.]
 [Consult flags:
 - Performance & Scale (large CI count, high Discovery throughput)
 - Security & GRC (privileged credentials, network-segmented data)
-- CMDB & CSDM Specialist (when v2.0 exists)
+- CMDB & CSDM Specialist (gateway — co-fire for CI/CSDM model placement when this task also shapes the data model)
 - Integration Specialist (for SGC or external data sources)
 - DevOps (for MID Server deployment automation)]
 
@@ -224,9 +224,9 @@ Cite where Verdict B/C is in play.]
 ## Part 5 — Anti-Patterns to Block
 
 [Hard constraints. Examples:
-- **Do not create a custom CI class duplicating a baseline class.** Citation: markdown/it-operations-management/cmdb/c_CIClassHierarchy.md
-- **Do not write custom dedup logic in Business Rules.** Use IRE. Citation: markdown/now-platform/cmdb/identification-reconciliation/
-- **Do not bypass the ECC queue protocol.** All MID Server traffic flows through the queue. Citation: markdown/it-operations-management/mid-server/c_ECCQueueOverview.md]
+- **Do not create a custom CI class duplicating a baseline class.** Citation: markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md
+- **Do not write custom dedup logic in Business Rules.** Use IRE. Citation: markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md
+- **Do not bypass the ECC queue protocol.** All MID Server traffic flows through the queue. Citation: markdown/it-operations-management/configure-a-mid-server.md]
 
 ---
 
@@ -360,16 +360,16 @@ Cite where Verdict B/C is in play.]
 
 | Anti-pattern | Why it's wrong | Baseline alternative | Citation |
 |---|---|---|---|
-| Custom CI class duplicating baseline class | Breaks IRE rules, reporting consistency, upgrade path | Extend baseline class via dictionary | `markdown/now-platform/cmdb/` |
-| Custom dedup Business Rule | Bypasses IRE | Configure IRE identification + reconciliation rules | `markdown/now-platform/cmdb/identification-reconciliation/` |
-| Custom Discovery probe duplicating baseline pattern | Maintenance burden, breaks on baseline pattern updates | Extend baseline pattern or use pattern override | `markdown/it-operations-management/discovery/patterns/` |
-| Custom MID Server script bypassing ECC queue | Security risk, breaks observability | Use ECC queue protocol | `markdown/it-operations-management/mid-server/` |
+| Custom CI class duplicating baseline class | Breaks IRE rules, reporting consistency, upgrade path | Extend baseline class via dictionary | `markdown/servicenow-platform/configuration-management-database-cmdb/` |
+| Custom dedup Business Rule | Bypasses IRE | Configure IRE identification + reconciliation rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
+| Custom Discovery probe duplicating baseline pattern | Maintenance burden, breaks on baseline pattern updates | Extend baseline pattern or use pattern override | `markdown/it-operations-management/discovery-and-service-mapping-patterns/` |
+| Custom MID Server script bypassing ECC queue | Security risk, breaks observability | Use ECC queue protocol | `markdown/it-operations-management/configure-a-mid-server.md` |
 | Custom service-map table | Duplicates `cmdb_rel_ci` semantics | Use `cmdb_rel_ci` with appropriate relationship types | `markdown/it-operations-management/service-mapping/` |
 | Custom event correlation table | Duplicates `em_alert_rules` | Use `em_alert_rules` configuration | `markdown/it-operations-management/event-management/` |
-| Custom cloud-discovery connector | Breaks Cloud Discovery upgrade path | Use baseline Cloud Discovery patterns | `markdown/it-operations-management/cloud-discovery/` |
-| Custom CMDB Health rules table | `cmdb_health_dashboard` rules cover it | Configure CMDB Health rules | `markdown/now-platform/cmdb/cmdb-health/` |
-| New top-level CI class without "new technology" justification | Almost always covered by baseline class hierarchy | Extend existing baseline class | `markdown/now-platform/cmdb/c_CIClassHierarchy.md` |
-| CMDB CI without IRE identifier defined | CI becomes orphan, prone to duplicates | Define identification rule before inserting CIs | `markdown/now-platform/cmdb/identification-reconciliation/` |
+| Custom cloud-discovery connector | Breaks Cloud Discovery upgrade path | Use baseline Cloud Discovery patterns | `markdown/it-operations-management/cloud-discovery-workspace/` |
+| Custom CMDB Health rules table | `cmdb_health_dashboard` rules cover it | Configure CMDB Health rules | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBHealth.md` |
+| New top-level CI class without "new technology" justification | Almost always covered by baseline class hierarchy | Extend existing baseline class | `markdown/servicenow-platform/configuration-management-database-cmdb/ci-class-manager-landing-page.md` |
+| CMDB CI without IRE identifier defined | CI becomes orphan, prone to duplicates | Define identification rule before inserting CIs | `markdown/servicenow-platform/configuration-management-database-cmdb/c_CMDBIdentifyandReconcile.md` |
 
 ---
 
@@ -485,7 +485,7 @@ Reject if:
 
 - **Performance & Scale** — large CI counts (>1M), high Discovery throughput, complex query patterns on `cmdb_ci`
 - **Security & GRC** — privileged credentials for Discovery, network-segmented data, regulatory CI data classification
-- **CMDB & CSDM Specialist** — when v2.0 exists and the request is CMDB-architecture heavy
+- **CMDB & CSDM Specialist** — co-fire gateway when the request is CMDB/CSDM-model heavy (class placement, CSDM phase, IRE design); ITOM owns population, CMDB & CSDM owns the model
 - **Integration Specialist** — for SGC integration or external data source plumbing
 - **DevOps** — for MID Server deployment automation
 - **Flow Designer Specialist** — for event-management-to-incident orchestration

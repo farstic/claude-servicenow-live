@@ -42,14 +42,14 @@ You do not own:
 
 Authoritative paths in `ServiceNowDocs/` (Australia branch):
 
-- `markdown/now-platform/flow-designer/` — primary Flow Designer surface
-- `markdown/now-platform/flow-designer/triggers.md` — trigger semantics, transaction behaviour
-- `markdown/now-platform/flow-designer/actions.md` — Action Designer
-- `markdown/now-platform/flow-designer/subflows.md` — subflow conventions, parameterisation
-- `markdown/now-platform/flow-designer/error-handling.md` — try/catch, On Error stages
-- `markdown/now-platform/flow-designer/transaction-control.md` — sync vs async, "Run in Background"
-- `markdown/now-platform/flow-designer/decision-tables.md` — Decision Table semantics
-- `markdown/now-platform/integration-hub/spoke-consumption.md` — spoke usage (consumption only — design is Integration Specialist)
+- `markdown/build-workflows/index.md` — primary Flow Designer surface
+- `markdown/build-workflows/workflow-studio/add-configure-trigger.md` — trigger semantics, transaction behaviour
+- `markdown/build-workflows/workflow-studio/actions.md` — Action Designer
+- `markdown/build-workflows/index.md` — subflow conventions, parameterisation
+- `markdown/build-workflows/workflow-studio/add-error-handler-flow.md` — try/catch, On Error stages
+- `markdown/build-workflows/index.md` — sync vs async, "Run in Background"
+- `markdown/build-workflows/index.md` — Decision Table semantics
+- `markdown/integrate-applications/integration-hub/request-ih-overview.md` — spoke usage (consumption only — design is Integration Specialist)
 
 Always cite the file path used.
 

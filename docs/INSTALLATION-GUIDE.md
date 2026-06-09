@@ -59,7 +59,7 @@ You'll see the Claude Code prompt. Type `Status` and press Enter.
 You should see output like this:
 
 ```
-Status — ServiceNow Architecture Engine v2.6
+Status — ServiceNow Architecture Engine v2.7.5
 
 1. Working Scope
    No client engagement loaded. Working in repo root.
@@ -76,7 +76,7 @@ Status — ServiceNow Architecture Engine v2.6
    Ready for first task.
 ```
 
-If you see all four Domain Experts in the roster, you're done. Setup complete.
+If you see all five Domain Experts in the roster, you're done. Setup complete.
 
 ---
 
@@ -131,7 +131,7 @@ The core engine above is **design-only** and needs no instance. To let the engin
 | Symptom | Fix |
 |---|---|
 | `command not found: claude` | `npm install -g @anthropic-ai/claude-code` did not complete. Re-run and check for permission errors. On macOS/Linux you may need `sudo`. |
-| `Status` shows fewer than 4 Domain Experts | Quit Claude Code (`/exit` or Ctrl+D) and relaunch from the repo root. The session may have cached an empty roster. |
+| `Status` shows fewer than 5 Domain Experts | Quit Claude Code (`/exit` or Ctrl+D) and relaunch from the repo root. The session may have cached an empty roster. |
 | `ServiceNowDocs/` references fail | You cloned without submodules. Run `git submodule update --init --recursive`. |
 | Authentication errors | `ANTHROPIC_API_KEY` not set or invalid. Re-export it and try again. |
 

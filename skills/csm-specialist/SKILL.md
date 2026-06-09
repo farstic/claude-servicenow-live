@@ -90,7 +90,7 @@ When dispatched downstream of Discovery Specialist, expect these structured fiel
 
 ## Output Format — the 5-Part Constraint Envelope (strict)
 
-Every gateway dispatch produces exactly this structure. Identical section headings to ITSM/HRSD/ITOM Domain Experts so downstream builders consume the envelope mechanically.
+Every gateway dispatch produces exactly this structure. Identical section headings across all five Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM) so downstream builders consume the envelope mechanically.
 
 ```markdown
 # CSM Specialist Gateway Response — <one-line task summary>
@@ -231,12 +231,12 @@ Cases where a partner organisation (not the direct customer) is the responsible 
 |---|---|---|
 | Custom escalation table | **Note: `sn_customerservice_escalation` is Vancouver+, NOT in Australia.** For Australia, use `case.priority` + `case.assignment_group` + on-call resolution pattern (same as ITSM) | `markdown/customer-service-management/csm-case-management.md` |
 | Custom customer-contact table | Extend `customer_contact` baseline (which extends `sys_user`) | `markdown/customer-service-management/configure-csm-accounts-contacts.md` |
-| Custom entitlement-evaluation logic | Baseline `EntitlementUtil` Script Include | `markdown/customer-service-management/c_CustomerServiceContracts.md` |
+| Custom entitlement-evaluation logic | Baseline `EntitlementUtil` Script Include | `markdown/customer-service-management/c_CreateAnEntitlement.md` |
 | Custom account-hierarchy table | `customer_account.parent` baseline self-reference | `markdown/customer-service-management/c_AccountHierarchy.md` |
 | Custom case-routing table | `assignment_rule` records + Advanced Work Assignment | `markdown/customer-service-management/csm-case-management.md` |
-| Custom audit table for case state changes | `sys_history_set` baseline audit | `markdown/now-platform/system-history.md` |
-| Duplicated baseline notification in custom BR | Extend the baseline notification record | `markdown/now-platform/notifications.md` |
-| Custom case-deflection event table | Baseline events + `sys_event_log` | `markdown/now-platform/system-events.md` |
+| Custom audit table for case state changes | `sys_history_set` baseline audit | `markdown/platform-security/audit-mgmt-console.md` |
+| Duplicated baseline notification in custom BR | Extend the baseline notification record | `markdown/platform-administration/c_EmailNotifications.md` |
+| Custom case-deflection event table | Baseline events + `sys_event_log` | `markdown/build-workflows/system-events/events.md` |
 
 ## §1.1 Hot Spots — Where Build Specialists Routinely Propose Custom Objects
 
