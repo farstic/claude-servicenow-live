@@ -246,3 +246,36 @@ CMDB_WRITE_ENABLED: false
 ATF_ENABLED: false
 MCP_TOOL_PACKAGE: full
 ```
+
+## 13. Outbound REST — Basic-Auth `Authorization` header leaks into `sys_outbound_http_log` at verbose log levels (confirmed 2026-06-08)
+
+**Symptom / risk:** when an outbound REST call uses Basic Authentication, the `Authorization` header (base64 username:password) can be written **in clear** into the outbound HTTP log table `sys_outbound_http_log` — i.e. credentials end up queryable in a platform table, defeating "no hard-coded / securely-stored credentials" requirements.
+
+**Trigger condition:** verbose request logging is on — the system property `glide.outbound_http_log.override = true` **and** the log level is `all` or `elevated` (instance-wide, or raised per call). At the default/`basic` level the request headers (including `Authorization`) are not logged.
+
+**Working pattern (keep credentials out of the log):**
+- In `RESTMessageV2` / `RESTMessageV2` scripted calls, set the per-message level explicitly: `r.setLogLevel('basic');` — never `'all'`/`'elevated'` for a call that carries an auth header.
+- Leave `glide.outbound_http_log.override` **off** (default) instance-wide; only raise it transiently for a specific non-auth debugging session, then revert.
+- Hold credentials in a **Connection & Credential Alias** (referenced by the REST Message), not in the script, a system property, a log line, or a work note.
+- This applies to ANY outbound auth scheme whose secret rides in a header (Basic, Bearer/OAuth token, API key header).
+
+**Doc grounding (Australia branch):** `markdown/platform-security/instance-security-hardening-settings/sc-prevent-verbose-http-request-logging.md` (the override + level behaviour) and `markdown/api-reference/web-services/outbound-logging-configure.md` (per-call log level).
+
+**General principle:** for outbound integrations, treat the HTTP log level as a security control, not just a debugging knob. Default to `basic`, gate any `all`/`elevated` raise behind a change, and verify post-deploy that no `Authorization`/token value appears in `sys_outbound_http_log`.
+
+## 14. Styled Word `.docx` on macOS/Linux + diagrams must be rendered draw.io, not Mermaid (confirmed 2026-06-09)
+
+**Problem:** the house Word converter `scripts/md-to-docx.ps1` is Windows/PowerShell-only — on a Mac there was no way to produce the styled `.docx`. Separately, embedding a diagram as a ` ```mermaid ` block makes it render as raw monospace **text** in Word, not as a diagram.
+
+**Working pattern (cross-platform, no Pandoc / Word / python-docx):**
+- **`.md` → styled `.docx` on Mac/Linux:** `scripts/md-to-docx.py` — a faithful pure-Python-stdlib port of the PowerShell converter (builds the Open XML parts and zips them). Identical house style (navy title banner, blue-header zebra tables, inline code, shaded callouts, embedded PNGs, page-numbered footer). Run: `python3 scripts/md-to-docx.py --src X.md --out X.docx --footer-text "<Client> | Commercial in confidence"`. Nothing to pip-install beyond Python 3.
+- **Diagrams in a `.docx` = rendered draw.io PNG, never Mermaid:** author the figure as `.drawio` (Diagramming Specialist), rasterise **locally** with `scripts/render-drawio.sh` (needs draw.io Desktop — `brew install --cask drawio`; CLI at `/Applications/draw.io.app/Contents/MacOS/draw.io -x -f png -s 3 -o out.png in.drawio`), then reference the PNG `![](diagrams/figure-N.png)`. `md-to-docx.py` now also refuses to dump a `mermaid`/`mmd` fence as code (it emits a muted placeholder), so Mermaid source can never leak into Word.
+- **Visual QA on Mac:** `scripts/render-pdf.sh file.docx` → PDF via LibreOffice headless (`brew install --cask libreoffice`). `soffice --headless --convert-to png` renders page 1 to an image for a quick eyeball.
+- **Confidentiality:** draw.io Desktop and the Mermaid CLI render **locally** — never an online service.
+
+**Gotchas:**
+- macOS has no `timeout` (use `gtimeout` from coreutils, or omit).
+- `.drawio` XML emitted by an LLM may contain `&nbsp;` — not a predefined XML entity, so strict parsers reject it. Replace with `&#160;` to make it well-formed before a VSDX/Lucid export.
+- draw.io PNG at `-s 3` gives crisp text; `md-to-docx` caps embedded image width at ~6.2 in, so very wide diagrams shrink — use a landscape appendix if a client needs them larger.
+
+**Prerequisites by OS + the full pipeline:** `scripts/README.md`. Rule also recorded in `CLAUDE.md` Artefact standards (Diagrams + Word/PDF export rows).

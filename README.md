@@ -69,6 +69,24 @@ claude --version
 # Expected: Claude Code x.y.z
 ```
 
+### Document & diagram generation toolchain (optional, per OS)
+
+Needed only when you produce Word/PDF deliverables (proposals, HLD/LLD) or render diagrams.
+**Generating a `.docx` needs nothing beyond Python 3 (macOS/Linux) or PowerShell (Windows)** — no
+Pandoc, no Word, no `python-docx`, no pip packages. Full details, install commands, and the
+end-to-end pipeline are in **[`scripts/README.md`](./scripts/README.md)**.
+
+| Capability | macOS / Linux | Windows |
+|---|---|---|
+| Markdown → styled `.docx` | Python 3 → `scripts/md-to-docx.py` | PowerShell → `scripts/md-to-docx.ps1` |
+| `.drawio` → PNG (client-ready figures) | `brew install --cask drawio` → `scripts/render-drawio.sh` | draw.io Desktop (`winget install JGraph.Draw.io`) |
+| `.docx` → PDF (visual QA) | `brew install --cask libreoffice` → `scripts/render-pdf.sh` | Microsoft Word → `scripts/render-pdf-pages.ps1` |
+| `.mmd` → SVG/PNG (in-repo preview only) | Node.js → `scripts/render-diagrams.sh` | Node.js → `scripts/render-diagrams.ps1` |
+
+> **Rule:** in a `.docx`, diagrams are embedded as **rendered draw.io PNGs** (authored by the
+> Diagramming Specialist, rasterised with `render-drawio.sh`) — **never** raw Mermaid source.
+> Renderers run **locally only** (confidentiality firewall).
+
 ---
 
 ## Step 1 — Clone the repo
