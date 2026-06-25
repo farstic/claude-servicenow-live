@@ -282,22 +282,24 @@ MCP_TOOL_PACKAGE: full
 
 ---
 
-## 11. Incident state → 6 (Resolved) — ACL-blocked via REST on PDI (confirmed 2026-06-25)
+## 11. Incident state → 6 (Resolved) — ACL-blocked via REST on PDI (confirmed 2026-06-26)
 
-**Symptom:** `update_record(incident, <sys_id>, {state: "6", ...})` and `update_incident(sys_id, {state: "6"})` both return `INSUFFICIENT_PRIVILEGES`. Non-state field updates (e.g. `urgency`) on the same record succeed.
+**Symptom:** `update_incident({state: "6"})`, `update_record(incident, {state: "6"})`, `resolve_incident`, and even `create_incident({state: "6"})` all return `INSUFFICIENT_PRIVILEGES`. State transitions to 1, 2, 3 etc. succeed. The block is specific to value `6` (and likely `7`/`8`).
 
-**Root cause:** ServiceNow incident state transition to Resolved (6) is governed by field-level ACLs and/or state-machine transition policies that require the `itil` fulfiller role — or the specific assignment-context conditions that role implies — to be met when modifying the `state` field to value `6`. The REST API user account on a PDI may lack this role or fail the ACL conditions, even if it has general write access to the incident table.
+**Root cause (fully traced):** There are multiple active write ACLs on both `incident.state` and `incident.incident_state`. The critical ones are SRM ACLs with empty conditions (always active) that call `SRMGlobalACLScriptEvaluator` for `sn_sow_srm.srm_responder` / `sn_sow_srm.srm_admin` — roles the API user does not hold. ServiceNow evaluates scripted ACLs with AND semantics when multiple ACLs cover the same field+operation: a `false` return from any one ACL blocks access even when another ACL (`gs.hasRole('itil')`) returns `true`. The `itil` and `admin` roles alone are insufficient to satisfy the full ACL set.
 
 **What works:**
-- Any non-state-gated field update (urgency, short_description, category, etc.) via `update_incident`
-- Creating incidents via `create_incident`
+- State transitions to values 1–5 (New → On Hold) via `update_incident`
+- All non-state field updates (urgency, short_description, close_code, close_notes, etc.)
+- Creating incidents via `create_incident` without state=6
 
 **What does NOT work (PDI-confirmed):**
-- Direct `state=6` via REST with or without `close_code` / `close_notes`
-- `resolve_incident` MCP tool (wraps the same REST call; same ACL block)
+- `state=6` or `incident_state=6` via any REST path, regardless of roles
+- `resolve_incident` MCP tool (same REST path, same block)
+- `natural_language_update` — not implemented on this instance
 
-**Workaround:** Resolve in the ServiceNow UI as an admin/itil user. The BR fires normally — the ACL restriction is on the REST caller's identity, not on the Business Rule execution context.
+**Workaround:** Resolve in the ServiceNow UI. The UI form submission satisfies the GlideTransaction-based condition in the primary ACL, bypassing the SRM checks entirely. BRs fire normally on UI-triggered saves.
 
 **Implication for testing via MCP:** BR/SI behaviour on Resolved state can only be verified by:
-1. Manual UI resolution, or
-2. An ATF "Run Server Side Script" step that sets `state=6` via `GlideRecord.update()` in server context (server-side scripts bypass field-level ACLs when run with admin context in ATF).
+1. Manual UI resolution (open the incident, set State = Resolved, save), or
+2. An ATF "Run Server Side Script" step — server-side GlideRecord.update() runs in elevated context and bypasses field-level ACLs.
