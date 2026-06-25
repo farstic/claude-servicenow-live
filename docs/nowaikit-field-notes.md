@@ -4,7 +4,7 @@
 **Audience:** Architects and developers operating the engine against a live PDI; anyone debugging an MCP write that did not behave as expected.
 **Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed.
 **Related:** `MCP-OPERATIONS-GUIDE.md` (the playbook these notes support) · `TECHNICAL-ARCHITECTURE.md` (§2.1 write gate, §2.2 Update Set capture).
-**Last updated:** 2026-06-08
+**Last updated:** 2026-06-25
 
 ---
 
@@ -279,3 +279,25 @@ MCP_TOOL_PACKAGE: full
 - draw.io PNG at `-s 3` gives crisp text; `md-to-docx` caps embedded image width at ~6.2 in, so very wide diagrams shrink — use a landscape appendix if a client needs them larger.
 
 **Prerequisites by OS + the full pipeline:** `scripts/README.md`. Rule also recorded in `CLAUDE.md` Artefact standards (Diagrams + Word/PDF export rows).
+
+---
+
+## 11. Incident state → 6 (Resolved) — ACL-blocked via REST on PDI (confirmed 2026-06-25)
+
+**Symptom:** `update_record(incident, <sys_id>, {state: "6", ...})` and `update_incident(sys_id, {state: "6"})` both return `INSUFFICIENT_PRIVILEGES`. Non-state field updates (e.g. `urgency`) on the same record succeed.
+
+**Root cause:** ServiceNow incident state transition to Resolved (6) is governed by field-level ACLs and/or state-machine transition policies that require the `itil` fulfiller role — or the specific assignment-context conditions that role implies — to be met when modifying the `state` field to value `6`. The REST API user account on a PDI may lack this role or fail the ACL conditions, even if it has general write access to the incident table.
+
+**What works:**
+- Any non-state-gated field update (urgency, short_description, category, etc.) via `update_incident`
+- Creating incidents via `create_incident`
+
+**What does NOT work (PDI-confirmed):**
+- Direct `state=6` via REST with or without `close_code` / `close_notes`
+- `resolve_incident` MCP tool (wraps the same REST call; same ACL block)
+
+**Workaround:** Resolve in the ServiceNow UI as an admin/itil user. The BR fires normally — the ACL restriction is on the REST caller's identity, not on the Business Rule execution context.
+
+**Implication for testing via MCP:** BR/SI behaviour on Resolved state can only be verified by:
+1. Manual UI resolution, or
+2. An ATF "Run Server Side Script" step that sets `state=6` via `GlideRecord.update()` in server context (server-side scripts bypass field-level ACLs when run with admin context in ATF).
