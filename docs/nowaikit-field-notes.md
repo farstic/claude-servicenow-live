@@ -282,24 +282,33 @@ MCP_TOOL_PACKAGE: full
 
 ---
 
-## 11. Incident state → 6 (Resolved) — ACL-blocked via REST on PDI (confirmed 2026-06-26)
+## 11. Incident state → 6 (Resolved) — `close_code` must be a valid instance choice (confirmed 2026-06-26)
 
-**Symptom:** `update_incident({state: "6"})`, `update_record(incident, {state: "6"})`, `resolve_incident`, and even `create_incident({state: "6"})` all return `INSUFFICIENT_PRIVILEGES`. State transitions to 1, 2, 3 etc. succeed. The block is specific to value `6` (and likely `7`/`8`).
+**Symptom:** `update_incident({state: "6", close_code: "Solved (Permanently)", ...})` returns `INSUFFICIENT_PRIVILEGES`. The same call with a valid `close_code` value succeeds immediately.
 
-**Root cause (fully traced):** There are multiple active write ACLs on both `incident.state` and `incident.incident_state`. The critical ones are SRM ACLs with empty conditions (always active) that call `SRMGlobalACLScriptEvaluator` for `sn_sow_srm.srm_responder` / `sn_sow_srm.srm_admin` — roles the API user does not hold. ServiceNow evaluates scripted ACLs with AND semantics when multiple ACLs cover the same field+operation: a `false` return from any one ACL blocks access even when another ACL (`gs.hasRole('itil')`) returns `true`. The `itil` and `admin` roles alone are insufficient to satisfy the full ACL set.
+**Root cause:** `close_code` is a mandatory field for state=6 on this instance. When the supplied value is not in the instance's `sys_choice` list for `incident.close_code`, ServiceNow rejects the update. The MCP tool maps this validation failure to `INSUFFICIENT_PRIVILEGES` instead of a meaningful validation error — making it look like an ACL or role problem when it is actually a bad field value.
 
-**What works:**
-- State transitions to values 1–5 (New → On Hold) via `update_incident`
-- All non-state field updates (urgency, short_description, close_code, close_notes, etc.)
-- Creating incidents via `create_incident` without state=6
+**The standard OOB value `"Solved (Permanently)"` does NOT exist on this instance.** This instance has a custom choice list. Always query `sys_choice` before resolving:
 
-**What does NOT work (PDI-confirmed):**
-- `state=6` or `incident_state=6` via any REST path, regardless of roles
-- `resolve_incident` MCP tool (same REST path, same block)
+```
+query_records(sys_choice, name=incident^element=close_code^language=en^inactive=false)
+```
+
+**Working pattern — resolve an incident via REST:**
+1. Query valid `close_code` choices (above)
+2. Send in a single call:
+```
+update_incident(sys_id, {
+  state: "6",
+  close_code: "<valid choice value from sys_choice>",
+  close_notes: "..."
+})
+```
+`resolved_by` and `resolved_at` are auto-populated by the `mark_resolved` Business Rule.
+
+**What does NOT work:**
+- `resolve_incident` MCP tool — parameter mismatch (`incident_id` vs `sys_id`)
 - `natural_language_update` — not implemented on this instance
+- Any `close_code` value not present in `sys_choice` for this instance
 
-**Workaround:** Resolve in the ServiceNow UI. The UI form submission satisfies the GlideTransaction-based condition in the primary ACL, bypassing the SRM checks entirely. BRs fire normally on UI-triggered saves.
-
-**Implication for testing via MCP:** BR/SI behaviour on Resolved state can only be verified by:
-1. Manual UI resolution (open the incident, set State = Resolved, save), or
-2. An ATF "Run Server Side Script" step — server-side GlideRecord.update() runs in elevated context and bypasses field-level ACLs.
+**Lesson:** `INSUFFICIENT_PRIVILEGES` from the MCP tool does not always mean an ACL failure. It can mask validation errors (invalid choice value, missing mandatory field). When a field update fails with this code, first verify field values are valid for the instance before investigating ACLs.
