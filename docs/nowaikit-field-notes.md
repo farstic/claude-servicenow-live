@@ -312,3 +312,31 @@ update_incident(sys_id, {
 - Any `close_code` value not present in `sys_choice` for this instance
 
 **Lesson:** `INSUFFICIENT_PRIVILEGES` from the MCP tool does not always mean an ACL failure. It can mask validation errors (invalid choice value, missing mandatory field). When a field update fails with this code, first verify field values are valid for the instance before investigating ACLs.
+
+---
+
+## 15. `sys_script_fix.name` truncates silently at 40 characters (confirmed 2026-08-28)
+
+**Symptom:** A Fix Script created via the REST Table API with a 44-character `name` was stored as
+40 characters, with the tail cut off mid-word. The API returned HTTP success and echoed the
+truncated value in the response — no error, no warning.
+
+```
+sent:      "UserManagerUtils - Manager Lookup Smoke Test"   (44 chars)
+stored:    "UserManagerUtils - Manager Lookup Smoke "       (40 chars, trailing space)
+```
+
+`sys_name` is truncated identically, so the record's display value is wrong everywhere it appears
+(list view, update-set preview, the `sys_update_xml.target_name` of the captured update).
+
+**Why it matters:** the truncated name is what travels through the update set. On the target
+instance the artefact arrives under a mangled name, and a name-based lookup or a promotion
+checklist that greps for the intended name will not match.
+
+**Working pattern:** keep `sys_script_fix.name` at **40 characters or fewer**, and read the
+`name` field back from the create response rather than assuming the sent value was stored.
+The same check is worth applying to any short platform label field written over REST — the API
+does not reject over-length input, it silently trims it.
+
+**Detection:** compare sent vs returned `name` in the create response, or query
+`sys_update_xml.target_name` after capture. A trailing space in the stored value is the tell.
