@@ -192,7 +192,7 @@ snow_core_records_query(sys_update_xml, query="update_set=<update_set_sys_id>", 
 - Conclude the deletion failed without running `snow_core_records_query` to verify
 - Fall back to the UI assuming MCP cannot delete — MCP CAN delete these tables
 
-**update_record on scripting tables:** Also returns NOT_FOUND. Whether this similarly succeeds
+**snow_core_record_modify on scripting tables:** Also returns NOT_FOUND. Whether this similarly succeeds
 despite the error code has NOT been verified — treat updates on scripting tables as uncertain
 and verify with `snow_core_records_query` after every `snow_core_record_modify` call on these tables.
 
