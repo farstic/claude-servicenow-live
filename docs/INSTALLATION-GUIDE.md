@@ -1,11 +1,11 @@
 # Installation Guide
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Purpose:** Plug-and-play setup for the engine in Claude Code — plus the optional snowarch MCP step for connecting to a live ServiceNow instance.
+**Purpose:** Plug-and-play setup for the engine in Claude Code — plus the optional snowarch step for connecting to a live ServiceNow instance.
 **Audience:** First-time users
-**Last updated:** 29 May 2026
-**Time to complete:** 2 minutes (core) · +3 minutes (optional live-instance connection)
-**You will need:** Node.js (for npm), Git, and an Anthropic API key. For live-instance work: a ServiceNow instance (a PDI is fine) and the snowarch MCP server.
+**Last updated:** 19 September 2026
+**Time to complete:** 2 minutes (core) · +5 minutes (optional live-instance connection)
+**You will need:** Node.js (for npm), Git, and an Anthropic API key. For live-instance work: a ServiceNow instance (a PDI is fine) and a snowarch checkout.
 
 This is the plug-and-play setup. The repository ships fully configured — no scripts to run, no folders to sync, no ZIPs to upload. Three commands and you're running.
 
@@ -92,27 +92,30 @@ If you see that response, your install is healthy.
 
 ---
 
-## Optional — connect to a live ServiceNow instance (snowarch MCP)
+## Optional — connect to a live ServiceNow instance (snowarch)
 
-The core engine above is **design-only** and needs no instance. To let the engine *read and write a live instance*, add the snowarch MCP server. This is what powers live §1.1 validation against the real schema and direct deployment of approved artefacts.
+The core engine above is **design-only** and needs no instance. To let the engine *read and write a live instance*, add **snowarch** — the live-instance layer. It is one repository that ships the engine and its MCP server (server key `servicenow`, tool prefix `mcp__servicenow__`, 397 tools declared in a pinned contract) together with the same roster of 28 skills and 9 sub-agents as this repository. This is what powers live §1.1 validation against the real schema and direct deployment of approved artefacts.
 
-1. Install/configure the snowarch MCP server per its own documentation, and register it with Claude Code as an MCP server.
-2. Provide the connection settings (these live **locally only** — never commit them). The required environment variables:
+1. **Clone and bootstrap the snowarch checkout.** Clone [`farstic/ai-servicenow-architect`](https://github.com/farstic/ai-servicenow-architect) and run its bootstrap step as described in that repository's README, so that the `./snowarch` CLI is available in the checkout.
+2. **Add the instance with the wizard.** From the snowarch checkout run:
 
-   ```
-   SERVICENOW_INSTANCE_URL: your-instance.service-now.com
-   WRITE_ENABLED: true
-   SCRIPTING_ENABLED: true     # correct even on a PDI — script endpoints are unavailable at PDI level
-   CMDB_WRITE_ENABLED: false
-   ATF_ENABLED: false
-   MCP_TOOL_PACKAGE: full
+   ```bash
+   ./snowarch mode live
    ```
 
-3. Restart Claude Code and confirm the connection with a read-only check, e.g. ask: *"What instance am I connected to, and what permission tier?"*
+   The wizard asks for a label, the instance URL, the environment (`pdi` / `dev` / `test` / `prod`), the credentials and a preset, probes each capability, and saves the instance to the checkout's store `.local/instances.json` (file mode 0600, directory 0700). The non-interactive equivalent is:
 
-**Before you rely on this for writes, read [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).** Every write is governed by two gates — §2.1 write approval and §2.2 Update Set capture — and the running list of confirmed MCP behaviours is in [`snowarch-field-notes.md`](./snowarch-field-notes.md).
+   ```bash
+   ./snowarch instance add <label> --url <url> --env pdi --username <user> --password-stdin --yes
+   ```
 
-> **Security:** instance URLs, credentials, and sys_ids must never be committed. The repository's `.gitignore` already excludes the local config, settings, and `clients/` folders.
+3. **Choose the preset and check the flags.** The preset (`read-only` / `pdi-developer` / `full` / `custom`) sets six capability flags on the instance — `WRITE_ENABLED`, `CMDB_WRITE_ENABLED`, `SCRIPTING_ENABLED`, `ATF_ENABLED`, `NOW_ASSIST_ENABLED`, `FLUENT_ENABLED`. Change it later with `./snowarch instance set-preset <label> <preset>`. A `prod` instance keeps writes locked until `--ack-prod` is given.
+4. **Start Claude Code in the snowarch checkout.** The checkout carries a committed, secret-free `.mcp.json` (project scope); Claude Code reads `.claude/settings.json` and `.mcp.json` from the session's primary working directory, so live sessions are started there. If your machine blocks project MCP servers, `./snowarch mode live --register local` registers the same secret-free entry for that checkout alone; `./snowarch mode live --register user --ack-user-scope` is the documented last resort and attaches the server to every project on the machine. `./snowarch mode design` removes what it registered. Live sessions therefore start in the snowarch checkout, which ships the same roster as this repository.
+5. **Verify.** Run `./snowarch doctor` — the health report. Its `Mode:` line (also printed by the SessionStart hook, `./snowarch mode` and `/snowarch status` inside Claude) is the authoritative statement of design-only vs live. `./snowarch instance test <label>` re-runs the capability probes and `./snowarch instance list` shows what is stored. `/snowarch setup-instance` adds an instance from inside Claude.
+
+**Before you rely on this for writes, read [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).** Every write is governed by two gates — §2.1 write approval and §2.2 Update Set capture — and the running list of confirmed platform behaviours is in [`snowarch-field-notes.md`](./snowarch-field-notes.md).
+
+> **Security:** instance URLs, credentials, and sys_ids must never be committed. Credentials live only in the snowarch store `.local/instances.json` — never in `~/.claude.json`, never in `.mcp.json`, never in environment variables, never in Git. Rotate or remove them with `./snowarch instance set-credentials <label>` and `./snowarch instance remove <label>`. This repository's `.gitignore` already excludes the local config, settings, and `clients/` folders.
 
 ---
 
@@ -134,6 +137,8 @@ The core engine above is **design-only** and needs no instance. To let the engin
 | `Status` shows fewer than 5 Domain Experts | Quit Claude Code (`/exit` or Ctrl+D) and relaunch from the repo root. The session may have cached an empty roster. |
 | `ServiceNowDocs/` references fail | You cloned without submodules. Run `git submodule update --init --recursive`. |
 | Authentication errors | `ANTHROPIC_API_KEY` not set or invalid. Re-export it and try again. |
+| `Mode:` line says design-only after adding an instance | The session was started outside the snowarch checkout, or the server is not registered. Start Claude Code in the snowarch checkout (or run `./snowarch mode live --register local`) and confirm with `./snowarch doctor`. |
+| A live tool returns `AUTHENTICATION_FAILED` | Stop; do not retry. Run `./snowarch instance test <label>` and, if it fails, `./snowarch instance set-credentials <label>`, then call `snow_core_instances_reload` before retrying. |
 
 ---
 

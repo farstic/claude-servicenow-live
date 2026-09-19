@@ -71,18 +71,30 @@ This rule applies to all 25 specialists at all tiers — builders, reviewers, do
 
 ## §2.1 — MCP Write Operations Explicit Approval Gate
 
-Every MCP write operation against a live ServiceNow instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `create_*`, `update_*`, `delete_*`, `execute_*`, and any other MCP tool that mutates instance state.
+Every MCP write operation against a live ServiceNow instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. Approval is per action — one "write approved" covers exactly one write.
+
+**Scope:** the gate applies to **any tool that mutates instance state**, whatever it is named. The tools are served by snowarch under the server key `servicenow` and the tool prefix `mcp__servicenow__`. Mutating action suffixes are the practical tell — this list is illustration, not an exhaustive allowlist:
+
+`_add` · `_modify` · `_remove` · `_exec` · `_close` · `_resolve` · `_publish` · `_import` · `_set` · `_assign` · `_trigger` · `_reconcile`
+
+Examples: `mcp__servicenow__snow_core_record_add`, `mcp__servicenow__snow_scr_business_rule_modify`, `mcp__servicenow__snow_inc_incident_resolve`, `mcp__servicenow__snow_cmdb_reconcile`, `mcp__servicenow__snow_atf_atf_test_exec`.
+
+**A suffix that is not on the list does not exempt the call.** If the tool changes anything on the instance, the gate fires. Conversely, `_index`, `_read` and `_query` suffixes are reads and do not require the gate.
+
+**Compatibility note:** registrations made by the previous tooling used the server key `servicenow-mcp` (tool prefix `mcp__servicenow-mcp__`) and held the instance URL and credentials in `~/.claude.json`; that model is retired. Re-register through snowarch (`./snowarch mode live`, run in the snowarch checkout). Until then, the §2.1 gate applies to whichever prefix the session advertises, and if `snow_us_capture_target_set` is not advertised the registered server predates snowarch 2.0.0 and the §2.2 protocol cannot run — stop and say so rather than improvising a capture.
+
+**Instance permissions gate the tool families, not the approval.** Every instance saved in snowarch carries a per-instance preset (`read-only` / `pdi-developer` / `full` / `custom`) and six flags — `WRITE_ENABLED` (records, incidents, catalog, users, update sets), `CMDB_WRITE_ENABLED`, `SCRIPTING_ENABLED` (Script Includes, Business Rules, Flow actions, update-set creation), `ATF_ENABLED`, `NOW_ASSIST_ENABLED`, `FLUENT_ENABLED` — and a prod instance keeps writes locked until `--ack-prod`. A refused call returns a code such as `SCRIPTING_NOT_ENABLED` with a remedy naming the instance label; relay the remedy to the user, do not work around it. `AUTHENTICATION_FAILED` means stop and do not retry: tell the user to run `./snowarch instance test <label>` and, if that fails, `./snowarch instance set-credentials <label>`, then call `snow_core_instances_reload` before retrying. An enabled flag never substitutes for the user's "write approved".
 
 **What counts as "write approved":**
-- A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "write approved", "go ahead and create", "yes, deploy it", "yes, update it").
+- A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "write approved", "go ahead and create", "yes, deploy it", "yes, update it", "да, качи", "да, създай", "да, изпълни").
 
 **What does NOT count as "write approved":**
+- Enabling an instance flag, changing an instance preset (`./snowarch instance set-preset <label> <preset>`), acknowledging prod writes (`--ack-prod`), or switching the session to live mode (`./snowarch mode live`) — these are infrastructure changes, not a write approval.
 - A previous "yes" to a read-only operation (approving a routing proposal, approving a Code Reviewer pass).
 - A general go-ahead earlier in the conversation that did not name the specific write action.
 - The user's original task description, however detailed.
-- A tier or permission upgrade.
 
-**Halt protocol:** If a write operation is about to be executed without a "write approved" in the current conversation, stop and surface: *"About to [describe action] — write approved?"* Wait for explicit confirmation before proceeding.
+**Halt protocol:** If a write operation is about to be executed without a "write approved" in the current conversation, stop and surface: `About to <action> on instance "<label>" — write approved?` Wait for explicit confirmation before proceeding.
 
 **Self-approval is prohibited.** Claude may not infer write approval from context, urgency, or logical flow. Approval must be a discrete user message.
 
@@ -90,26 +102,27 @@ Every MCP write operation against a live ServiceNow instance requires an explici
 
 ## §2.2 — MCP Update Set Capture Mandatory Pre-Write Protocol
 
-Before executing any `create_*` or `update_*` MCP write operation that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, Flow, etc.), the active `sys_user_preference` for `sys_update_set` **must** be set to the target Update Set for the authenticated user.
+Before executing any MCP write that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, UI Action, ACL, Flow, table or field), capture **must** be pointed at the target Update Set through the four-call protocol below. This applies to every instance and every environment.
 
-**Why:** ServiceNow REST API calls honour the `sys_user_preference` record with `name=sys_update_set` for the authenticated user. Setting this preference before write operations causes automatic capture of created/updated objects into the target Update Set. Without this step, objects land on the instance but are not captured in any Update Set and cannot be promoted or migrated.
+**Why:** ServiceNow REST honours the authenticated user's `sys_user_preference` row with `name=sys_update_set`; the capture target is what sets that row. The `is_default` flag on an update set is a UI concept and does nothing for the API. Without the capture target, objects land on the instance but are not captured in any Update Set and cannot be promoted or migrated.
 
-**Mandatory steps before any configuration write:**
+**Preflight:** if `snow_us_capture_target_set` is not advertised in the session's tool list, the registered server predates snowarch 2.0.0 and this protocol cannot run — stop and say so rather than improvising a capture (see the compatibility note in §2.1).
 
-1. Identify or create the target Update Set — `create_update_set` or confirm an existing one is `in progress`.
-2. Resolve the authenticated user's sys_id — `query_records(sys_user, user_name=<username>)`.
-3. Set the user preference — `query_records(sys_user_preference, user=<sys_id>^name=sys_update_set)`:
-   - If exists → `update_record(sys_user_preference, <pref_sys_id>, {value: <update_set_sys_id>})`
-   - If not exists → `create_record(sys_user_preference, {user: <sys_id>, name: 'sys_update_set', value: <update_set_sys_id>, type: 'string'})`
-4. Execute the write operation — object is now captured automatically.
-5. Verify capture — `query_records(sys_update_xml, update_set=<update_set_sys_id>)`.
+**The four calls — mandatory before any configuration write:**
 
-**What does NOT work (confirmed non-functional on ServiceNow REST API):**
-- `switch_update_set` — only sets `is_default: true` on the record; does NOT switch session context.
-- Direct POST to `sys_update_xml` — blocked by `INSUFFICIENT_PRIVILEGES` even for admin users.
-- `execute_script` / `execute_background_script` — call non-existent ServiceNow endpoints; fail with 400/404.
+1. **Ensure the update set** — `snow_us_active_update_set_ensure` with `{ "name": "<engagement>-<topic>" }`. The name is required; only the caller's own in-progress sets are returned, so the authenticated user must have a username on the instance.
+2. **Point capture at it** — `snow_us_capture_target_set` with `{ "update_set_sys_id": "<sys_id from step 1>" }`.
+3. **Do the write** — with its own §2.1 "write approved".
+4. **Verify capture** — `snow_us_update_set_preview` — confirm the objects are in the set. This step is the evidence; a write without it is unverified.
 
-**Halt protocol:** If steps 1–3 have not been completed before a configuration write, stop and complete them first. Retroactive capture via REST is not possible.
+**This protocol is environment-agnostic.** The capture target is stored in the instance database (`sys_user_preference`), not on the local machine, so the four calls work on any instance snowarch has registered. When moving to a new laptop, a new instance, or a new engagement update set, repeat steps 1–2 once for the authenticated user on that instance.
+
+**Not substitutes (confirmed on the ServiceNow REST API):**
+- `snow_us_update_set_switch` — sets `is_default` and changes nothing for REST.
+- Writing `sys_update_xml` directly — refused with `INSUFFICIENT_PRIVILEGES`, admin included.
+- `snow_deploy_background_script_exec` and `snow_fluent_script_exec` — refuse with `UNSUPPORTED_ON_THIS_INSTANCE`.
+
+**Halt protocol:** Capture cannot be applied retroactively over REST. If steps 1–2 were skipped before a configuration write, stop and say so — do not proceed with further writes and do not attempt to capture after the fact.
 
 ---
 

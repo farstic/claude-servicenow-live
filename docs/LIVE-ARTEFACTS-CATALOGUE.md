@@ -1,9 +1,9 @@
 # Live Artefacts Catalogue — What the Engine Has Deployed
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Purpose:** A register of the configuration objects the engine has built and deployed to a live ServiceNow instance under the MCP write protocol. For each artefact: what it does, its object type, the baseline tables it touches, and its §1.1 verdict.
+**Purpose:** A register of the configuration objects the engine has built and deployed to a live ServiceNow instance under the snowarch write protocol. For each artefact: what it does, its object type, the baseline tables it touches, and its §1.1 verdict.
 **Audience:** Anyone auditing what is live, onboarding to the engine, or extending one of these artefacts.
-**Last updated:** 29 May 2026
+**Last updated:** 19 September 2026
 **Related:** [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md) (how these were deployed) · [`snowarch-field-notes.md`](./snowarch-field-notes.md) (the write gotchas applied) · root `VALIDATION-TESTS.md` (the regression suite that exercises this behaviour).
 
 ---
@@ -46,7 +46,7 @@ This artefact is the worked example behind the §6.2 post-build validation test 
 | **§1.1 verdict** | **A** — baseline detection + baseline event framework |
 | **Domain gateway** | ITSM Specialist (incident domain) |
 
-Detects duplicate incidents and fires the registered event `duplicate.incident.detected`. The event-registration step exercised a known MCP gotcha: `register_event` leaves `event_name` blank, so the record is patched immediately after creation (see [`snowarch-field-notes.md`](./snowarch-field-notes.md) §4). Using a registered event rather than a custom table keeps the artefact on the baseline event framework — the correct Baseline-First choice.
+Detects duplicate incidents and fires the registered event `duplicate.incident.detected`. The event-registration step exercised a known gotcha of the previous server's event-registration tool: it left `event_name` blank, so the record is patched immediately after creation (see [`snowarch-field-notes.md`](./snowarch-field-notes.md) §4). Using a registered event rather than a custom table keeps the artefact on the baseline event framework — the correct Baseline-First choice.
 
 ---
 
@@ -63,7 +63,7 @@ Detects duplicate incidents and fires the registered event `duplicate.incident.d
 
 A three-part artefact, each part in its correct jurisdiction:
 
-- **Business Rule** — fires on the `incident` table when a P1 is raised, and delegates the routing decision. The BR was patched after creation to set `action_insert` / `action_update`, which `create_business_rule` leaves `false` by default (see [`snowarch-field-notes.md`](./snowarch-field-notes.md) §5).
+- **Business Rule** — fires on the `incident` table when a P1 is raised, and delegates the routing decision. The BR was patched after creation to set `action_insert` / `action_update`, which the previous server's Business Rule create tool left `false` by default (see [`snowarch-field-notes.md`](./snowarch-field-notes.md) §5).
 - **Script Include** — holds the assignment logic (which baseline `sys_user_group` a given P1 should route to), kept separate so it is reusable and testable.
 - **Script Action** — sends the notification. It writes directly to `sys_email` via a GlideRecord insert rather than `gs.sendEmail()`, because `gs.sendEmail()` bypasses `sys_email` on PDI and cannot be verified (see [`snowarch-field-notes.md`](./snowarch-field-notes.md) §3).
 

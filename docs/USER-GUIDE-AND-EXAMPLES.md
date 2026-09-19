@@ -3,7 +3,7 @@
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
 **Purpose:** The day-to-day operator's guide — four worked scenarios covering the most common ways the team uses the engine, including live deployment to a ServiceNow instance.
 **Audience:** Whole team
-**Last updated:** 29 May 2026
+**Last updated:** 19 September 2026
 **Reading time:** 18 minutes
 
 For each scenario: what you type, what the engine does, what you receive, and what to do next.
@@ -12,7 +12,7 @@ For each scenario: what you type, what the engine does, what you receive, and wh
 
 ## How to send a prompt
 
-Open Claude Code (`claude` from the repo root) and type your request at the `❯` prompt. If you prefer the browser, the same prompts work in the Master Project chat on Claude.ai — with one difference: **live deployment to an instance (Scenario 4) is CLI-only**, because the MCP connection runs through Claude Code. See [`INSTALLATION-GUIDE.md`](./INSTALLATION-GUIDE.md) or [`ADVANCED-WEB-SETUP.md`](./ADVANCED-WEB-SETUP.md) if you haven't set up yet.
+Open Claude Code (`claude` from the repo root) and type your request at the `❯` prompt. If you prefer the browser, the same prompts work in the Master Project chat on Claude.ai — with one difference: **live deployment to an instance (Scenario 4) is CLI-only**, because the snowarch live-instance layer runs through Claude Code, from a session started in the snowarch checkout. See [`INSTALLATION-GUIDE.md`](./INSTALLATION-GUIDE.md) or [`ADVANCED-WEB-SETUP.md`](./ADVANCED-WEB-SETUP.md) if you haven't set up yet.
 
 There are no special commands or syntax. Describe what you need in plain English. Mention the module (ITSM, CSM, HRSD, ITOM) if it's obvious, mention "Australia release" so the engine doesn't recommend a feature you don't have, and let the engine handle the rest.
 
@@ -193,7 +193,7 @@ The choice is yours, made consciously, documented in the thread.
 
 ## Scenario 4 — Deploying to a live instance (the two write gates)
 
-**Use this when:** a design has been approved and reviewed, and you want the engine to build it *directly on your ServiceNow instance* rather than hand you code to paste. **CLI only** — this uses the MCP connection.
+**Use this when:** a design has been approved and reviewed, and you want the engine to build it *directly on your ServiceNow instance* rather than hand you code to paste. **CLI only** — this uses the snowarch live-instance layer.
 
 ### What you type
 
@@ -211,9 +211,9 @@ The engine has already cleared §1.1 (the Script Include touches only baseline t
 flowchart LR
     A([Approved design]) --> G1{§2.1<br/>'write approved'?}
     G1 -->|asks you| You[You reply:<br/>'write approved']
-    You --> G2[§2.2: set Update Set<br/>preference to target]
+    You --> G2[§2.2: ensure the Update Set<br/>and point capture at it]
     G2 --> W[Create Script Include<br/>on the instance]
-    W --> V[Verify capture in<br/>sys_update_xml]
+    W --> V[Verify with<br/>update-set preview]
     V --> D([Live + captured])
 
     classDef gate fill:#2563eb,stroke:#1e3a8a,color:#fff
@@ -222,9 +222,9 @@ flowchart LR
     class W,V act
 ```
 
-1. **Gate 1 — §2.1 Write Approval.** Even though you said "deploy it", the engine pauses and asks, verbatim: *"About to create the SLABreachRiskCalculator Script Include on the instance — write approved?"* Your original instruction is **not** sufficient on its own; the engine needs a discrete approval naming the write. You reply `write approved`.
-2. **Gate 2 — §2.2 Update Set Capture.** The engine creates the "SLA Risk — May 2026" Update Set, points your `sys_update_set` user preference at it, *then* creates the Script Include — so ServiceNow captures it automatically.
-3. **Verify.** The engine confirms the object appears in `sys_update_xml` for that Update Set.
+1. **Gate 1 — §2.1 Write Approval.** Even though you said "deploy it", the engine pauses and asks, verbatim: *"About to create the SLABreachRiskCalculator Script Include on instance "<label>" — write approved?"* Your original instruction is **not** sufficient on its own; the engine needs a discrete approval naming the write. You reply `write approved`.
+2. **Gate 2 — §2.2 Update Set Capture.** The engine ensures the "SLA Risk — May 2026" Update Set exists and is in progress (`snow_us_active_update_set_ensure`), points capture at it (`snow_us_capture_target_set`), *then* creates the Script Include — so ServiceNow captures it automatically.
+3. **Verify.** The engine runs `snow_us_update_set_preview` and confirms the object is in that Update Set.
 
 ### What you receive
 
@@ -238,7 +238,7 @@ flowchart LR
 - When ready to promote, export the Update Set per your release process.
 - The three artefacts already deployed this way are listed in [`LIVE-ARTEFACTS-CATALOGUE.md`](./LIVE-ARTEFACTS-CATALOGUE.md).
 
-> **Why the friction is the point.** The engine will never write to your instance off the back of a general instruction. "Deploy it", "go ahead", or a tier upgrade are not write approvals. Each write is a discrete, named, logged decision — and every write lands in an Update Set, so nothing is ever stranded outside change control. Full detail: [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
+> **Why the friction is the point.** The engine will never write to your instance off the back of a general instruction. "Deploy it", "go ahead", or enabling a write flag on the instance are not write approvals. Each write is a discrete, named, logged decision — and every write lands in an Update Set, so nothing is ever stranded outside change control. Full detail: [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
 
 ---
 

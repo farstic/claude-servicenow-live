@@ -90,6 +90,32 @@ pwsh scripts/render-pdf-pages.ps1 clients\<client>\designs\MyDesign.docx
 
 ---
 
+## First-run setup
+
+Before any of the toolchain above matters, the engine itself has to be bootstrapped. Two commands
+cover it, and they are the only two a new user needs — the full walkthrough lives in
+[`SETUP.md`](../SETUP.md).
+
+```bash
+bash scripts/setup.sh     # fix  — bootstrap the engine (idempotent; safe to re-run)
+bash scripts/doctor.sh    # check — "is my setup correct?" before work starts
+```
+
+`setup.sh` initialises the `ServiceNowDocs` submodule, arms the pre-commit guards, syncs the
+`agents/` ↔ `skills/` mirrors and writes a working `.claude/settings.json`, then stops at a mode
+gate. **Tier 0 (design-only) is a complete, supported end state** — the whole specialist roster and
+every design deliverable work with no ServiceNow instance and no credentials. Answer *yes* at the
+gate (or run `--mcp` at any time) and the script prints the snowarch hand-off instead of touching
+anything: the live-instance layer is snowarch — clone `farstic/ai-servicenow-architect`, run its
+bootstrap, `./snowarch mode live` there, and, for a session started in *this* folder,
+`./snowarch mode live --register user --ack-user-scope` as the documented last resort. `setup.sh`
+prompts for no URL and no credential and registers no server; credentials live only in the snowarch
+store (`.local/instances.json` in that checkout), never in `~/.claude.json`, `.mcp.json`, environment
+variables or Git. `--mcp` exits `0` without modifying any file outside this repository. Useful flags:
+`--yes` (non-interactive, stops at Tier 0), `--tier0`, `--mcp`.
+
+---
+
 ## Script reference
 
 | Script | OS | What it does |
@@ -103,11 +129,21 @@ pwsh scripts/render-pdf-pages.ps1 clients\<client>\designs\MyDesign.docx
 | `mermaid-theme.json` | — | House Mermaid palette/fonts (applied automatically by `render-diagrams.*`). |
 | `verify-citations.sh`, `verify-structure.sh` | all | Pre-commit guards (ServiceNowDocs citation paths; agents/skills structural integrity). |
 | `sync-agents-skills.sh` | all | Keeps `agents/` ↔ `skills/` registry in sync. |
+| `doctor.sh` | Mac/Linux (Win via Git Bash/WSL) | **"Is my setup correct?"** — **read-only** checks across host toolchain, engine integrity (roster, structure audit, hooks, submodule, citations) and the MCP layer, which reports only what the session **advertises** (via `claude mcp list`): whether the `servicenow` server key is present, its connection status, whether the registered server declares `snow_us_capture_target_set`, and whether a `servicenow-mcp` registration from the previous tooling is still around. It never reads a credential — `./snowarch doctor` in the snowarch checkout is the authoritative live-instance check. Ends in a verdict plus a `Mode:` line (`Mode: design-only` / `Mode: live — …`). Prints remedies, **never applies them**. `--tier0 --no-network --json`. Exit 0/1/3. |
+| `setup.sh` | Mac/Linux (Win via Git Bash/WSL) | First-run bootstrap — submodule, hooks, mirrors, `settings.json`, then a mode gate: stop at Tier 0 (design-only) or print the snowarch hand-off (clone, bootstrap, `./snowarch mode live`, registration options). Prompts for no credential, registers nothing, never touches a file outside this repository. Idempotent. `--yes --tier0 --mcp`. Exit 0/1/3. |
 
 ---
 
 ## Notes
 
+- **Pre-commit guards vs. the doctor.** `verify-citations.sh` and `verify-structure.sh` are wired into
+  `.githooks/pre-commit` and block a commit. **`doctor.sh` is NOT a commit gate** — it is a user-run
+  environment audit you invoke yourself before work starts. It *delegates* to the two guards (so a
+  structural or citation break shows up in its report), but it never blocks anything and never writes:
+  every remedy it prints is for you or `setup.sh` to apply. It also closes one hole the commit gate
+  deliberately leaves open — `verify-citations.sh` exits 0 when the `ServiceNowDocs` submodule is
+  missing, so it never blocks a fresh clone; the doctor reports that same state as a FAIL, because it
+  means every citation in the repo is currently unverified.
 - **No client names in committed Markdown.** Pass the client via `--footer-text` / `-FooterText` per
   engagement. The `clients/` tree is git-ignored; generated `.docx`/PNG stay local.
 - **Images:** PNG only for `md-to-docx` (dimensions read from the PNG IHDR header, sized to fit the

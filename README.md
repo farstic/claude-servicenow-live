@@ -1,10 +1,12 @@
 # claude-servicenow-live
 
+> **Setup: see [SETUP.md](./SETUP.md)** — two commands (`bash scripts/setup.sh`, `bash scripts/doctor.sh`). This README is a project overview.
+
 A two-tier ServiceNow expertise system for Claude, with live ServiceNow instance integration via snowarch MCP.
 
 - **Tier 1 — Claude.ai Projects** (web / mobile / desktop): daily driver for stories, HLDs, design discussions, transcript extraction, and client review prep.
 - **Tier 2 — Claude Code** (local CLI): heavy lifting with sub-agents, code review, ATF generation, live instance operations, and batch artefact production.
-- **MCP Layer — snowarch**: connects Tier 2 directly to a live ServiceNow instance. Claude can read from and write to the instance via structured MCP tools without switching tabs.
+- **MCP Layer — snowarch**: connects Tier 2 directly to a live ServiceNow instance. snowarch is one repository (engine + MCP server) with the CLI `./snowarch`; it registers the MCP server `servicenow` (tool prefix `mcp__servicenow__`, 397 tools declared in a pinned contract) and ships the same roster as this repository, so Claude can read from and write to the instance via structured MCP tools without switching tabs.
 
 Both tiers share the same `.claude/skills/` directory so expertise is authored once and used everywhere.
 
@@ -21,7 +23,7 @@ Both tiers share the same `.claude/skills/` directory so expertise is authored o
 7. [Step 5 — Set up Tier 1 (Claude.ai Projects)](#step-5--set-up-tier-1-claudeai-projects)
 8. [Step 6 — Daily workflow](#step-6--daily-workflow)
 9. [Step 7 — GitHub security review (mandatory before every push)](#step-7--github-security-review-mandatory-before-every-push)
-10. [Step 8 — Monthly maintenance](#step-8--monthly-maintenance)
+10. [Step 8 — Monthly maintenance](#step-8--monthly-maintenance-30-minutes)
 11. [Step 9 — Extending the system](#step-9--extending-the-system)
 12. [Repo layout](#repo-layout)
 13. [Troubleshooting](#troubleshooting)
@@ -35,12 +37,14 @@ Both tiers share the same `.claude/skills/` directory so expertise is authored o
 Claude.ai Projects (Tier 1)          Claude Code CLI (Tier 2)
 ─────────────────────────────         ──────────────────────────────────────────
 Master Project                        Chief Architect orchestrator (CLAUDE.md)
-  └─ global skills                      ├─ 22 specialists (8 with sub-agents)
+  └─ global skills                      ├─ 27 specialists (9 with sub-agents)
 Satellite Projects (per client)         ├─ ServiceNowDocs/ (official docs submodule)
-  └─ client knowledge + skills          └─ snowarch MCP ──► Live ServiceNow instance
+  └─ client knowledge + skills          └─ snowarch (MCP server "servicenow") ──► Live ServiceNow instance
 ```
 
-The Chief Architect (CLAUDE.md) reads the official ServiceNow documentation submodule and can call live instance tools via snowarch MCP for validation, creation, and deployment of artefacts.
+The Chief Architect (CLAUDE.md) reads the official ServiceNow documentation submodule and can call live instance tools via snowarch — the MCP server `servicenow`, tool prefix `mcp__servicenow__` — for validation, creation, and deployment of artefacts. Credentials live only in the snowarch checkout's store; this repository never holds one.
+
+This repository remains the Tier 2 engine folder with its clients/ workspaces; the live-instance layer is snowarch, which ships the same roster, and the folder-level cutover follows the snowarch migration plan (ARC-10).
 
 ---
 
@@ -51,10 +55,17 @@ Before you begin, install and verify the following:
 | Tool | Minimum version | Install command | Verify |
 |---|---|---|---|
 | Git | 2.30 | [git-scm.com](https://git-scm.com) | `git --version` |
-| Node.js | 18 LTS | [nodejs.org](https://nodejs.org) | `node --version` |
+| Node.js | **20** | [nodejs.org](https://nodejs.org) | `node --version` |
 | npm | 9 | Bundled with Node.js | `npm --version` |
 | Claude Code CLI | latest | `npm install -g @anthropic-ai/claude-code` | `claude --version` |
-| Claude Pro subscription | — | [claude.ai/settings](https://claude.ai/settings) | Settings > Features > Skills: ON |
+| Claude Pro/Max subscription **or** an `ANTHROPIC_API_KEY` | — | [claude.ai/settings](https://claude.ai/settings) | Settings > Features > Skills: ON |
+
+> **Node 20, not 18.** `doctor.sh` enforces Node 20 — the floor of the live-instance layer (snowarch
+> is a Node.js application), which is stricter than Claude Code's own floor. Node 18 is enough for
+> design-only mode but not for snowarch.
+>
+> **Do not set `ANTHROPIC_API_KEY` if you have a Pro/Max subscription** — exporting it overrides the
+> subscription and routes all usage to metered API billing. Use one or the other, never both.
 
 Install Claude Code:
 
@@ -95,7 +106,7 @@ end-to-end pipeline are in **[`scripts/README.md`](./scripts/README.md)**.
 # Choose a parent directory — ~/work is a common convention
 cd ~/work
 
-git clone https://github.com/farstic/claude-servicenow-live.git claude-servicenow-live
+git clone --recurse-submodules https://github.com/farstic/claude-servicenow-live.git claude-servicenow-live
 cd claude-servicenow-live
 ```
 
@@ -113,12 +124,11 @@ This activates the agents/skills sync guard — commits are blocked if the repo 
 
 ## Step 2 — Add ServiceNowDocs submodule
 
-The submodule pulls the official ServiceNow documentation repo (Australia release branch) so Claude Code can read it directly without copying files.
+The submodule pulls the official ServiceNow documentation repo (Australia release branch) so Claude Code can read it directly without copying files. It is already declared in `.gitmodules` and its gitlink is committed — so it only needs populating, never adding. `git clone --recurse-submodules` in Step 1 does this for you; run the command below if you cloned without that flag, or to repair an empty `ServiceNowDocs/`.
 
 ```bash
 cd ~/work/claude-servicenow-live
 
-git submodule add -b australia https://github.com/ServiceNow/ServiceNowDocs.git ServiceNowDocs
 git submodule update --init --recursive
 ```
 
@@ -152,79 +162,71 @@ git commit -m "chore: switch ServiceNowDocs to <new-branch-name>"
 
 ## Step 3 — Install and configure snowarch MCP
 
-snowarch is the MCP (Model Context Protocol) server that connects Claude Code to a live ServiceNow instance. This is the key differentiator of this setup: Claude can read from and write to your PDI or production instance directly from a Claude Code conversation.
+snowarch is the live-instance layer: one repository (engine + MCP server) with the CLI `./snowarch`, connecting Claude Code to a live ServiceNow instance. This is the key differentiator of this setup: Claude can read from and write to your PDI or production instance directly from a Claude Code conversation. The registered MCP server key is **`servicenow`** — the name `claude mcp list` and `/mcp` will show you — and its tools are advertised under the prefix `mcp__servicenow__` (for example `mcp__servicenow__snow_core_record_add`), 397 of them declared in a pinned contract. snowarch ships the same roster as this repository (28 skills, 9 sub-agents).
 
-### 3a — Install snowarch
+**Sub-steps 3a–3c and 3f–3h are optional.** The engine is fully usable with no MCP server at all — design-only ("Tier 0") is a first-class supported mode, and `doctor.sh` reports it as healthy rather than broken. If you have no instance to connect, skip 3a–3c and 3f–3h, but **still do [3d](#3d--install-the-pre-commit-hook-agentsskills-sync-guard) and [3e](#3e--configure-claude-code-hooks-context-mode)** — the pre-commit hook and the context-mode hook config are repo hygiene, not MCP setup — then continue to [Step 4](#step-4--set-up-tier-2-claude-code).
 
-```bash
-npm install -g claude-servicenow-mcp
-```
+### 3a — Clone snowarch and add an instance
 
-Verify:
+Live-instance setup happens in the snowarch checkout, not in this repository — nothing here prompts for an instance URL or a credential. Clone snowarch next to this folder, run its bootstrap, then let its wizard add your first instance:
 
 ```bash
-npx claude-servicenow-mcp --version
+cd ~/work
+git clone https://github.com/farstic/ai-servicenow-architect.git
+cd ai-servicenow-architect
+# run the repository's bootstrap as documented in its README, then:
+./snowarch mode live          # wizard: label, URL, environment, credentials, preset
+./snowarch doctor             # health report — the authoritative check
 ```
 
-### 3b — Locate the Claude Desktop config file
+Scripted alternative — the password is read from stdin, never passed as an argument:
 
-The MCP server is registered in Claude's desktop configuration file. Its location depends on your OS:
+```bash
+./snowarch instance add <label> --url https://<instance>.service-now.com --env pdi --username <user> --password-stdin --yes
+```
 
-| OS | Path |
+`bash scripts/setup.sh --mcp` in this repository prints exactly these steps and exits without touching any file outside this checkout.
+
+Each saved instance carries an environment (`pdi` / `dev` / `test` / `prod`), a preset (`read-only` / `pdi-developer` / `full` / `custom`) and the six capability flags summarised in 3b; snowarch probes each capability when the instance is saved. Day-to-day commands, all run in the snowarch checkout:
+
+| Command | Purpose |
 |---|---|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
+| `./snowarch instance list` | Show the saved instances with their environment, preset and flags |
+| `./snowarch instance test <label>` | Re-run the connectivity and capability probes for one instance |
+| `./snowarch instance set-credentials <label>` | Rotate the credential — then call `snow_core_instances_reload` in the session |
+| `./snowarch instance set-preset <label> <preset>` | Change the preset, and with it the flags |
+| `./snowarch instance remove <label>` | Forget the instance |
+| `/snowarch setup-instance` | Add an instance from inside a Claude Code session |
 
-Create the file if it does not exist:
+For the full flag reference, the security model, and the error-string troubleshooting catalogue, see **[SETUP.md](./SETUP.md)** — it is the canonical setup authority. The two subsections below are a summary only; where they disagree with SETUP.md, SETUP.md wins.
 
-```bash
-# macOS
-mkdir -p ~/Library/Application\ Support/Claude
-touch ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
+### 3b — Capability flags (summary)
 
-### 3c — Add snowarch to the config
+The flags are stored per instance in the snowarch store and are set by the instance's preset (individually with the `custom` preset). Full detail is in [SETUP.md § Capability flags](./SETUP.md#capability-flags).
 
-Open the config file in a text editor and add the following JSON. Replace the placeholder values with your own — **do not commit credentials to Git** (see [Step 7](#step-7--github-security-review-mandatory-before-every-push)):
+| Flag | Gates |
+|---|---|
+| `WRITE_ENABLED` | Records, incidents, catalog, users, update sets — the ordinary data-mutating tools. Off is the read-only setting. |
+| `CMDB_WRITE_ENABLED` | CMDB write tools. |
+| `SCRIPTING_ENABLED` | Script Includes, Business Rules, Flow actions, update-set creation. |
+| `ATF_ENABLED` | ATF test and suite execution — required by the ATF Author. |
+| `NOW_ASSIST_ENABLED` | Now Assist tools — required by the Now Assist Specialist. Also needs a Now Assist licence on the instance. |
+| `FLUENT_ENABLED` | Fluent / ServiceNow SDK tools. |
 
-```json
-{
-  "mcpServers": {
-    "snowarch": {
-      "command": "npx",
-      "args": ["claude-servicenow-mcp"],
-      "env": {
-        "SERVICENOW_INSTANCE_URL": "https://<your-instance>.service-now.com",
-        "SERVICENOW_USERNAME": "<your-username>",
-        "SERVICENOW_PASSWORD": "<your-password>",
-        "WRITE_ENABLED": "true",
-        "SCRIPTING_ENABLED": "true",
-        "CMDB_WRITE_ENABLED": "false",
-        "ATF_ENABLED": "false",
-        "MCP_TOOL_PACKAGE": "full"
-      }
-    }
-  }
-}
-```
+Three rules govern all of them:
 
-#### Configuration flags
+- **A call refused by a flag returns a code such as `SCRIPTING_NOT_ENABLED` with a remedy that names the instance label** — follow the remedy; do not retry blindly.
+- **A `prod` instance keeps writes locked** until it is saved with `--ack-prod`, whatever its preset says.
+- **`AUTHENTICATION_FAILED` means stop.** Do not retry: run `./snowarch instance test <label>` and, if it fails, `./snowarch instance set-credentials <label>`, then call `snow_core_instances_reload` before retrying.
 
-| Flag | Values | Purpose |
-|---|---|---|
-| `WRITE_ENABLED` | `true` / `false` | Allow MCP tools to create and update records. Set `false` for read-only exploration. |
-| `SCRIPTING_ENABLED` | `true` / `false` | Allow background script execution (requires instance-level access). |
-| `CMDB_WRITE_ENABLED` | `true` / `false` | Allow writes to CMDB tables. Keep `false` unless you are doing CMDB work. |
-| `ATF_ENABLED` | `true` / `false` | Allow ATF test execution via MCP. |
-| `MCP_TOOL_PACKAGE` | `full` / `lite` | `full` exposes all 300+ tools; `lite` exposes a safe read-only subset. |
+### 3c — Security note — where the credential lives
 
-**Security note:** The `SERVICENOW_PASSWORD` field is a plain-text credential stored locally on your machine. It is never read by Claude Code directly — it is only passed as an environment variable to the MCP server process. Never commit `claude_desktop_config.json` to any Git repository. Add it to your global `.gitignore` if needed:
+Credentials live **only** in the snowarch checkout's store, `.local/instances.json` (file mode `0600`, directory `0700`), written by the wizard or by `./snowarch instance add … --password-stdin`. They are never in `~/.claude.json`, never in `.mcp.json`, never in environment variables, and never in Git. Two consequences:
 
-```bash
-echo "claude_desktop_config.json" >> ~/.gitignore_global
-git config --global core.excludesfile ~/.gitignore_global
-```
+- **This repository never sees a credential.** `setup.sh` does not prompt for one, `doctor.sh` never reads the store, and the tracked-file scan in `doctor.sh` fails if a credential value shows up in this checkout.
+- **The registration is secret-free.** The snowarch checkout carries a committed `.mcp.json` with no secret in it; the server resolves the instance from the store at start-up.
+
+Use a dedicated integration service account, never a personal SSO credential, for any instance that is not a throwaway PDI. Full detail is in [SETUP.md § Security](./SETUP.md#security).
 
 ### 3d — Install the pre-commit hook (agents/skills sync guard)
 
@@ -260,44 +262,57 @@ cp .claude/settings.example.json .claude/settings.json
 Open `.claude/settings.json` and replace every `/path/to/your/npm-global` with the actual path on your machine:
 
 ```bash
-# Find your npm global prefix
-npm root -g
-# Example output: /Users/yourname/.npm-global/lib/node_modules
-# Replace /path/to/your/npm-global with: /Users/yourname/.npm-global
+# Print your npm global prefix — this exact string is the replacement value
+npm prefix -g
+# Example output: /Users/yourname/.npm-global
 ```
+
+There are three occurrences to replace. Two of them already wrap the path in escaped quotes
+(`\"...\"`); the third (the `bin/context-mode` line) does not — if your npm prefix contains a
+**space**, add escaped quotes around that path too, or the hook will silently fail to run.
 
 **Note:** `.claude/settings.json` and `.claude/settings.local.json` are gitignored — they contain machine-specific paths and must never be committed.
 
-### 3f — Restart Claude Code
+### 3f — Start the session where the server is registered
 
-After saving the config, restart Claude Code completely so it picks up the new MCP server:
+Claude Code reads `.claude/settings.json` and `.mcp.json` from the session's **primary working directory**, and the snowarch checkout carries a committed, secret-free `.mcp.json` (project scope). A session started there sees the `servicenow` server with no further step:
 
 ```bash
-# Exit any running claude session, then re-open
+cd ~/work/ai-servicenow-architect
 claude
 ```
 
+Two alternatives exist, both run from the snowarch checkout and both going through the `claude mcp` CLI — snowarch never edits Claude Code's own configuration file by hand:
+
+- `./snowarch mode live --register local` — registers the same secret-free entry for that checkout alone, for machines that block project-scoped MCP servers.
+- `./snowarch mode live --register user --ack-user-scope` — the documented **last resort**: attaches the server to every project on the machine, which is what makes it visible to a session started in *this* folder.
+
+`./snowarch mode design` removes whatever snowarch registered. After any registration change, restart Claude Code completely so it picks up the server.
+
 ### 3g — Verify MCP connection
 
-In a Claude Code session, type:
+The `Mode:` line printed by the SessionStart hook — and by `./snowarch mode`, `./snowarch doctor` and `/snowarch status` — is the authoritative statement of design-only vs live. In a Claude Code session, type:
 
 ```
 > Check the current ServiceNow instance connection
 ```
 
-Expected: Claude calls `get_current_instance` and returns the instance URL and version. If you see an error, check the config path and credential values.
+Expected: Claude reports the instance it is connected to — the label, URL and version. If you see an error, run `./snowarch doctor` in the snowarch checkout; it names the failing check and its remedy. `bash scripts/doctor.sh` in this repository reports only what the session advertises: whether the `servicenow` server key is present, and whether `snow_us_capture_target_set` is among its tools.
+
+If `claude mcp list` shows `servicenow-mcp` rather than `servicenow`, that registration was made by the previous tooling and predates snowarch — see [SETUP.md § Coming from the previous tooling](./SETUP.md#coming-from-the-previous-tooling).
 
 ### 3h — Understanding the Update Set capture pattern
 
-When Claude creates or updates records via MCP, changes must be captured into an Update Set for deployment. Standard REST API calls bypass the ServiceNow session mechanism that auto-captures changes. The correct pattern is:
+When Claude creates or updates configuration objects via MCP, the changes must be captured into an Update Set for deployment. REST honours the authenticated user's `sys_user_preference` row with `name=sys_update_set`; the `is_default` flag on an update set is a UI concept and does nothing for the API. Before any write that produces a configuration object (Script Include, Business Rule, Client Script, UI Policy, UI Action, ACL, Flow, table or field), the session runs four calls:
 
-1. Create an Update Set via `create_update_set`.
-2. Get your user sys_id: `query_records(sys_user, user_name=<your-username>)`.
-3. Set the active Update Set preference: update (or create) a `sys_user_preference` record with `name=sys_update_set` and `value=<update_set_sys_id>` for your user.
-4. Perform create/update operations — they are now captured automatically.
-5. Verify: `query_records(sys_update_xml, update_set=<update_set_sys_id>)`.
+1. `snow_us_active_update_set_ensure` `{ "name": "<engagement>-<topic>" }` — the name is required, and only the caller's own in-progress sets are returned.
+2. `snow_us_capture_target_set` `{ "update_set_sys_id": "<sys_id from step 1>" }` — points capture at that set.
+3. The write itself, with its own §2.1 approval.
+4. `snow_us_update_set_preview` — confirms the objects are in the set. This step is the evidence.
 
-Claude Code handles this automatically when `WRITE_ENABLED=true` and the active Update Set preference is set. You will be prompted to confirm write operations before they execute (see `§2.1 Write Approval Gate` in `CLAUDE.md`).
+Not substitutes: `snow_us_update_set_switch` sets `is_default` and changes nothing for REST; writing `sys_update_xml` directly is refused with `INSUFFICIENT_PRIVILEGES`, admin included; `snow_deploy_background_script_exec` and `snow_fluent_script_exec` refuse with `UNSUPPORTED_ON_THIS_INSTANCE`. Capture cannot be applied retroactively over REST — if steps 1–2 were skipped, the session stops and says so (see `CLAUDE.md §2.2`). If `snow_us_capture_target_set` is not advertised at all, the registered server predates snowarch 2.0.0 and the protocol cannot run.
+
+Update-set creation is gated by `SCRIPTING_ENABLED` as well as `WRITE_ENABLED`, and every mutating call is confirmed before it executes — `About to <action> on instance "<label>" — write approved?` — one approval per action (see `§2.1 Write Approval Gate` in `CLAUDE.md`).
 
 ---
 
@@ -316,7 +331,7 @@ Claude Code reads `CLAUDE.md` automatically on startup and loads everything in `
 > Who are you and what specialists are available?
 ```
 
-Expected: Claude introduces itself as the Chief ServiceNow Architect and lists all 22 specialists including ITSM Specialist, CSM Specialist, Developer, Code Reviewer, and others.
+Expected: Claude introduces itself as the Chief ServiceNow Architect and lists all 27 specialists including ITSM Specialist, CSM Specialist, Developer, Code Reviewer, and others.
 
 ### Smoke test 2 — Routing
 
@@ -355,14 +370,15 @@ Expected: Claude returns the connected instance URL and ServiceNow version.
 5. **Project knowledge** (optional — small, non-confidential anchors):
    - `templates/gherkin-feature-template.md`
    - `templates/hld-template.md`
-6. **Skills**: upload each skill as an individual markdown file. Go to **Settings > Skills** in Claude.ai, click **New Skill**, and upload the `SKILL.md` file from each folder. The 12 available skills are:
+6. **Skills**: upload each skill as an individual markdown file. Go to **Settings > Skills** in Claude.ai, click **New Skill**, and upload the `SKILL.md` file from each folder. The repo ships **28** `SKILL.md` files under `.claude/skills/` — run `ls .claude/skills/` for the current list. The 13 highest-value ones to upload first are:
 
    | Skill file | Purpose |
    |---|---|
    | `.claude/skills/itsm-specialist/SKILL.md` | ITSM gateway (incident, problem, change, SLA) |
    | `.claude/skills/csm-specialist/SKILL.md` | CSM gateway (case, account, contact) |
    | `.claude/skills/hrsd-specialist/SKILL.md` | HRSD gateway (HR case, Lifecycle Events) |
-   | `.claude/skills/itom-discovery-specialist/SKILL.md` | ITOM gateway (Discovery, CMDB, MID Server) |
+   | `.claude/skills/itom-discovery-specialist/SKILL.md` | ITOM gateway (Discovery, MID Server, Service Mapping) |
+   | `.claude/skills/cmdb-csdm-specialist/SKILL.md` | CMDB & CSDM gateway (CI class model, CSDM v5, IRE) |
    | `.claude/skills/developer/SKILL.md` | Server-side and client-side scripting |
    | `.claude/skills/code-reviewer/SKILL.md` | Four-checklist code review |
    | `.claude/skills/flow-designer-specialist/SKILL.md` | Flow Designer flows and subflows |
@@ -402,10 +418,10 @@ For each client engagement:
 
 ### Tier 2 (Claude Code)
 
-- Run from `~/work/claude-servicenow-live`.
+- Run from `~/work/claude-servicenow-live`. For live-instance work the snowarch server must be visible to that session: register it at user scope (`./snowarch mode live --register user --ack-user-scope`, the documented last resort) or start the session in the snowarch checkout instead, which ships the same roster — see [3f](#3f--start-the-session-where-the-server-is-registered).
 - Use when a task needs: multiple ServiceNow doc pages, linked artefacts, local code operations, or live instance validation via MCP.
 - Sub-agents are invoked by the orchestrator automatically, or explicitly with `@<agent-name>` to skip the routing-approval step.
-- **Write operations require explicit approval.** Before any MCP write call, Claude will state the operation and wait for your `write approved` confirmation.
+- **Write operations require explicit approval.** Before any tool that mutates instance state, whatever its name, Claude asks `About to <action> on instance "<label>" — write approved?` and waits for your confirmation; approval is per action.
 
 ### Typical flow for a code deliverable
 
@@ -432,7 +448,7 @@ Run the following scan from the repo root:
 ```bash
 # Check for common secret patterns
 git diff --staged | grep -iE \
-  "password|secret|api_key|token|client_secret|SERVICENOW_PASSWORD|bearer\s" \
+  "password|secret|api_key|token|client_secret|SERVICENOW_[A-Z_]+|bearer\s" \
   && echo "WARNING: possible credentials in staged changes" \
   || echo "OK: no credential patterns found"
 
@@ -451,8 +467,8 @@ git diff --staged | grep -iE "<client-name-1>|<client-name-2>" \
 
 | Item | Where it lives instead |
 |---|---|
-| ServiceNow instance URL | `claude_desktop_config.json` (local, not in Git) |
-| ServiceNow username / password | `claude_desktop_config.json` (local, not in Git) |
+| ServiceNow instance URL | The snowarch store — `.local/instances.json` in the snowarch checkout (mode `0600`), never in Git |
+| ServiceNow username / password | The snowarch store **only** — never `~/.claude.json`, never `.mcp.json`, never an environment variable — see [§3c](#3c--security-note--where-the-credential-lives) |
 | Client names, internal project codes | `clients/<name>/` folder — confirm the folder is in `.gitignore` if the client requires it |
 | Update Set sys_ids from a specific instance | Session memory only — not in committed files |
 | User sys_ids, preference sys_ids | Session memory / `MEMORY.md` (project-local, not pushed to public remotes) |
@@ -460,8 +476,10 @@ git diff --staged | grep -iE "<client-name-1>|<client-name-2>" \
 ### Recommended `.gitignore` additions
 
 ```gitignore
-# Local MCP / Claude config
-claude_desktop_config.json
+# Project-scoped MCP config — this repository does not ship one (registration is done
+# from the snowarch checkout); kept ignored so a stray local copy is never committed.
+# Already in this repo's .gitignore; re-add it if you reuse this list in another repo
+.mcp.json
 
 # Client deliverables (add per-client as needed)
 clients/*/deliverables/
@@ -506,9 +524,11 @@ To invoke manually:
 
 4. **Re-upload changed skills** to your Claude.ai Projects (Master + any satellites that use the skill).
 
-5. **Update snowarch MCP**:
+5. **Update snowarch** (run in the snowarch checkout, then re-verify):
    ```bash
-   npm update -g claude-servicenow-mcp
+   cd ~/work/ai-servicenow-architect && ./snowarch upgrade && ./snowarch doctor
+   cd -
+   bash scripts/doctor.sh
    ```
 
 6. **Tag the repo**:
@@ -546,42 +566,48 @@ To invoke manually:
 
 ```
 .
-├── README.md                         ← this file (setup + reference)
-├── CLAUDE.md                         ← Chief Architect orchestrator config (v2.6+)
+├── README.md                         ← this file (project overview)
+├── SETUP.md                          ← canonical setup + troubleshooting authority
+├── CLAUDE.md                         ← Chief Architect orchestrator config (see its `Engine version:` line)
 ├── taxonomy.md                       ← specialist boundaries; routing-ambiguity resolver
 ├── governance-rules.md               ← §1.1 Baseline-First and other global rules
 ├── client-onboarding.md              ← repeatable onboarding ritual
-├── prompt-patterns.md                ← reusable prompt templates (PP-01 through PP-18)
+├── prompt-patterns.md                ← reusable prompt templates (PP-01 through PP-24)
+├── VALIDATION-TESTS.md               ← routing/governance regression suite
 ├── .claude/
-│   ├── settings.example.json         ← copy to settings.json and fill in your paths (see Step 3d)
-│   ├── skills/                       ← portable expertise (Tier 1 + Tier 2)
+│   ├── settings.example.json         ← copy to settings.json and fill in your paths (see Step 3e)
+│   ├── skills/                       ← portable expertise, 28 skills (Tier 1 + Tier 2)
 │   │   ├── itsm-specialist/          ← SKILL.md + EXAMPLES.md
 │   │   ├── csm-specialist/
 │   │   ├── hrsd-specialist/
 │   │   ├── itom-discovery-specialist/
+│   │   ├── cmdb-csdm-specialist/     ← the five Domain Expert gateways
 │   │   ├── developer/
 │   │   ├── code-reviewer/
-│   │   ├── flow-designer-specialist/
-│   │   ├── integration-specialist/
-│   │   ├── hld-lld-writer/
-│   │   ├── now-assist-specialist/
-│   │   ├── story-writer/
-│   │   └── technical-designer/
-│   └── agents/                       ← sub-agents (Tier 2 only)
+│   │   └── …                         ← `ls .claude/skills/` for the full list
+│   └── agents/                       ← 9 sub-agents (Tier 2 only)
 │       ├── story-writer.md
 │       ├── hld-lld-writer.md
 │       ├── technical-designer.md
 │       ├── now-assist-specialist.md
 │       ├── developer.md
 │       ├── flow-designer-specialist.md
-│       └── integration-specialist.md
+│       ├── integration-specialist.md
+│       ├── atf-author.md
+│       └── diagramming-specialist.md
 ├── skills/                           ← mirror of .claude/skills/ (for repo sync tooling)
 ├── agents/                           ← mirror of .claude/agents/ (for repo sync tooling)
+├── scripts/                          ← setup, doctor, sync, verify, docx/diagram toolchain
+│   └── README.md                     ← per-OS prerequisites for the document pipeline
+├── reference/
+│   └── templates/                    ← ADR · traceability matrix · RAID log · NFR checklist
 ├── templates/
 │   ├── gherkin-feature-template.md
 │   └── hld-template.md
 ├── docs/
-│   └── snowarch-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
+│   ├── INSTALLATION-GUIDE.md         ← first session + worked verification scenario
+│   ├── snowarch-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
+│   └── …                             ← architecture, operations, and user-guide docs
 ├── claude-ai-projects/               ← (NOT YET IMPLEMENTED) planned Tier 1 templates — none ship yet
 ├── clients/                          ← gitignored — per-client working folders
 │   └── <client-name>/
@@ -596,31 +622,37 @@ To invoke manually:
 
 | Symptom | Fix |
 |---|---|
-| Claude Code doesn't pick up skills | Confirm you are in `~/work/claude-servicenow-live`. Run `claude /agents` and `claude /skills` to list. |
+| Claude Code doesn't pick up skills | Confirm you started `claude` from the repo root. Inside the session, type `/agents` and `/skills` to list what loaded (these are in-session slash commands, not CLI arguments). |
 | `ServiceNowDocs/` is empty | `git submodule update --init --recursive` |
 | Sub-agent not invoked automatically | Tighten the `description` field in the agent file — that is what the router matches against. Add explicit trigger phrases. |
 | Skills not loading in claude.ai | Settings > Features > Skills must be ON; skills must be uploaded to the specific Project. |
-| MCP tools not available in Claude Code | Check `claude_desktop_config.json` path and syntax. Restart Claude Code after any config change. |
-| MCP returns 401 Unauthorized | Verify `SERVICENOW_USERNAME` and `SERVICENOW_PASSWORD` in config. Confirm the user has the `rest_api_explorer` or `admin` role on the instance. |
-| MCP write operations not captured in Update Set | Use the `sys_user_preference` pattern: set `name=sys_update_set`, `value=<update_set_sys_id>` for your user before write operations. See `CLAUDE.md §2.2`. |
-| `execute_background_script` returns 404 | This endpoint is unavailable on PDI instances. Use the manual background script UI instead: System Definition > Scripts - Background. |
+| MCP tools not available in Claude Code | Verify with `claude mcp list` and `/mcp` — the server key is `servicenow`. Claude Code reads `.mcp.json` from the session's primary working directory, so either start the session in the snowarch checkout or register at user scope (`./snowarch mode live --register user --ack-user-scope`). Restart Claude Code after any registration change; `./snowarch doctor` is the authoritative check. |
+| `claude mcp list` shows `servicenow-mcp`, tools appear as `mcp__servicenow-mcp__*` | A registration made by the previous tooling (credentials in `~/.claude.json`); that model is retired. Re-register through snowarch — see [SETUP.md § Coming from the previous tooling](./SETUP.md#coming-from-the-previous-tooling). |
+| `(Code: AUTHENTICATION_FAILED)` | **Stop; do not retry.** Run `./snowarch instance test <label>`; if it fails, `./snowarch instance set-credentials <label>`; then call `snow_core_instances_reload` before retrying. Confirm too that the user holds the `rest_api_explorer` or `admin` role on the instance. |
+| `SCRIPTING_NOT_ENABLED` (or any `*_NOT_ENABLED`) | The instance's flag is off. The message names the label and the remedy: change the preset with `./snowarch instance set-preset <label> <preset>` (or `/snowarch setup-instance`), then retry. |
+| MCP write operations not captured in Update Set | Run the four-call protocol before the write: `snow_us_active_update_set_ensure` → `snow_us_capture_target_set` → the write → `snow_us_update_set_preview` (the evidence). Retroactive capture over REST is not possible. See `CLAUDE.md §2.2` and [§3h](#3h--understanding-the-update-set-capture-pattern). |
+| `snow_us_capture_target_set` is not among the advertised tools | The registered server predates snowarch 2.0.0 and the §2.2 protocol cannot run — stop and say so rather than improvising a capture. `./snowarch upgrade` in the snowarch checkout, then re-register. |
+| `snow_deploy_background_script_exec` / `snow_fluent_script_exec` return `UNSUPPORTED_ON_THIS_INSTANCE` | The instance does not expose the endpoint. Use the manual background script UI instead: System Definition > Scripts - Background. |
+| Writes refused on a `prod` instance although its preset allows them | Production writes stay locked until the instance is saved with `--ack-prod`. |
+| `(Code: UNKNOWN_TOOL)` | A tool name that is not in the pinned contract — typically a name retired with the previous tooling. Use the name the session advertises under `mcp__servicenow__`; `doctor.sh` warns on any governing document that still cites a retired name. |
 | Output drifts from English | Add `LANGUAGE: English (corporate, professional)` to the satellite Project's custom instructions. |
+| Anything else, or unsure | `bash scripts/doctor.sh`, then [SETUP.md § Troubleshooting](./SETUP.md#troubleshooting). |
 
 ---
 
 ## Roadmap
 
-> **Note on versioning:** the roadmap below uses a `v1.x` product-release cadence. The engine's internal `CLAUDE.md` version (currently v2.6) tracks protocol and governance changes on a separate increment. Both version numbers are maintained; they do not conflict.
+> **Note on versioning:** the roadmap below uses a `v1.x` product-release cadence. The engine's internal `CLAUDE.md` version tracks protocol and governance changes on a separate increment — the authoritative value is the `Engine version:` line in `CLAUDE.md` (v2.8.0 at the time of writing). Both version numbers are maintained; they do not conflict.
 
 **v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
-**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. snowarch MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
+**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. snowarch MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. Validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI.
 
-**v1.2** (next):
-- ATF Author — skill + batch sub-agent (currently planned; not yet shipped).
-- Expand remaining planned skills to full implementation: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.
-- `claude-ai-projects/` Tier 1 instruction templates (currently placeholders).
-- Multi-instance support in snowarch config (dev / test / prod profiles).
+**v1.2** (shipped): ATF Author and Diagramming Specialist — skill + batch sub-agent each, taking the roster to 27 specialists and 9 sub-agents. Every specialist now has a `SKILL.md`, including Performance & Scale, Security & GRC, and the CMDB & CSDM Specialist (promoted to the fifth Domain Expert gateway). §4 Delivery Artefact Governance — ADR, traceability matrix, RAID log, NFR checklist — with engine-level templates under `reference/templates/`.
+
+**v1.3** (next):
+- `claude-ai-projects/` Tier 1 instruction templates (still not shipped — see §5b).
+- Multi-instance support — shipped in snowarch (`./snowarch instance add <label> --env pdi|dev|test|prod`, one preset and six flags per instance); the folder-level cutover of this repository follows the snowarch migration plan (ARC-10).
 
 **v2.0** (future):
 - App Engine Specialist, DevOps / Release Manager as full sub-agents.

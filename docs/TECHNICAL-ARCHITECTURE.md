@@ -3,7 +3,7 @@
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
 **Purpose:** Specifies the mechanics of the engine in the detail required to extend, debug, or audit it — the governance model, the routing protocol, the live-instance execution layer, and the repository machinery that keeps it consistent.
 **Audience:** Developers · Architects · Engine maintainers
-**Last updated:** 29 May 2026
+**Last updated:** 19 September 2026
 **Reading time:** 25 minutes
 
 If you just want to *use* the engine, read [`USER-GUIDE-AND-EXAMPLES.md`](./USER-GUIDE-AND-EXAMPLES.md) instead.
@@ -14,7 +14,7 @@ If you just want to *use* the engine, read [`USER-GUIDE-AND-EXAMPLES.md`](./USER
 
 ## 0. What this version is — design *and* delivery
 
-Through v2.3 the engine was a **design** engine: it reasoned about ServiceNow and produced artefacts as text, which a human deployed by hand. From v2.4 onward a live **snowarch MCP** connection lets the engine read and write a real ServiceNow instance directly. The engine now both designs *and* delivers.
+Through v2.3 the engine was a **design** engine: it reasoned about ServiceNow and produced artefacts as text, which a human deployed by hand. From v2.4 onward the live-instance layer is **snowarch** — one repository that ships the engine and its MCP server (CLI `./snowarch`, server key `servicenow`, tool prefix `mcp__servicenow__`, 397 tools declared in a pinned contract) — which lets the engine read and write a real ServiceNow instance directly. The engine now both designs *and* delivers. This repository remains the Tier 2 engine folder with its clients/ workspaces; the live-instance layer is snowarch, which ships the same roster, and the folder-level cutover follows the snowarch migration plan (ARC-10).
 
 Two governance consequences run through this whole document:
 
@@ -42,7 +42,7 @@ Before proposing any custom object, the specialist must identify whether a basel
 - Existing baseline business rules, flows, or Script Includes
 - Configuration options over custom code
 
-Baseline solutions are accepted without further approval and are always preferred over custom equivalents. **With MCP connected, "does this baseline construct exist?" is now answered by querying the live schema** (`get_table_schema`, `discover_table`) rather than relying on documentation alone.
+Baseline solutions are accepted without further approval and are always preferred over custom equivalents. **With snowarch in live mode, "does this baseline construct exist?" is now answered by querying the live schema** (the table-schema and table-discovery reads) rather than relying on documentation alone.
 
 ### 1.1.2 The halt protocol — `OPEN QUESTION — CUSTOM OBJECT PROPOSAL`
 
@@ -180,8 +180,8 @@ sequenceDiagram
     Note over CA,SN: Deployment — gated writes (§2.1 + §2.2)
     CA->>User: Propose deployment — "write approved?"
     User-->>CA: §2.1 explicit write approval
-    CA->>SN: §2.2 set Update Set preference, then create/update
-    SN-->>CA: Captured in sys_update_xml (verified)
+    CA->>SN: §2.2 ensure Update Set + point capture at it, then write
+    SN-->>CA: Captured (verified by update-set preview)
     end
 ```
 
@@ -189,19 +189,19 @@ sequenceDiagram
 
 ## 5. Live-instance execution layer
 
-This is the layer added in the MCP era. Full operational procedure is in [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md); this section places it in the architecture.
+This is the layer added in the snowarch era. Full operational procedure is in [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md); this section places it in the architecture.
 
-### 5.1 The MCP connection
+### 5.1 The snowarch connection
 
-The engine connects to one instance at a time at a declared permission tier (Tier 0 none / Tier 1 read-only / Tier 1 Read-Write). Instance URL and credentials are local-only and never committed; examples use `your-instance.service-now.com`. A tier upgrade is infrastructure, not write authorisation.
+The engine connects through snowarch to one instance at a time, addressed by label. Each instance carries an environment (`pdi` / `dev` / `test` / `prod`), a preset (`read-only` / `pdi-developer` / `full` / `custom`) and six capability flags (`WRITE_ENABLED`, `CMDB_WRITE_ENABLED`, `SCRIPTING_ENABLED`, `ATF_ENABLED`, `NOW_ASSIST_ENABLED`, `FLUENT_ENABLED`) that gate the tool families; a `prod` instance keeps writes locked until `--ack-prod`. Instance URL and credentials live only in the snowarch store `.local/instances.json` (file mode 0600) and are never committed; examples use `your-instance.service-now.com`. The `Mode:` line printed by the SessionStart hook is the authoritative statement of design-only vs live. Enabling a flag or changing a preset is infrastructure, not write authorisation.
 
 ### 5.2 §2.1 — Write Approval gate
 
-Every MCP write requires an explicit "write approved" message naming the specific action, in the current conversation. A tier upgrade, a prior read-only "yes", a general go-ahead, or the original task description do **not** count. Self-approval is prohibited. Regression-tested by **T-05**.
+Every write through snowarch requires an explicit "write approved" message naming the specific action, in the current conversation — the question is `About to <action> on instance "<label>" — write approved?`, and approval is per action. A preset or flag change, a prior read-only "yes", a general go-ahead, or the original task description do **not** count. Self-approval is prohibited. Regression-tested by **T-05**.
 
 ### 5.3 §2.2 — Update Set Capture gate
 
-Before any config write, the authenticated user's `sys_update_set` preference must point at the target Update Set, so ServiceNow captures the object automatically. Retroactive capture via REST is impossible. `switch_update_set` does **not** switch session context. Regression-tested by **T-06**. Full sequence in the MCP guide §4.
+Before any config write, the target Update Set is ensured (`snow_us_active_update_set_ensure`) and capture is pointed at it (`snow_us_capture_target_set`), so ServiceNow captures the object automatically; `snow_us_update_set_preview` is the evidence. Retroactive capture via REST is impossible. `snow_us_update_set_switch` sets `is_default` only and changes **nothing** for REST. Regression-tested by **T-06**. Full sequence in the MCP guide §4.
 
 ### 5.4 Gate order
 
@@ -230,7 +230,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 3. OPEN QUESTIONS block for client decisions before build
 4. Handoff manifest naming downstream specialists who consume this artefact
 
-### 6.3 The roster — 8 sub-agents, 25 skills
+### 6.3 The roster — 9 sub-agents, 28 skills
 
 | Builder | SKILL.md | Sub-agent | Output |
 |---|---|---|---|
@@ -241,6 +241,7 @@ The three checks are strictly ordered: **§1.1 (architecture) → §2.1 (authori
 | Flow Designer Specialist | `skills/flow-designer-specialist/` | `agents/flow-designer-specialist.md` | Flow / subflow / custom Action specs |
 | Integration Specialist | `skills/integration-specialist/` | `agents/integration-specialist.md` | REST/SOAP integrations, IH spokes |
 | Now Assist Specialist | `skills/now-assist-specialist/` | `agents/now-assist-specialist.md` | AI Agents, agentic workflows, skills |
+| Diagramming Specialist | `skills/diagramming-specialist/` | `agents/diagramming-specialist.md` | Diagram packs (Mermaid / draw.io / PlantUML) |
 
 **Skill-only specialists** (no sub-agent): Code Reviewer; the five Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM); Security & GRC and Operational Documentation; and the consult roster (Performance & Scale, DevOps/Release, SPM, App Engine, Migration, UI/UX, Reporting & Analytics, Discovery). **ATF Author** runs both ways — a skill for single-component coverage and the `agents/atf-author.md` sub-agent for full-app batch suites.
 

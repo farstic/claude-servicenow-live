@@ -3,7 +3,7 @@
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
 **Purpose:** Optional setup for running the engine as a Claude.ai Master Project in the browser — a second front-end to the same governance rules.
 **Audience:** Anyone who prefers the browser, mobile, or a meeting-friendly working surface.
-**Last updated:** 29 May 2026
+**Last updated:** 19 September 2026
 **Time to complete:** 10 minutes
 **This guide is optional.** The core engine runs entirely from the terminal — see [`INSTALLATION-GUIDE.md`](./INSTALLATION-GUIDE.md) for the standard 2-minute setup.
 
@@ -11,7 +11,7 @@ This guide covers the **optional** Claude.ai Master Project setup. Use it if you
 
 The web setup is a **second front-end to the same engine**. It runs the same Chief Architect, the same Domain Experts, and the same governance rules — just delivered through the Claude.ai web app instead of Claude Code CLI.
 
-> **Design-only surface.** The web Master Project does **not** include the snowarch MCP connection. It can design, route, review, and enforce §1.1 against `ServiceNowDocs/`, but it cannot read or write a live ServiceNow instance. Live §1.1 validation against the real schema and direct deployment (the §2.1 / §2.2 write gates) are **CLI-only** — see [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
+> **Design-only surface.** The web Master Project does **not** include the snowarch live-instance layer (MCP server key `servicenow`). It can design, route, review, and enforce §1.1 against `ServiceNowDocs/`, but it cannot read or write a live ServiceNow instance. Live §1.1 validation against the real schema and direct deployment (the §2.1 / §2.2 write gates) are **CLI-only**, from a Claude Code session started in the snowarch checkout — see [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
 
 ---
 

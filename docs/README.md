@@ -8,7 +8,7 @@
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
 **Purpose:** The entry point to the engine's documentation suite — what the engine is, and which document to read for what.
 **Audience:** Everyone. Start here, then branch by role.
-**Last updated:** 29 May 2026
+**Last updated:** 19 September 2026
 
 > A virtual ServiceNow consulting team — powered by Claude — that writes stories, designs, code, and test suites, **validates them against a live ServiceNow instance**, and deploys approved work under strict change control — without ever silently inventing a custom table.
 
@@ -68,13 +68,13 @@ Read in this order if you're new; jump by role if you're not.
 
 | Doc | For | Read time |
 |---|---|---|
-| **[Installation Guide](./INSTALLATION-GUIDE.md)** | First-time setup (+ optional live-instance MCP) | 2–5 min |
+| **[Installation Guide](./INSTALLATION-GUIDE.md)** | First-time setup (+ optional snowarch live-instance connection) | 2–7 min |
 | **[Business Overview](./BUSINESS-OVERVIEW.md)** | BAs · PMs · stakeholders — the team metaphor and value | 10 min |
 | **[User Guide and Examples](./USER-GUIDE-AND-EXAMPLES.md)** | Everyone — four worked scenarios incl. live deploy | 18 min |
 | **[Technical Architecture](./TECHNICAL-ARCHITECTURE.md)** | Developers/maintainers — the full protocol mechanics | 25 min |
 | **[MCP Operations Guide](./MCP-OPERATIONS-GUIDE.md)** | Anyone running the engine against a live instance | 12 min |
 | **[Live Artefacts Catalogue](./LIVE-ARTEFACTS-CATALOGUE.md)** | What's deployed, and on what baseline tables | 5 min |
-| **[snowarch Field Notes](./snowarch-field-notes.md)** | Confirmed MCP behaviours and workarounds | reference |
+| **[snowarch Field Notes](./snowarch-field-notes.md)** | Confirmed platform behaviours and workarounds | reference |
 | **[Advanced Web Setup](./ADVANCED-WEB-SETUP.md)** | Optional Claude.ai browser front-end (design-only) | 10 min |
 | **[Changelog](./CHANGELOG.md)** | Version history | 5 min |
 | **[Diagram Import Notes](./IMPORT-NOTES.md)** | Editable-diagram conventions | reference |
@@ -97,7 +97,7 @@ cd claude-servicenow-live
 claude
 ```
 
-At the `❯` prompt, type `Status`. You should see the Chief Architect roster with five Domain Experts loaded. To connect a live instance, follow the optional MCP step in the [Installation Guide](./INSTALLATION-GUIDE.md).
+At the `❯` prompt, type `Status`. You should see the Chief Architect roster with five Domain Experts loaded. To connect a live instance, follow the optional snowarch step in the [Installation Guide](./INSTALLATION-GUIDE.md).
 
 ---
 
@@ -128,8 +128,8 @@ claude-servicenow-live/
 ├── prompt-patterns.md        ← Reusable prompt templates (PP-01…PP-18)
 ├── VALIDATION-TESTS.md       ← 10 regression tests (all passing)
 │
-├── skills/                   ← 12 specialist skills (source of truth)
-├── agents/                   ← 7 sub-agent definitions
+├── skills/                   ← 28 specialist skills (source of truth)
+├── agents/                   ← 9 sub-agent definitions
 ├── .claude/                  ← Pre-synced mirror Claude Code reads from
 ├── .githooks/                ← pre-commit auto-sync hook
 ├── scripts/                  ← sync-agents-skills.sh
@@ -147,7 +147,7 @@ The `.claude/` mirror ships pre-synced and is kept aligned automatically by the 
 - **Engine version:** v2.6
 - **Release family:** Australia
 - **Domain Expert gateways:** ITSM · CSM · HRSD · ITOM/Discovery
-- **Live instance:** snowarch MCP connected; §1.1 validated against the real schema
+- **Live instance:** snowarch (MCP server key `servicenow`, tool prefix `mcp__servicenow__`); §1.1 validated against the real schema when the session's `Mode:` line says live
 - **Write governance:** §2.1 write approval + §2.2 Update Set capture, both mandatory
 - **Deployed artefacts:** 3, all baseline-only (see [Live Artefacts Catalogue](./LIVE-ARTEFACTS-CATALOGUE.md))
 - **Regression suite:** 10 tests, all passing

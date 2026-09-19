@@ -3,9 +3,29 @@
 All notable changes to the Claude ServiceNow Architecture Engine are documented in this file.
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Last updated:** 3 June 2026
+**Last updated:** 19 September 2026
 
 The engine follows a minor-version cadence where the **first digit** signals a major architectural shift, and the **second digit** signals an additive or corrective patch within that architecture.
+
+---
+
+## 2026-09-19 — snowarch alignment (documentation and setup scripts; engine unchanged at v2.8.0)
+
+**Trigger:** the live-instance layer is now **snowarch** (repository `farstic/ai-servicenow-architect`: engine + MCP server in one, CLI `./snowarch`, MCP server key `servicenow`, tool prefix `mcp__servicenow__`). This repository's documentation still described the previous MCP server, its tool names, its permission levels and its credential model. Owner directive of 2026-09-19: no trace of the previous product name, and every step written as the architect and the MCP actually work.
+
+### Changed
+
+- **Names.** The previous MCP product name is gone from the repository; the field-notes file is renamed to `docs/snowarch-field-notes.md`; the retired tool prefix is referred to as the previous server's prefix.
+- **`CLAUDE.md` §2.1 / §2.2, `governance-rules.md` §2.1 / §2.2, `docs/MCP-OPERATIONS-GUIDE.md`.** The write gate keeps its substance (explicit "write approved" per action; the question is `About to <action> on instance "<label>" — write approved?`) and now names the snowarch prefix, the six capability flags, `--ack-prod`, and the `AUTHENTICATION_FAILED` rule (stop, `instance test`, `set-credentials`, then `snow_core_instances_reload`). The update-set protocol is the snowarch one: `snow_us_active_update_set_ensure` → `snow_us_capture_target_set` → the write under §2.1 → `snow_us_update_set_preview`, with the non-substitutes stated and the preflight that a server not advertising `snow_us_capture_target_set` predates snowarch 2.0.0.
+- **`README.md`, `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/TECHNICAL-ARCHITECTURE.md`, `client-onboarding.md`, `docs/README.md`, `docs/ADVANCED-WEB-SETUP.md`, `docs/LIVE-ARTEFACTS-CATALOGUE.md`, `docs/USER-GUIDE-AND-EXAMPLES.md`.** Connecting a live instance is the snowarch procedure (clone, bootstrap, `./snowarch mode live` wizard or `./snowarch instance add … --password-stdin --yes`, presets and flags, store `.local/instances.json` at 0600/0700, `./snowarch doctor`). Credentials live only in that store — never in `~/.claude.json`, `.mcp.json`, environment variables or Git. A live session starts in the snowarch checkout; for this folder the documented last resort is `./snowarch mode live --register user --ack-user-scope`. The `Mode:` line printed by the SessionStart hook is the authoritative statement of design-only vs live.
+- **`scripts/setup.sh`, `scripts/doctor.sh`, `scripts/README.md`** (committed with this entry). `setup.sh --mcp` no longer prompts for an instance URL or credentials and writes nothing outside this repository; it prints the snowarch steps. `doctor.sh` reports what the session advertises (server key, whether the capture tool is present) and defers flags and probes to `./snowarch doctor`.
+- **`VALIDATION-TESTS.md` T-06** tests the four-call capture protocol with the snowarch tool names.
+- **Compatibility note** (once in `CLAUDE.md`, once in `SETUP.md`): registrations made by the previous tooling used the server key `servicenow-mcp` and held credentials in `~/.claude.json`; that model is retired — re-register through snowarch.
+- **This repository's status.** It remains the Tier 2 engine folder with its `clients/` workspaces; the live-instance layer is snowarch, which ships the same roster; the folder-level cutover follows the snowarch migration plan (ARC-10).
+
+### Historical entries below
+
+Entries dated before 2026-09-19 describe the previous MCP server as it was at the time; where a sentence would now mislead, it carries a *Historical* marker.
 
 ---
 
@@ -178,7 +198,7 @@ Per the maintenance rule, the full validation suite (T-01–T-12) must be re-run
 
 ### Added
 
-- **`docs/MCP-OPERATIONS-GUIDE.md`** — the live-instance playbook: connection, permission tiers, the §2.1 write-approval gate, the §2.2 Update Set capture protocol, read/write tool patterns, and the operator checklist.
+- **`docs/MCP-OPERATIONS-GUIDE.md`** — the live-instance playbook: connection, the permission model of the time (replaced by snowarch's per-instance presets and flags on 2026-09-19), the §2.1 write-approval gate, the §2.2 Update Set capture protocol, read/write tool patterns, and the operator checklist.
 - **`docs/LIVE-ARTEFACTS-CATALOGUE.md`** — register of the three deployed artefacts (SLABreachRiskCalculator, DuplicateIncidentDetector, P1AutoAssign), each Verdict A / baseline-only.
 
 ### Changed
@@ -224,7 +244,7 @@ Documentation-only release. No change to `CLAUDE.md`, governance rules, taxonomy
 ### Added
 
 - **§2.1 — MCP Write Approval Gate.** Every write requires an explicit, specific "write approved" in the current conversation. A tier upgrade, a prior read-only "yes", a general go-ahead, or the original task description do not count. Self-approval is prohibited. Halt protocol defined.
-- **§2.2 — Update Set Capture Protocol.** Before any config write, the authenticated user's `sys_update_set` preference must point at the target Update Set, so ServiceNow captures the object automatically. Documented the confirmed-non-functional alternatives (`switch_update_set`, direct `sys_update_xml` POST, the script-execution endpoints).
+- **§2.2 — Update Set Capture Protocol.** Before any config write, the authenticated user's `sys_update_set` preference must point at the target Update Set, so ServiceNow captures the object automatically. Documented the confirmed-non-functional alternatives (the previous server's update-set switch — the same limitation holds for snowarch's `snow_us_update_set_switch`, which only sets `is_default` — direct `sys_update_xml` POST, and the script-execution endpoints).
 
 ### Files updated
 
@@ -239,7 +259,7 @@ Documentation-only release. No change to `CLAUDE.md`, governance rules, taxonomy
 
 ### Added
 
-- **snowarch MCP connection** to a live ServiceNow instance, at a declared permission tier (read-only / read-write).
+- **MCP connection** to a live ServiceNow instance through the previous MCP server, at a declared permission tier (read-only / read-write). *Historical: that server and its tier model were retired on 2026-09-19; the live layer is now snowarch, with per-instance presets and flags — see the 2026-09-19 entry.*
 - **Live §1.1 validation** — Baseline-First verdicts are now confirmed against the live schema, not only `ServiceNowDocs/`.
 - Live read tooling (schema discovery, record queries, config audit) and live write tooling (Script Includes, Business Rules, Script Actions, Update Sets, Reports).
 

@@ -20,7 +20,7 @@ Before opening any tool, collect the following from your contract, internal hand
 - **Engagement type.** Implementation / Optimisation / Managed Service / AI enablement / Migration / etc.
 - **Active modules in scope.** ITSM, CSM, HRSD, ITOM, SPM, GRC, Now Assist, etc.
 - **Release family** of the client's instance (default: Australia).
-- **ServiceNow instance URL** (e.g., `https://<client-instance>.service-now.com`) — needed for Tier 2 MCP work.
+- **ServiceNow instance URL** (e.g., `https://<client-instance>.service-now.com`) — needed for Tier 2 live-instance work through snowarch.
 - **Sprint / PI cadence.** If known.
 
 ### Strongly recommended
@@ -172,7 +172,7 @@ If anything drifts, the satellite instructions need refinement. Common fixes:
 
 ---
 
-## Step 9 — (Optional) Tier 2 client folder structure and MCP config
+## Step 9 — (Optional) Tier 2 client folder structure and snowarch instance
 
 ### 9a — Create the working subfolder structure
 
@@ -191,27 +191,26 @@ mkdir -p clients/{{client-short-name}}/runbooks
 
 This keeps generated artefacts physically separated by client, which is the Tier 2 confidentiality discipline (Tier 2 has no UI-level firewall — folder discipline enforces it).
 
-### 9b — Configure snowarch MCP for the client instance
+### 9b — Add the client instance to snowarch
 
-If you will use live ServiceNow instance tools (MCP) for this engagement, update your local `claude_desktop_config.json` with the client's instance credentials:
+If you will use live ServiceNow instance tools for this engagement, add the client instance with `./snowarch instance add <label> …` in the snowarch checkout (the live-instance layer — see [`docs/INSTALLATION-GUIDE.md`](./docs/INSTALLATION-GUIDE.md) §Optional for the one-time setup):
 
-```
-Location (macOS): ~/Library/Application Support/Claude/claude_desktop_config.json
-```
-
-Update the `env` block:
-```json
-"SERVICENOW_INSTANCE_URL": "https://{{client-instance}}.service-now.com",
-"SERVICENOW_USERNAME": "{{your-username-on-client-instance}}",
-"SERVICENOW_PASSWORD": "{{your-password-or-token}}"
+```bash
+cd /path/to/ai-servicenow-architect
+./snowarch instance add {{client-short-name}} --url https://{{client-instance}}.service-now.com --env dev --username {{your-username-on-client-instance}} --password-stdin --yes
 ```
 
-Restart Claude Code after saving. Verify the connection:
-```
-> Check the current ServiceNow instance connection
+Pick the environment that matches the client instance (`pdi` / `dev` / `test` / `prod`) and, if the default preset is not right for the engagement, set it with `./snowarch instance set-preset {{client-short-name}} <preset>` (`read-only` / `pdi-developer` / `full` / `custom`). A `prod` instance keeps writes locked until `--ack-prod` is given. Probes verify each capability when the instance is saved; `./snowarch instance list` shows what is stored.
+
+Start Claude Code in the snowarch checkout and verify the connection:
+```bash
+./snowarch instance test {{client-short-name}}
+./snowarch doctor
 ```
 
-> **Security:** `claude_desktop_config.json` is never committed to git. Credentials stay on your local machine only. When switching between client engagements, update this file and restart Claude Code.
+The `Mode:` line printed by the SessionStart hook (and by `./snowarch doctor`) is the authoritative statement that the session is live rather than design-only.
+
+> **Security:** credentials live only in the snowarch store `.local/instances.json` (file mode 0600, directory 0700) — never in `~/.claude.json`, `.mcp.json`, environment variables, or Git. When switching between client engagements, switch the active instance by label; rotate or remove credentials with `./snowarch instance set-credentials <label>` and `./snowarch instance remove <label>`.
 
 ---
 

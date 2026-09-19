@@ -1,10 +1,12 @@
-# snowarch MCP — Known Limitations & Patterns
+# snowarch Field Notes — Known ServiceNow Platform Limitations & Patterns
 
-**Purpose:** Operational field notes for the snowarch MCP connection to a live ServiceNow instance — confirmed tool behaviours, bugs, and the workarounds that make them safe to rely on. This is the cross-laptop knowledge base: a `git clone` plus this file restores full operational knowledge.
-**Audience:** Architects and developers operating the engine against a live PDI; anyone debugging an MCP write that did not behave as expected.
-**Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed.
+**Purpose:** Operational field notes for the snowarch live-instance layer (MCP server key `servicenow`, tool prefix `mcp__servicenow__`) against a live ServiceNow instance — confirmed platform and REST API behaviours, bugs, and the workarounds that make them safe to rely on. This is the cross-laptop knowledge base: a `git clone` plus this file restores full operational knowledge.
+**Audience:** Architects and developers operating the engine against a live PDI; anyone debugging a live write that did not behave as expected.
+**Scope:** Generic patterns only — no instance URLs, credentials, emails, or sys_ids. Instance-specific values live in local memory (`memory/MEMORY.md`), never committed; credentials live only in the snowarch store `.local/instances.json`.
 **Related:** `MCP-OPERATIONS-GUIDE.md` (the playbook these notes support) · `TECHNICAL-ARCHITECTURE.md` (§2.1 write gate, §2.2 Update Set capture).
-**Last updated:** 2026-06-25
+**Last updated:** 2026-09-19
+
+> **Tool names.** The findings below were made on a live instance and hold for the platform; the tool names are the snowarch contract's (`snow_core_records_query`, `snow_core_record_add`, `snow_core_record_modify`, the `snow_us_*` update-set tools). Argument shapes in the examples are illustrative — the contract description of each tool is authoritative. For update-set capture, §2.2 of `MCP-OPERATIONS-GUIDE.md` is the procedure; §1 below records the platform fact behind it.
 
 ---
 
@@ -13,28 +15,23 @@
 ServiceNow honors `sys_user_preference` with `name=sys_update_set` for REST API calls.
 Setting this preference BEFORE write operations causes automatic capture.
 
-**Step-by-step:**
-1. Create Update Set: `create_update_set`
-2. Resolve user sys_id: `query_records(sys_user, user_name=<username>)`
-3. Check preference: `query_records(sys_user_preference, user=<sys_id>^name=sys_update_set)`
-4. Set preference: `update_record(sys_user_preference, <pref_sys_id>, {value: <update_set_sys_id>})`
-   - Create if missing: `create_record(sys_user_preference, {user, name:'sys_update_set', value:<sys_id>})`
-5. Execute writes — captured automatically
-6. Verify: `query_records(sys_update_xml, update_set=<sys_id>)`
-
-**Instance-specific values** (user sys_id, sys_user_preference sys_id) are stored in MEMORY.md — local only, never committed.
+**The four calls (snowarch implements the preference write, so nothing is done by hand):**
+1. `snow_us_active_update_set_ensure` `{ "name": "<engagement>-<topic>" }` — find-or-create; the name is required and only the caller's own in-progress sets are returned (needs a username on the instance).
+2. `snow_us_capture_target_set` `{ "update_set_sys_id": "<sys_id from step 1>" }` — sets the authenticated user's `sys_user_preference` `name=sys_update_set`; this is what captures REST-created objects.
+3. Execute the write — under its own §2.1 approval; captured automatically.
+4. `snow_us_update_set_preview` — confirm the objects are in the set; this step is the evidence.
 
 **What does NOT work:**
-- `switch_update_set` — only sets `is_default:true`, does NOT switch session context
-- `sys_update_xml` direct POST — INSUFFICIENT_PRIVILEGES
-- `delete_record` on `sys_update_xml` — NOT_FOUND (ACL blocks)
+- `snow_us_update_set_switch` — only sets `is_default`, which is a UI concept; changes nothing for REST
+- `sys_update_xml` direct POST — INSUFFICIENT_PRIVILEGES, admin included
+- deleting `sys_update_xml` rows — NOT_FOUND (ACL blocks)
+- capture applied after the write — not possible over REST; if steps 1–2 were skipped, stop and say so
 
 ---
 
 ## 2. Background Script / Script Execution — BROKEN on PDI
 
-- `execute_background_script` → 404 (endpoint does not exist on PDI)
-- `execute_script` → 400 INVALID_REQUEST
+- `snow_deploy_background_script_exec` and `snow_fluent_script_exec` refuse with `UNSUPPORTED_ON_THIS_INSTANCE` — the platform endpoints they would need do not exist on a PDI (the previous server saw 404 / 400 INVALID_REQUEST on the same endpoints); they are registered so the refusal can name the route that works
 
 **Workaround:** Manual UI — `System Definition > Scripts - Background`
 
@@ -71,14 +68,14 @@ This creates a visible, queryable record in `sys_email` with `state=ready`.
 
 ---
 
-## 4. register_event MCP Tool — Bug: event_name Left Empty
+## 4. snow_intg_event_register — Bug: event_name Left Empty
 
-`register_event` creates the `sysevent_register` record but leaves `event_name` and `sys_name` blank.
+`snow_intg_event_register` creates the `sysevent_register` record but leaves `event_name` and `sys_name` blank.
 Without `event_name`, the notification engine cannot match the event and Script Actions won't fire.
 
 **Workaround — immediately patch after creation:**
 ```
-update_record(sysevent_register, <sys_id>, {
+snow_core_record_modify(sysevent_register, <sys_id>, {
   event_name: 'your.event.name',
   suffix: 'the.suffix.part'    // everything after first dot segment
 })
@@ -89,14 +86,14 @@ Example for `duplicate.incident.detected`:
 
 ---
 
-## 5. create_business_rule — action_insert / action_update Not Set
+## 5. snow_scr_business_rule_add — action_insert / action_update Not Set
 
-`create_business_rule` creates the record but `action_insert` and `action_update` default to `false`.
+`snow_scr_business_rule_add` creates the record but `action_insert` and `action_update` default to `false`.
 The BR will never fire until patched.
 
 **Workaround — immediately after creation:**
 ```
-update_record(sys_script, <sys_id>, {
+snow_core_record_modify(sys_script, <sys_id>, {
   action_insert: true,   // if BR should fire on insert
   action_update: true    // if BR should fire on update
 })
@@ -104,9 +101,9 @@ update_record(sys_script, <sys_id>, {
 
 ---
 
-## 6. Flow Designer — create_flow / create_flow_action Create Empty Shells
+## 6. Flow Designer — snow_flow_flow_add / snow_flow_flow_action_add Create Empty Shells
 
-`create_flow` and `create_flow_action` create database records but with no internal step structures.
+`snow_flow_flow_add` and `snow_flow_flow_action_add` create database records but with no internal step structures.
 The flow opens as a white screen in the UI — steps cannot be added via MCP.
 
 **Workaround:** Delete the shells and build the flow entirely from the Flow Designer UI.
@@ -117,7 +114,7 @@ MCP cannot wire Flow Designer steps — UI only.
 ## 7. sys_update_xml Cleanup — DELETE Records Are Normal
 
 When objects are deleted from the environment while an Update Set is active, ServiceNow captures
-`action=DELETE` entries in `sys_update_xml`. These cannot be removed via `delete_record` (ACL blocks).
+`action=DELETE` entries in `sys_update_xml`. These cannot be removed via `snow_core_record_remove` (ACL blocks).
 
 This is **acceptable behavior** — DELETE records tell the target environment to also remove those objects
 on promote. They do not affect the functioning of the INSERT_OR_UPDATE records in the same Update Set.
@@ -126,11 +123,11 @@ on promote. They do not affect the functioning of the INSERT_OR_UPDATE records i
 
 ## 10. Assignment Rules — Correct Table Name: sysrule_assignment (confirmed 2026-06-01)
 
-`create_record(assignment_rule, ...)` → `INVALID_REQUEST`. The correct REST-accessible table is `sysrule_assignment`.
+`snow_core_record_add(assignment_rule, ...)` → `INVALID_REQUEST`. The correct REST-accessible table is `sysrule_assignment`.
 
 **Working pattern:**
 ```
-create_record(sysrule_assignment, {
+snow_core_record_add(sysrule_assignment, {
   name: "...",
   document: "incident",       // NOT "table" — field is called "document"
   order: "900",
@@ -157,15 +154,15 @@ empirical testing during a demo-cleanup operation on 2026-06-01.
 
 ---
 
-### 9a. delete_record on scripting tables — returns NOT_FOUND but SUCCEEDS
+### 9a. snow_core_record_remove on scripting tables — returns NOT_FOUND but SUCCEEDS
 
-**Critical pattern:** `delete_record` returns `Error: No Record found (Code: NOT_FOUND)` on
+**Critical pattern:** `snow_core_record_remove` returns `Error: No Record found (Code: NOT_FOUND)` on
 scripting tables, which looks like a failure. **It is not a failure — the record IS deleted.**
 
 The MCP tool interprets the HTTP response code from ServiceNow's REST API as an error, but the
 underlying DELETE call completes successfully. This was confirmed by:
-1. Calling `delete_record` on 6 objects across 3 scripting tables → all returned NOT_FOUND
-2. Immediately calling `query_records` on the same tables → all returned count: 0
+1. Calling `snow_core_record_remove` on 6 objects across 3 scripting tables → all returned NOT_FOUND
+2. Immediately calling `snow_core_records_query` on the same tables → all returned count: 0
 3. Inspecting `sys_update_xml` for the active Update Set → 6 `action=DELETE` entries present,
    one per deleted object — confirming ServiceNow captured the deletions correctly
 
@@ -178,26 +175,26 @@ underlying DELETE call completes successfully. This was confirmed by:
 **Mandatory protocol — always verify after deletion:**
 
 ```
-# Step 1 — call delete_record (will return NOT_FOUND — ignore the error)
-delete_record(table, sys_id)
+# Step 1 — call snow_core_record_remove (will return NOT_FOUND — ignore the error)
+snow_core_record_remove(table, sys_id)
 
 # Step 2 — verify the object is actually gone
-query_records(table, query="name=<object_name>", fields="sys_id,name")
+snow_core_records_query(table, query="name=<object_name>", fields="sys_id,name")
 # Expected: count: 0 — deletion confirmed
 
 # Step 3 — verify captured in Update Set
-query_records(sys_update_xml, query="update_set=<update_set_sys_id>", fields="name,action,type")
+snow_core_records_query(sys_update_xml, query="update_set=<update_set_sys_id>", fields="name,action,type")
 # Expected: action=DELETE row for the object
 ```
 
 **Do NOT:**
 - Retry the delete because NOT_FOUND appeared — the record is already gone
-- Conclude the deletion failed without running `query_records` to verify
+- Conclude the deletion failed without running `snow_core_records_query` to verify
 - Fall back to the UI assuming MCP cannot delete — MCP CAN delete these tables
 
 **update_record on scripting tables:** Also returns NOT_FOUND. Whether this similarly succeeds
 despite the error code has NOT been verified — treat updates on scripting tables as uncertain
-and verify with `query_records` after every `update_record` call on these tables.
+and verify with `snow_core_records_query` after every `snow_core_record_modify` call on these tables.
 
 **Root cause (inferred):** ServiceNow's REST Table API on PDI returns a non-standard HTTP response
 code on DELETE for scripting tables (likely due to ACL or audit hook behaviour), which the MCP
@@ -215,7 +212,7 @@ quirk — behaviour on production instances may differ.
 - `sysevent_register` records **CAN be deleted from the ServiceNow UI** by an admin user
   while a custom Update Set is active. The deletion is captured as `action=DELETE` in
   `sys_update_xml`. Confirmed during the Cleanup — P1AutoAssign operation (2026-06-01).
-- `delete_record` via MCP on `sysevent_register` has **not been tested**. Given §9a above
+- `snow_core_record_remove` via MCP on `sysevent_register` has **not been tested**. Given §9a above
   (MCP deletes on scripting tables return NOT_FOUND but succeed), it may also work — but
   treat as unconfirmed until tested.
 
@@ -235,6 +232,8 @@ alongside the handler (Script Action) and trigger (Business Rule) deletions.
 ---
 
 ## 8. MCP Config Reference
+
+> **Historical — the previous server's configuration.** snowarch does not read any of these environment variables: the instance URL, credentials, preset and the six capability flags live in the snowarch checkout's `.local/instances.json` (mode 0600), written by `./snowarch mode live` or `./snowarch instance add`, and are changed with `./snowarch instance set-preset` / `set-credentials`. The block below is kept only to read older notes in this file.
 
 Required env vars in `claude_desktop_config.json` (instance URL stored locally in MEMORY.md):
 
@@ -291,7 +290,7 @@ MCP_TOOL_PACKAGE: full
 **The standard OOB value `"Solved (Permanently)"` does NOT exist on this instance.** This instance has a custom choice list. Always query `sys_choice` before resolving:
 
 ```
-query_records(sys_choice, name=incident^element=close_code^language=en^inactive=false)
+snow_core_records_query(sys_choice, name=incident^element=close_code^language=en^inactive=false)
 ```
 
 **Working pattern — resolve an incident via REST:**

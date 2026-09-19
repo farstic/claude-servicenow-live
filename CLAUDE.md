@@ -18,7 +18,7 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 ```
 .
 ├── CLAUDE.md                       ← you are reading it
-├── SETUP.md                        ← user-facing setup guide
+├── SETUP.md                        ← canonical setup + troubleshooting (authoritative; README/INSTALLATION-GUIDE defer to it)
 ├── taxonomy.md                     ← specialist boundaries; routing-ambiguity resolver
 ├── client-onboarding.md            ← repeatable onboarding ritual
 ├── prompt-patterns.md              ← reusable prompt templates (PP-01 through PP-24)
@@ -32,10 +32,12 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 │   └── templates/                  ← ADR · traceability matrix (RTM) · RAID log · NFR checklist
 ├── claude-ai-projects/             ← (NOT YET IMPLEMENTED) planned Tier 1 instruction templates — no files ship yet
 ├── docs/                           ← cross-laptop knowledge base (MCP field notes, patterns)
-│   └── snowarch-field-notes.md     ← MCP tool limitations and working patterns (committed to GitHub)
+│   └── snowarch-field-notes.md     ← MCP tool limitations and working patterns (snowarch)
 ├── clients/<client-name>/          ← per-client working folder (state, transcripts, artefacts)
 └── ServiceNowDocs/                 ← official ServiceNow docs submodule (australia branch)
 ```
+
+This repository remains the Tier 2 engine folder with its clients/ workspaces; the live-instance layer is snowarch, which ships the same roster, and the folder-level cutover follows the snowarch migration plan (ARC-10). Live-instance sessions are started in the snowarch checkout, which carries the secret-free `.mcp.json` registration; `SETUP.md` covers registration and instance setup.
 
 ## Governing documents
 
@@ -291,45 +293,56 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 
 ## MCP Write Operations — Explicit Approval Gate (§2.1)
 
-**Rule:** Every MCP write operation against the live instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `mcp__snowarch__create_*`, `mcp__snowarch__update_*`, `mcp__snowarch__delete_*`, `mcp__snowarch__execute_*`, and any other tool that mutates instance state.
+**Rule:** Every MCP write operation against the live instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. Approval is per action — one "write approved" covers exactly one write.
+
+**Scope — normative statement:** the gate applies to **any tool that mutates instance state**, whatever it is named. The tools are served by snowarch under the server key `servicenow` and the tool prefix `mcp__servicenow__`. Mutating action suffixes are the practical tell — this list is illustration, not an exhaustive allowlist:
+
+`_add` · `_modify` · `_remove` · `_exec` · `_close` · `_resolve` · `_publish` · `_import` · `_set` · `_assign` · `_trigger` · `_reconcile`
+
+Examples: `mcp__servicenow__snow_core_record_add`, `mcp__servicenow__snow_scr_business_rule_modify`, `mcp__servicenow__snow_inc_incident_resolve`, `mcp__servicenow__snow_cmdb_reconcile`, `mcp__servicenow__snow_atf_atf_test_exec`.
+
+**Compatibility note:** registrations made by the previous tooling used the server key `servicenow-mcp` (tool prefix `mcp__servicenow-mcp__`) and held the instance URL and credentials in `~/.claude.json`; that model is retired. Re-register through snowarch (`./snowarch mode live`, run in the snowarch checkout). Until then, the §2.1 gate applies to whichever prefix the session advertises, and if `snow_us_capture_target_set` is not advertised the registered server predates snowarch 2.0.0 and the §2.2 protocol cannot run — stop and say so rather than improvising a capture.
+
+**Instance flags gate the tool families.** Every instance saved in snowarch carries six flags — `WRITE_ENABLED` (records, incidents, catalog, users, update sets), `CMDB_WRITE_ENABLED`, `SCRIPTING_ENABLED` (Script Includes, Business Rules, Flow actions, update-set creation), `ATF_ENABLED`, `NOW_ASSIST_ENABLED`, `FLUENT_ENABLED` — and a prod instance keeps writes locked until `--ack-prod`. A refused call returns a code such as `SCRIPTING_NOT_ENABLED` with a remedy naming the instance label; relay the remedy to the user, do not work around it. `AUTHENTICATION_FAILED` means stop and do not retry: tell the user to run `./snowarch instance test <label>` and, if that fails, `./snowarch instance set-credentials <label>`, then call `snow_core_instances_reload` before retrying. An enabled flag never substitutes for the user's "write approved".
+
+**A suffix that is not on the list does not exempt the call.** If the tool changes anything on the instance, the gate fires. Conversely, `_index`, `_read` and `_query` suffixes are reads and do not require the gate.
 
 **What counts as "write approved":**
 - A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "да, качи", "да, създай", "да, изпълни", "write approved", "go ahead and create").
 
 **What does NOT count as "write approved":**
-- Tier upgrade (changing permission tier from Tier 0 to Tier 1 is an infrastructure change, not a write approval).
+- Enabling an instance flag, changing an instance preset (`./snowarch instance set-preset <label> <preset>`), acknowledging prod writes (`--ack-prod`), or switching the session to live mode (`./snowarch mode live`) — these are infrastructure changes, not a write approval.
 - A previous "да" to a read-only operation (e.g., approving a routing proposal, approving a Code Reviewer pass).
 - A general go-ahead earlier in the conversation that did not name the specific write action.
 - The user's original task description, however detailed.
 
-**Halt protocol:** If a write operation is about to be executed without a "write approved" in the current conversation, stop and surface: *"About to [describe action] — write approved?"* Wait for explicit confirmation before proceeding.
+**Halt protocol:** If a write operation is about to be executed without a "write approved" in the current conversation, stop and surface: `About to <action> on instance "<label>" — write approved?` Wait for explicit confirmation before proceeding.
 
 **Self-approval is prohibited:** Claude may not infer write approval from context, urgency, or logical flow. Approval must be a discrete user message.
 
 ## MCP Update Set Capture — Mandatory Pre-Write Protocol (§2.2)
 
-**Rule:** Before executing ANY `create_*` or `update_*` MCP write operation that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, Flow, Update Set record, etc.), the active `sys_user_preference` for `sys_update_set` MUST be set to the target Update Set for the authenticated user. This applies to every instance and every environment.
+**Rule:** Before executing ANY MCP write that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, UI Action, ACL, Flow, table or field), capture MUST be pointed at the target Update Set through the four-call protocol below. This applies to every instance and every environment.
 
-**Why:** ServiceNow REST API calls honor the `sys_user_preference` record with `name=sys_update_set` for the authenticated user. Setting this preference before write operations causes automatic capture of created/updated objects into the target Update Set. Without this step, objects land on the instance but are NOT captured in any Update Set and cannot be promoted or migrated.
+**Why:** ServiceNow REST honours the authenticated user's `sys_user_preference` row with `name=sys_update_set`; the capture target is what sets that row. The `is_default` flag on an update set is a UI concept and does nothing for the API. Without the capture target, objects land on the instance but are NOT captured in any Update Set and cannot be promoted or migrated.
 
-**Mandatory steps before any configuration write:**
+**Preflight:** if `snow_us_capture_target_set` is not advertised in the session's tool list, the registered server predates snowarch 2.0.0 and this protocol cannot run — stop and say so rather than improvising a capture (see the compatibility note in §2.1).
 
-1. **Identify or create the target Update Set** — `create_update_set` or confirm an existing one is `in progress`.
-2. **Resolve the authenticated user's sys_id** — `query_records(sys_user, user_name=<username>)`.
-3. **Set the user preference** — `query_records(sys_user_preference, user=<sys_id>^name=sys_update_set)`:
-   - If exists → `update_record(sys_user_preference, <pref_sys_id>, {value: <update_set_sys_id>})`
-   - If not exists → `create_record(sys_user_preference, {user: <sys_id>, name: 'sys_update_set', value: <update_set_sys_id>, type: 'string'})`
-4. **Execute the write operation** — object is now captured automatically.
-5. **Verify capture** — `query_records(sys_update_xml, update_set=<update_set_sys_id>)` — confirm the object appears.
+**The four calls — mandatory before any configuration write:**
 
-**This protocol is environment-agnostic.** It works on any ServiceNow instance because `sys_user_preference` is stored in the instance database, not on the local machine. When moving to a new laptop or new environment, repeat steps 2–3 once for the authenticated user on that instance.
+1. **Ensure the update set** — `snow_us_active_update_set_ensure` with `{ "name": "<engagement>-<topic>" }`. The name is required, and only the caller's own in-progress sets are returned.
+2. **Point capture at it** — `snow_us_capture_target_set` with `{ "update_set_sys_id": "<sys_id from step 1>" }`.
+3. **Do the write** — with its own §2.1 "write approved".
+4. **Verify capture** — `snow_us_update_set_preview` — confirm the objects are in the set. This step is the evidence; a write without it is unverified.
 
-**What does NOT work (confirmed non-functional on ServiceNow REST API):**
-- `switch_update_set` — only sets `is_default: true` on the `sys_update_set` record; does NOT switch session context.
-- Direct POST to `sys_update_xml` — blocked by `INSUFFICIENT_PRIVILEGES` even for admin users.
-- `execute_script` / `execute_background_script` — call non-existent ServiceNow endpoints; fail with 400/404.
+**This protocol is environment-agnostic.** The capture target is stored in the instance database (`sys_user_preference`), not on the local machine, so the four calls work on any instance snowarch has registered. When moving to a new laptop, a new instance, or a new engagement update set, repeat steps 1–2 once for the authenticated user on that instance.
 
-**Halt protocol:** If steps 1–3 have not been completed before a configuration write, stop and complete them first. Do not proceed with the write and attempt to capture retroactively — retroactive capture via REST is not possible.
+**Not substitutes (confirmed on the ServiceNow REST API):**
+- `snow_us_update_set_switch` — sets `is_default` and changes nothing for REST.
+- Writing `sys_update_xml` directly — refused with `INSUFFICIENT_PRIVILEGES`, admin included.
+- `snow_deploy_background_script_exec` and `snow_fluent_script_exec` — refuse with `UNSUPPORTED_ON_THIS_INSTANCE`.
+
+**Halt protocol:** Capture cannot be applied retroactively over REST. If steps 1–2 were skipped before a configuration write, stop and say so — do not proceed with further writes and do not attempt to capture after the fact.
 
 ## Default behaviours
 
@@ -343,6 +356,7 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 ## When the user types "Status"
 
 Respond with:
+0. **Mode.** Quote the `Mode:` line the SessionStart hook printed for this session (the same line `./snowarch mode` and `./snowarch doctor` print in the snowarch checkout) — it is the authoritative statement of whether this session is design-only (Tier 0) or connected to a live instance. Then run `bash scripts/doctor.sh` and quote its `Mode:` line too: it reports what this folder's session advertises (server key, whether the capture tool is present), not the store. If the two lines differ, say so and treat the session as design-only until the difference is explained. Which capability flags are in force is read from `snow_core_capabilities_read`, never inferred from the tool list: a disabled family is still advertised. If neither line can be produced, state the mode as unverified rather than guessing.
 1. The current working scope: which client engagement (if any) is loaded.
 2. Which release family is locked (read from `ServiceNowDocs/` HEAD branch).
 3. Sub-agents and skills currently registered:
@@ -405,16 +419,16 @@ When a technical problem is solved, a tool limitation is discovered, or a workin
 3. Commit and push `docs/snowarch-field-notes.md` immediately after updating it.
 
 **MCP-server / MCP-tool findings are EXCLUDED from this repo (repo-owner decision, 2026-06-08).**
-Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json` launch configuration, MCP tool-level bugs and their workarounds — are **not** committed or pushed to `claude-servicenow-live`. Keep them in local memory (`memory/`, never committed) and/or contribute them to the `snow-mcp` repo (the tool's own home). Do **not** add them to `docs/snowarch-field-notes.md`. Steps 1 and 3 therefore apply only to ServiceNow *platform/API* patterns that are independent of the MCP tooling.
+Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json` registration, snowarch CLI behaviour (`./snowarch mode`, `./snowarch instance`, `./snowarch doctor`), MCP tool-level bugs and their workarounds — are **not** committed or pushed to this repository. Keep them in local memory (`memory/`, never committed) and/or contribute them to the snowarch repository (`farstic/ai-servicenow-architect`, the tool's own home). Do **not** add them to `docs/snowarch-field-notes.md`. Steps 1 and 3 therefore apply only to ServiceNow *platform/API* patterns that are independent of the MCP tooling.
 
 **What counts as a finding worth documenting (platform/API — in-repo):**
 - A ServiceNow API or data-model pattern that works vs one that fails (especially on PDI)
 - A platform behaviour that required multiple attempts to get right
 
-**Routed out of this repo (local memory or `snow-mcp` repo, per the exclusion above):**
+**Routed out of this repo (local memory or the snowarch repository `farstic/ai-servicenow-architect`, per the exclusion above):**
 - MCP tool bug or unexpected behaviour with a confirmed workaround
-- MCP connection / launch-config issues
-- A gotcha specific to an MCP `create_*` / `update_*` tool
+- MCP connection / registration issues
+- A gotcha specific to a snowarch `_add` / `_modify` tool
 
 This rule ensures that `git clone` + read `docs/snowarch-field-notes.md` restores in-repo operational knowledge on any laptop, while MCP-tooling specifics stay out of this repository.
 
@@ -431,3 +445,5 @@ This rule ensures that `git clone` + read `docs/snowarch-field-notes.md` restore
 *CLAUDE.md v2.7.8 — Phase 2.7 arc: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway with Phase 1 Step 5 wiring + multi-gateway co-fire rule (v2.7); Security & GRC consult/review skill (v2.7.1); repo-wide ServiceNowDocs citation-path audit, ~50 dead paths remapped (v2.7.2); ATF Author skill + batch sub-agent (v2.7.3); Operational Documentation skill, completing the §6.2 consult chain (v2.7.4); Discovery Specialist + UI/UX Specialist skills (v2.7.5); the final six specialist skills — Performance & Scale, SPM, App Engine, Migration, Reporting & Analytics, DevOps / Release Manager (v2.7.6), completing the 22-specialist roster (every specialist now has a SKILL.md). Diagramming Specialist added as the 23rd specialist and 9th sub-agent — skill + batch diagram-pack sub-agent, wired as a §6.2 post-build consult plus HLD/LLD Writer and Technical Designer downstream handoff; depicts architecture (Mermaid/draw.io/PlantUML/SVG), never decides it, and flags unapproved custom objects PENDING per §1.1 (v2.7.7). Merged with the RobertBH17 line (field notes, F-0xx fixes, T-11/12/13; this session's tests renumbered T-14/15/16). Document-gateway rule — Domain Expert gateways now also fire before finalizing a domain-scoped document deliverable (proposal / scoping doc / HLD / LLD / PDD), not only before builder dispatch; Phase 1 Step 5 intro + new "Document deliverables fire the gateway too" note, and taxonomy §6.1 Step 7, updated accordingly (v2.7.8).*
 
 *v2.8.0 — Phase 2.8 (Delivery Governance) opens. Two skill-only cross-cutting advisory consults added, taking the roster to 27 (corrected from "25" — see the authoritative roster-count note): **Licensing & Entitlement Specialist** (`skills/licensing-specialist/`) — what a design costs to license (subscription/fulfiller, SKU/tier, App Engine units, Now Assist Assists, third-party SaaS), §3.1 consult + post-build review; and **Estimation & Sizing Specialist** (`skills/estimation-specialist/`) — the sizing methodology and the number (ranges, ServiceNow complexity rubric, contingency, baseline-vs-custom §1.1 delta), recorded into baseline SPM. New governance family **§4 Delivery Artefact Governance** in `governance-rules.md` — ADR (§4.1), Requirements Traceability / RTM (§4.2), RAID & NFR (§4.3) — seeded from new engine-level `reference/templates/` (adr / traceability-matrix / raid-log / nfr-checklist). Wiring: taxonomy v1.5 (roster 25, §3.1 consults, §2.4 boundaries, §4.5 triggers), prompt-patterns v1.2 (PP-20 estimation, PP-21 licensing, PP-22 ADR, PP-23 RTM, PP-24 RAID/NFR), CLAUDE.md repo map + roster + §3.1 table + Artefact standards + Phase delivery-governance touchpoints. Carries forward v2.6: docs/ knowledge base, Standing Rule, repo map.*
+
+*snowarch alignment (2026-09-19) — §2.1 and §2.2 rewritten for the snowarch live-instance layer (server key `servicenow`, tool prefix `mcp__servicenow__`, four-call update-set capture with `snow_us_capture_target_set` preflight, compatibility note for registrations made by the previous tooling); Standing Rule now routes MCP-tooling findings to `farstic/ai-servicenow-architect`; repo map carries the status sentence. Engine version unchanged at v2.8.0.*
