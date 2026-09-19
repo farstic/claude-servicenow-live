@@ -11,7 +11,7 @@ This guide covers the **optional** Claude.ai Master Project setup. Use it if you
 
 The web setup is a **second front-end to the same engine**. It runs the same Chief Architect, the same Domain Experts, and the same governance rules — just delivered through the Claude.ai web app instead of Claude Code CLI.
 
-> **Design-only surface.** The web Master Project does **not** include the NowAIKit MCP connection. It can design, route, review, and enforce §1.1 against `ServiceNowDocs/`, but it cannot read or write a live ServiceNow instance. Live §1.1 validation against the real schema and direct deployment (the §2.1 / §2.2 write gates) are **CLI-only** — see [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
+> **Design-only surface.** The web Master Project does **not** include the snowarch MCP connection. It can design, route, review, and enforce §1.1 against `ServiceNowDocs/`, but it cannot read or write a live ServiceNow instance. Live §1.1 validation against the real schema and direct deployment (the §2.1 / §2.2 write gates) are **CLI-only** — see [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).
 
 ---
 

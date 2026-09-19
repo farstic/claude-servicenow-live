@@ -191,7 +191,7 @@ mkdir -p clients/{{client-short-name}}/runbooks
 
 This keeps generated artefacts physically separated by client, which is the Tier 2 confidentiality discipline (Tier 2 has no UI-level firewall — folder discipline enforces it).
 
-### 9b — Configure NowAIKit MCP for the client instance
+### 9b — Configure snowarch MCP for the client instance
 
 If you will use live ServiceNow instance tools (MCP) for this engagement, update your local `claude_desktop_config.json` with the client's instance credentials:
 

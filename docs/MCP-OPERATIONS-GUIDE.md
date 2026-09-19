@@ -1,7 +1,7 @@
 # MCP Operations Guide — Operating the Engine Against a Live Instance
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Purpose:** The operational playbook for the NowAIKit MCP connection. Covers how the engine reads and writes a live ServiceNow instance, the two mandatory approval gates that govern every write, and the patterns that make live deployment safe and reversible.
+**Purpose:** The operational playbook for the snowarch MCP connection. Covers how the engine reads and writes a live ServiceNow instance, the two mandatory approval gates that govern every write, and the patterns that make live deployment safe and reversible.
 **Audience:** Architects and developers who run the engine against a live PDI or instance.
 **Last updated:** 29 May 2026
 **Prerequisite reading:** [`TECHNICAL-ARCHITECTURE.md`](./TECHNICAL-ARCHITECTURE.md) for the governance model (§1.1) this guide sits on top of.
@@ -12,7 +12,7 @@
 
 Earlier versions of the engine were design-only. A specialist would produce a Script Include or a table model as text; a human would copy it into ServiceNow by hand. The engine could *reason about* a ServiceNow instance but could not *touch* one.
 
-The NowAIKit MCP connection changes that. The engine now connects to a live ServiceNow instance and can:
+The snowarch MCP connection changes that. The engine now connects to a live ServiceNow instance and can:
 
 - **Read** the actual state of the instance — table schemas, record counts, existing Script Includes, Business Rules, system properties, SLAs, and CMDB data.
 - **Write** configuration objects directly — Script Includes, Business Rules, Script Actions, Update Sets, Reports, and more — which deploy to the instance the moment the call succeeds.
@@ -97,7 +97,7 @@ This protocol is **environment-agnostic** — the preference is stored in the Se
 | Direct POST to `sys_update_xml` | Blocked by `INSUFFICIENT_PRIVILEGES`, even for admins |
 | `execute_script` / `execute_background_script` | Call endpoints that do not exist on PDI; fail with 400/404 |
 
-Full detail and the running list of confirmed MCP behaviours live in [`nowaikit-field-notes.md`](./nowaikit-field-notes.md).
+Full detail and the running list of confirmed MCP behaviours live in [`snowarch-field-notes.md`](./snowarch-field-notes.md).
 
 ---
 
@@ -151,7 +151,7 @@ Every tool in this group is subject to §2.1 and §2.2:
 
 ### Known write gotchas (patch-after-create)
 
-Several `create_*` tools leave required fields unset. These are documented in full in [`nowaikit-field-notes.md`](./nowaikit-field-notes.md); the headline ones:
+Several `create_*` tools leave required fields unset. These are documented in full in [`snowarch-field-notes.md`](./snowarch-field-notes.md); the headline ones:
 
 | Tool | Gotcha | Fix |
 |---|---|---|
@@ -160,7 +160,7 @@ Several `create_*` tools leave required fields unset. These are documented in fu
 | `create_flow` / `create_flow_action` | Create empty shells with no steps — unusable via MCP | Build the flow in the Flow Designer UI |
 | Email from server script | `gs.sendEmail()` bypasses `sys_email` on PDI | Insert directly into `sys_email` via GlideRecord (see field notes §3) |
 
-**Standing rule:** whenever a tool behaviour is discovered, confirmed, or worked around during a session, record it in `nowaikit-field-notes.md`, commit, and push. That file is the single source of MCP operational truth across machines.
+**Standing rule:** whenever a tool behaviour is discovered, confirmed, or worked around during a session, record it in `snowarch-field-notes.md`, commit, and push. That file is the single source of MCP operational truth across machines.
 
 ---
 
@@ -175,7 +175,7 @@ Before deploying anything to a live instance:
 - [ ] Write executed.
 - [ ] §2.2 step 5 — capture verified in `sys_update_xml`.
 - [ ] Any patch-after-create gotcha applied (BR actions, event_name, etc.).
-- [ ] Any new tool behaviour recorded in `nowaikit-field-notes.md`.
+- [ ] Any new tool behaviour recorded in `snowarch-field-notes.md`.
 
 ---
 
@@ -183,7 +183,7 @@ Before deploying anything to a live instance:
 
 - The artefacts already deployed under this protocol: [`LIVE-ARTEFACTS-CATALOGUE.md`](./LIVE-ARTEFACTS-CATALOGUE.md).
 - The governance model these gates protect: [`TECHNICAL-ARCHITECTURE.md`](./TECHNICAL-ARCHITECTURE.md).
-- The running list of confirmed MCP behaviours: [`nowaikit-field-notes.md`](./nowaikit-field-notes.md).
+- The running list of confirmed MCP behaviours: [`snowarch-field-notes.md`](./snowarch-field-notes.md).
 
 ---
 

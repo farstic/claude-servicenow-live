@@ -1,10 +1,10 @@
 # claude-servicenow-live
 
-A two-tier ServiceNow expertise system for Claude, with live ServiceNow instance integration via NowAIKit MCP.
+A two-tier ServiceNow expertise system for Claude, with live ServiceNow instance integration via snowarch MCP.
 
 - **Tier 1 — Claude.ai Projects** (web / mobile / desktop): daily driver for stories, HLDs, design discussions, transcript extraction, and client review prep.
 - **Tier 2 — Claude Code** (local CLI): heavy lifting with sub-agents, code review, ATF generation, live instance operations, and batch artefact production.
-- **MCP Layer — NowAIKit**: connects Tier 2 directly to a live ServiceNow instance. Claude can read from and write to the instance via structured MCP tools without switching tabs.
+- **MCP Layer — snowarch**: connects Tier 2 directly to a live ServiceNow instance. Claude can read from and write to the instance via structured MCP tools without switching tabs.
 
 Both tiers share the same `.claude/skills/` directory so expertise is authored once and used everywhere.
 
@@ -16,7 +16,7 @@ Both tiers share the same `.claude/skills/` directory so expertise is authored o
 2. [Prerequisites](#2-prerequisites)
 3. [Step 1 — Clone the repo](#step-1--clone-the-repo)
 4. [Step 2 — Add ServiceNowDocs submodule](#step-2--add-servicenowdocs-submodule)
-5. [Step 3 — Install and configure NowAIKit MCP](#step-3--install-and-configure-nowaikit-mcp)
+5. [Step 3 — Install and configure snowarch MCP](#step-3--install-and-configure-snowarch-mcp)
 6. [Step 4 — Set up Tier 2 (Claude Code)](#step-4--set-up-tier-2-claude-code)
 7. [Step 5 — Set up Tier 1 (Claude.ai Projects)](#step-5--set-up-tier-1-claudeai-projects)
 8. [Step 6 — Daily workflow](#step-6--daily-workflow)
@@ -37,10 +37,10 @@ Claude.ai Projects (Tier 1)          Claude Code CLI (Tier 2)
 Master Project                        Chief Architect orchestrator (CLAUDE.md)
   └─ global skills                      ├─ 22 specialists (8 with sub-agents)
 Satellite Projects (per client)         ├─ ServiceNowDocs/ (official docs submodule)
-  └─ client knowledge + skills          └─ NowAIKit MCP ──► Live ServiceNow instance
+  └─ client knowledge + skills          └─ snowarch MCP ──► Live ServiceNow instance
 ```
 
-The Chief Architect (CLAUDE.md) reads the official ServiceNow documentation submodule and can call live instance tools via NowAIKit MCP for validation, creation, and deployment of artefacts.
+The Chief Architect (CLAUDE.md) reads the official ServiceNow documentation submodule and can call live instance tools via snowarch MCP for validation, creation, and deployment of artefacts.
 
 ---
 
@@ -150,11 +150,11 @@ git commit -m "chore: switch ServiceNowDocs to <new-branch-name>"
 
 ---
 
-## Step 3 — Install and configure NowAIKit MCP
+## Step 3 — Install and configure snowarch MCP
 
-NowAIKit is the MCP (Model Context Protocol) server that connects Claude Code to a live ServiceNow instance. This is the key differentiator of this setup: Claude can read from and write to your PDI or production instance directly from a Claude Code conversation.
+snowarch is the MCP (Model Context Protocol) server that connects Claude Code to a live ServiceNow instance. This is the key differentiator of this setup: Claude can read from and write to your PDI or production instance directly from a Claude Code conversation.
 
-### 3a — Install NowAIKit
+### 3a — Install snowarch
 
 ```bash
 npm install -g claude-servicenow-mcp
@@ -184,14 +184,14 @@ mkdir -p ~/Library/Application\ Support/Claude
 touch ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
-### 3c — Add NowAIKit to the config
+### 3c — Add snowarch to the config
 
 Open the config file in a text editor and add the following JSON. Replace the placeholder values with your own — **do not commit credentials to Git** (see [Step 7](#step-7--github-security-review-mandatory-before-every-push)):
 
 ```json
 {
   "mcpServers": {
-    "nowaikit": {
+    "snowarch": {
       "command": "npx",
       "args": ["claude-servicenow-mcp"],
       "env": {
@@ -506,7 +506,7 @@ To invoke manually:
 
 4. **Re-upload changed skills** to your Claude.ai Projects (Master + any satellites that use the skill).
 
-5. **Update NowAIKit MCP**:
+5. **Update snowarch MCP**:
    ```bash
    npm update -g claude-servicenow-mcp
    ```
@@ -581,7 +581,7 @@ To invoke manually:
 │   ├── gherkin-feature-template.md
 │   └── hld-template.md
 ├── docs/
-│   └── nowaikit-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
+│   └── snowarch-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
 ├── claude-ai-projects/               ← (NOT YET IMPLEMENTED) planned Tier 1 templates — none ship yet
 ├── clients/                          ← gitignored — per-client working folders
 │   └── <client-name>/
@@ -614,13 +614,13 @@ To invoke manually:
 
 **v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
 
-**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. NowAIKit MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
+**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. snowarch MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
 
 **v1.2** (next):
 - ATF Author — skill + batch sub-agent (currently planned; not yet shipped).
 - Expand remaining planned skills to full implementation: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.
 - `claude-ai-projects/` Tier 1 instruction templates (currently placeholders).
-- Multi-instance support in NowAIKit config (dev / test / prod profiles).
+- Multi-instance support in snowarch config (dev / test / prod profiles).
 
 **v2.0** (future):
 - App Engine Specialist, DevOps / Release Manager as full sub-agents.

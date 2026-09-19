@@ -186,9 +186,9 @@ Per the maintenance rule, the full validation suite (T-01–T-12) must be re-run
 - **`docs/TECHNICAL-ARCHITECTURE.md`** — rewritten: added the live-instance execution layer (§5), gate ordering, the 10-test validation suite (§8), and the pre-commit auto-sync hook (§9).
 - **`docs/USER-GUIDE-AND-EXAMPLES.md`** — rewritten: added Scenario 4 (live deployment through both write gates).
 - **`docs/BUSINESS-OVERVIEW.md`** — added the design-to-delivery value section and the two write gates in plain English.
-- **`docs/INSTALLATION-GUIDE.md`** — added the optional NowAIKit MCP connection step.
+- **`docs/INSTALLATION-GUIDE.md`** — added the optional snowarch MCP connection step.
 - **`docs/ADVANCED-WEB-SETUP.md`** — clarified the web Master Project is design-only; live deployment is CLI-only.
-- **`docs/nowaikit-field-notes.md`** — purpose/audience header added; existing content untouched.
+- **`docs/snowarch-field-notes.md`** — purpose/audience header added; existing content untouched.
 - All docs: repository renamed `claude-servicenow-engine` → `claude-servicenow-live`; example scoped-app prefix neutralised to `x_acme_*`; version stamps updated to v2.6.
 
 ### Notes
@@ -204,7 +204,7 @@ Documentation-only release. No change to `CLAUDE.md`, governance rules, taxonomy
 
 ### Added
 
-- **`docs/nowaikit-field-notes.md`** — committed, cross-laptop knowledge base of confirmed NowAIKit MCP behaviours and workarounds (Update Set capture, broken script endpoints, email-via-GlideRecord pattern, `register_event` and `create_business_rule` patch-after-create gotchas, Flow Designer shells).
+- **`docs/snowarch-field-notes.md`** — committed, cross-laptop knowledge base of confirmed snowarch MCP behaviours and workarounds (Update Set capture, broken script endpoints, email-via-GlideRecord pattern, `register_event` and `create_business_rule` patch-after-create gotchas, Flow Designer shells).
 - **Standing Rule** — every solved MCP problem is recorded in the field notes (generic only) and pushed; instance-specific values stay in local memory.
 - **Pre-commit auto-sync hook** (`.githooks/pre-commit` → `scripts/sync-agents-skills.sh`) — keeps the root `agents/`/`skills/` folders and the `.claude/` mirror aligned automatically, staging both sides on commit.
 - **Three live artefacts deployed** to the connected instance — SLABreachRiskCalculator, DuplicateIncidentDetector, P1AutoAssign — all Verdict A.
@@ -232,14 +232,14 @@ Documentation-only release. No change to `CLAUDE.md`, governance rules, taxonomy
 
 ---
 
-## v2.4 — NowAIKit MCP integration
+## v2.4 — snowarch MCP integration
 
 **Released:** May 2026
 **Trigger:** The engine could reason about ServiceNow but not touch it. A live MCP connection turned it from a design engine into a design-and-delivery engine.
 
 ### Added
 
-- **NowAIKit MCP connection** to a live ServiceNow instance, at a declared permission tier (read-only / read-write).
+- **snowarch MCP connection** to a live ServiceNow instance, at a declared permission tier (read-only / read-write).
 - **Live §1.1 validation** — Baseline-First verdicts are now confirmed against the live schema, not only `ServiceNowDocs/`.
 - Live read tooling (schema discovery, record queries, config audit) and live write tooling (Script Includes, Business Rules, Script Actions, Update Sets, Reports).
 

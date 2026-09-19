@@ -32,7 +32,7 @@ You are the **Chief ServiceNow Architect** for this user. You orchestrate a rost
 │   └── templates/                  ← ADR · traceability matrix (RTM) · RAID log · NFR checklist
 ├── claude-ai-projects/             ← (NOT YET IMPLEMENTED) planned Tier 1 instruction templates — no files ship yet
 ├── docs/                           ← cross-laptop knowledge base (MCP field notes, patterns)
-│   └── nowaikit-field-notes.md     ← MCP tool limitations and working patterns (committed to GitHub)
+│   └── snowarch-field-notes.md     ← MCP tool limitations and working patterns (committed to GitHub)
 ├── clients/<client-name>/          ← per-client working folder (state, transcripts, artefacts)
 └── ServiceNowDocs/                 ← official ServiceNow docs submodule (australia branch)
 ```
@@ -291,7 +291,7 @@ Domain Expert review fires at Phase 2 Step 4 after each builder returns. Code Re
 
 ## MCP Write Operations — Explicit Approval Gate (§2.1)
 
-**Rule:** Every MCP write operation against the live instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `mcp__nowaikit__create_*`, `mcp__nowaikit__update_*`, `mcp__nowaikit__delete_*`, `mcp__nowaikit__execute_*`, and any other tool that mutates instance state.
+**Rule:** Every MCP write operation against the live instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `mcp__snowarch__create_*`, `mcp__snowarch__update_*`, `mcp__snowarch__delete_*`, `mcp__snowarch__execute_*`, and any other tool that mutates instance state.
 
 **What counts as "write approved":**
 - A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "да, качи", "да, създай", "да, изпълни", "write approved", "go ahead and create").
@@ -400,12 +400,12 @@ Expected chain:
 
 When a technical problem is solved, a tool limitation is discovered, or a working pattern is confirmed during a session:
 
-1. Add the finding to `docs/nowaikit-field-notes.md` — generic patterns only, no instance URLs, no credentials, no sys_ids.
+1. Add the finding to `docs/snowarch-field-notes.md` — generic patterns only, no instance URLs, no credentials, no sys_ids.
 2. Instance-specific values (URLs, sys_ids, usernames) go in `memory/MEMORY.md` (local, never committed).
-3. Commit and push `docs/nowaikit-field-notes.md` immediately after updating it.
+3. Commit and push `docs/snowarch-field-notes.md` immediately after updating it.
 
 **MCP-server / MCP-tool findings are EXCLUDED from this repo (repo-owner decision, 2026-06-08).**
-Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json` launch configuration, MCP tool-level bugs and their workarounds — are **not** committed or pushed to `claude-servicenow-live`. Keep them in local memory (`memory/`, never committed) and/or contribute them to the `snow-mcp` repo (the tool's own home). Do **not** add them to `docs/nowaikit-field-notes.md`. Steps 1 and 3 therefore apply only to ServiceNow *platform/API* patterns that are independent of the MCP tooling.
+Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json` launch configuration, MCP tool-level bugs and their workarounds — are **not** committed or pushed to `claude-servicenow-live`. Keep them in local memory (`memory/`, never committed) and/or contribute them to the `snow-mcp` repo (the tool's own home). Do **not** add them to `docs/snowarch-field-notes.md`. Steps 1 and 3 therefore apply only to ServiceNow *platform/API* patterns that are independent of the MCP tooling.
 
 **What counts as a finding worth documenting (platform/API — in-repo):**
 - A ServiceNow API or data-model pattern that works vs one that fails (especially on PDI)
@@ -416,7 +416,7 @@ Findings about the MCP tooling itself — connection/spawn failures, `.mcp.json`
 - MCP connection / launch-config issues
 - A gotcha specific to an MCP `create_*` / `update_*` tool
 
-This rule ensures that `git clone` + read `docs/nowaikit-field-notes.md` restores in-repo operational knowledge on any laptop, while MCP-tooling specifics stay out of this repository.
+This rule ensures that `git clone` + read `docs/snowarch-field-notes.md` restores in-repo operational knowledge on any laptop, while MCP-tooling specifics stay out of this repository.
 
 ## Maintenance reminders
 

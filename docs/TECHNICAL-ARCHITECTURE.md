@@ -14,7 +14,7 @@ If you just want to *use* the engine, read [`USER-GUIDE-AND-EXAMPLES.md`](./USER
 
 ## 0. What this version is — design *and* delivery
 
-Through v2.3 the engine was a **design** engine: it reasoned about ServiceNow and produced artefacts as text, which a human deployed by hand. From v2.4 onward a live **NowAIKit MCP** connection lets the engine read and write a real ServiceNow instance directly. The engine now both designs *and* delivers.
+Through v2.3 the engine was a **design** engine: it reasoned about ServiceNow and produced artefacts as text, which a human deployed by hand. From v2.4 onward a live **snowarch MCP** connection lets the engine read and write a real ServiceNow instance directly. The engine now both designs *and* delivers.
 
 Two governance consequences run through this whole document:
 
@@ -318,7 +318,7 @@ This behaviour is regression-tested by **T-07**. After cloning, no setup is requ
 | Add a new builder | New `skills/<name>/SKILL.md` and `agents/<name>.md`; update `taxonomy.md` boundary table; update builder-pair rules in `CLAUDE.md` |
 | Add a routing-time consult | Update `taxonomy.md` §3.1; update Phase 1 Step 7 in `CLAUDE.md` |
 | Add a post-build consult | Update `taxonomy.md` §3.2; update Phase 2 Step 5 in `CLAUDE.md` |
-| Add an MCP write pattern / gotcha | Record it in [`nowaikit-field-notes.md`](./nowaikit-field-notes.md); commit and push immediately |
+| Add an MCP write pattern / gotcha | Record it in [`snowarch-field-notes.md`](./snowarch-field-notes.md); commit and push immediately |
 | Modify §1.1 | **Authoritative source is `governance-rules.md`.** Update there first, then propagate to `CLAUDE.md` and every SKILL.md anti-pattern section *(plus the Tier 1 master instructions, once shipped)* |
 
 After any change to `skills/` or `agents/`, the pre-commit hook (§9) re-syncs the `.claude/` mirror automatically. Re-run the validation suite (§8) before committing protocol changes.

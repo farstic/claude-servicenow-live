@@ -1,11 +1,11 @@
 # Installation Guide
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Purpose:** Plug-and-play setup for the engine in Claude Code — plus the optional NowAIKit MCP step for connecting to a live ServiceNow instance.
+**Purpose:** Plug-and-play setup for the engine in Claude Code — plus the optional snowarch MCP step for connecting to a live ServiceNow instance.
 **Audience:** First-time users
 **Last updated:** 29 May 2026
 **Time to complete:** 2 minutes (core) · +3 minutes (optional live-instance connection)
-**You will need:** Node.js (for npm), Git, and an Anthropic API key. For live-instance work: a ServiceNow instance (a PDI is fine) and the NowAIKit MCP server.
+**You will need:** Node.js (for npm), Git, and an Anthropic API key. For live-instance work: a ServiceNow instance (a PDI is fine) and the snowarch MCP server.
 
 This is the plug-and-play setup. The repository ships fully configured — no scripts to run, no folders to sync, no ZIPs to upload. Three commands and you're running.
 
@@ -92,11 +92,11 @@ If you see that response, your install is healthy.
 
 ---
 
-## Optional — connect to a live ServiceNow instance (NowAIKit MCP)
+## Optional — connect to a live ServiceNow instance (snowarch MCP)
 
-The core engine above is **design-only** and needs no instance. To let the engine *read and write a live instance*, add the NowAIKit MCP server. This is what powers live §1.1 validation against the real schema and direct deployment of approved artefacts.
+The core engine above is **design-only** and needs no instance. To let the engine *read and write a live instance*, add the snowarch MCP server. This is what powers live §1.1 validation against the real schema and direct deployment of approved artefacts.
 
-1. Install/configure the NowAIKit MCP server per its own documentation, and register it with Claude Code as an MCP server.
+1. Install/configure the snowarch MCP server per its own documentation, and register it with Claude Code as an MCP server.
 2. Provide the connection settings (these live **locally only** — never commit them). The required environment variables:
 
    ```
@@ -110,7 +110,7 @@ The core engine above is **design-only** and needs no instance. To let the engin
 
 3. Restart Claude Code and confirm the connection with a read-only check, e.g. ask: *"What instance am I connected to, and what permission tier?"*
 
-**Before you rely on this for writes, read [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).** Every write is governed by two gates — §2.1 write approval and §2.2 Update Set capture — and the running list of confirmed MCP behaviours is in [`nowaikit-field-notes.md`](./nowaikit-field-notes.md).
+**Before you rely on this for writes, read [`MCP-OPERATIONS-GUIDE.md`](./MCP-OPERATIONS-GUIDE.md).** Every write is governed by two gates — §2.1 write approval and §2.2 Update Set capture — and the running list of confirmed MCP behaviours is in [`snowarch-field-notes.md`](./snowarch-field-notes.md).
 
 > **Security:** instance URLs, credentials, and sys_ids must never be committed. The repository's `.gitignore` already excludes the local config, settings, and `clients/` folders.
 

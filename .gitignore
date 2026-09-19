@@ -15,8 +15,8 @@ reports/
 # Local MCP server config — contains the live instance URL and a PLAINTEXT password. NEVER commit.
 .mcp.json
 
-# Scratch nowaikit example — hardcodes the live instance URL (instance values are local-only per the Standing Rule).
-nowaikit-example.ts
+# Scratch snowarch example — hardcodes the live instance URL (instance values are local-only per the Standing Rule).
+snowarch-example.ts
 
 # Editor workspace settings — machine-specific.
 .vscode/

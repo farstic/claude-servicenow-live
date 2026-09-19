@@ -74,7 +74,7 @@ Read in this order if you're new; jump by role if you're not.
 | **[Technical Architecture](./TECHNICAL-ARCHITECTURE.md)** | Developers/maintainers — the full protocol mechanics | 25 min |
 | **[MCP Operations Guide](./MCP-OPERATIONS-GUIDE.md)** | Anyone running the engine against a live instance | 12 min |
 | **[Live Artefacts Catalogue](./LIVE-ARTEFACTS-CATALOGUE.md)** | What's deployed, and on what baseline tables | 5 min |
-| **[NowAIKit Field Notes](./nowaikit-field-notes.md)** | Confirmed MCP behaviours and workarounds | reference |
+| **[snowarch Field Notes](./snowarch-field-notes.md)** | Confirmed MCP behaviours and workarounds | reference |
 | **[Advanced Web Setup](./ADVANCED-WEB-SETUP.md)** | Optional Claude.ai browser front-end (design-only) | 10 min |
 | **[Changelog](./CHANGELOG.md)** | Version history | 5 min |
 | **[Diagram Import Notes](./IMPORT-NOTES.md)** | Editable-diagram conventions | reference |
@@ -147,7 +147,7 @@ The `.claude/` mirror ships pre-synced and is kept aligned automatically by the 
 - **Engine version:** v2.6
 - **Release family:** Australia
 - **Domain Expert gateways:** ITSM · CSM · HRSD · ITOM/Discovery
-- **Live instance:** NowAIKit MCP connected; §1.1 validated against the real schema
+- **Live instance:** snowarch MCP connected; §1.1 validated against the real schema
 - **Write governance:** §2.1 write approval + §2.2 Update Set capture, both mandatory
 - **Deployed artefacts:** 3, all baseline-only (see [Live Artefacts Catalogue](./LIVE-ARTEFACTS-CATALOGUE.md))
 - **Regression suite:** 10 tests, all passing

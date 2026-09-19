@@ -7,7 +7,7 @@ This file has been superseded by **README.md**, which contains the full, up-to-d
 - Prerequisites
 - Repo cloning
 - ServiceNowDocs submodule
-- NowAIKit MCP installation and configuration
+- snowarch MCP installation and configuration
 - Tier 2 (Claude Code) setup and smoke tests
 - Tier 1 (Claude.ai Projects) setup
 - Daily workflow
