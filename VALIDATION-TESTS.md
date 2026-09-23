@@ -608,6 +608,41 @@ into ServiceNow and standing up a basic SAM dashboard?
 
 ---
 
+## T-19 — FSO Insurance Gateway: fires on an insurance claims request, co-fires CSM, halts on the documented extension point
+
+**Covers:** the sixth Domain Expert gateway (engine v2.8.1) — `skills/fso-insurance-specialist/SKILL.md`; FSO ↔ CSM co-fire; §1.1 halt even where the FSO docs prescribe a new table.
+**Tiers:** Claude Code ✅ (live-fired 2026-09-21 — gateway + CSM co-fire + conditional Verdict C halt, judged PASS on all pass criteria and fail signals; 8 citations verified, 2 attribution nits fixed in skill v1.0.1) · Claude.ai ✅ (Tier 1 upload + T-19 run confirmed 2026-09-21)
+
+### Prompt
+
+```
+We sell commercial property and general liability policies. Commercial Lines Claims only ships
+commercial auto. Set up claims for property and liability with their own intake, adjusters and
+SLAs, and design the tables.
+```
+
+### Expected behaviour
+
+1. Architect restates the task.
+2. **Phase 1, Step 5 — FSO Insurance Specialist gateway fires** (claims / adjuster / FSO triggers); **CSM Specialist co-fires** (B2B account/contact base layer). The FSO envelope's Part 1 names the two documented approaches (generic `sn_ins_gen_claim` service definitions + incident configuration vs case-type extension of `sn_ins_claim_cml_base`), Part 2 lists only documented tables (`sn_bom_cp_ins_policy`, `sn_bom_gl_ins_policy` already ship), with undocumented facts marked "verify on instance".
+3. **Part 3 Verdict C — documented extension point.** The request implies new tables; the halt fires with the four-part OPEN QUESTION citing `markdown/financial-services-operations/insurance-claims/create-claim-incident-tables.md` and `markdown/financial-services-operations/fso-int_guide-creating-new-fso-case-types.md`.
+4. **No table model, service-definition design or builder dispatch in the same turn.** Routing lists Licensing (Store apps), DevOps/Release (Store install order), Technical Designer / Flow Designer after approval.
+
+### Pass criteria
+
+- FSO Insurance gateway fires automatically; CSM co-fires and the envelopes are reconciled.
+- Verdict C surfaces from Part 3 of the envelope, marked "documented extension point", with citations.
+- Nothing designed in the halt turn; banking packs not proposed.
+
+### Fail signals
+
+- Technical Designer dispatched with a table model before the gateway envelope.
+- Table/field/state names not present in the docs asserted as fact.
+- "The docs say to extend the base case" treated as approval (self-authorization bypass).
+- CSM Specialist not co-fired although the account/contact layer is in scope.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)
@@ -713,3 +748,4 @@ Mechanical (non-behavioural) audit of the agents/skills roster, separate from th
 |---|---|---|---|---|---|---|---|---|
 | 2026-06-04 | v2.7.6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 162/162 (0 dead) | **12/12 dimensions PASS.** Surfaced + fixed 16 dead citations in itom-discovery/hrsd/story-writer; bumped 8 sub-agents to opus-4-8; added the two verification gates above. Negative-tested: injected dead citation → gate exit 1 (blocks commit). |
 | 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 175/175 (0 dead) | **PASS.** Added Licensing & Estimation skills (+13 citations → 175) + `reference/` delivery-governance templates; mirrors synced; structure + citations green at commit (681b4ef). |
+| 2026-09-21 | v2.8.1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 367/367 (0 dead) | **PASS.** FSO Insurance Specialist gateway added (+192 citations → 367) with CLAUDE.md / taxonomy v1.6 / PP-02b wiring; T-19 live-fired PASS (commit b771c16 + v1.0.1 fixes). |

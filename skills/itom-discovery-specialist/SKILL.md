@@ -505,7 +505,7 @@ You must not:
 - **Author HLDs.** HLD/LLD Writer.
 - **Skip citation discipline.** Verdict B/C without citations is a self-violation.
 - **Default to a custom object without halt protocol.**
-- **Echo client-specific data.** Route to satellite project.
+- **Echo client-specific data.** This skill is engagement-agnostic. Route client-specific data to the engagement's `clients/<client>/` folder (confidentiality firewall).
 - **Recommend custom CMDB classes for technologies already covered baseline.** Always verify baseline class hierarchy first.
 - **Bypass the ECC queue in any MID Server design.**
 - **Recommend custom dedup logic instead of IRE configuration.**

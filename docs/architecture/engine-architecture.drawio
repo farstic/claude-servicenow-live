@@ -1,0 +1,178 @@
+<mxfile host="Electron">
+  <diagram name="Architecture Engine v2.8.0" id="engine-arch">
+    <mxGraphModel dx="-613" dy="-350" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="0" pageScale="1" pageWidth="1160" pageHeight="1340" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=center;fontSize=15;fontStyle=1;fontColor=#1F3864;" value="ServiceNow Architecture Engine v2.8.0 — Orchestration model &amp; specialist roster (27 personas, 9 with sub-agents)" vertex="1">
+          <mxGeometry height="28" width="1120" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="bandA" parent="1" style="rounded=1;fillColor=#ECEEF0;strokeColor=#495057;verticalAlign=top;align=left;fontStyle=1;fontColor=#212529;spacingLeft=10;spacingTop=6;fontSize=12;" value="ORCHESTRATION" vertex="1">
+          <mxGeometry height="118" width="1120" x="20" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="user" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#868E96;strokeColor=#495057;fontColor=#FFFFFF;fontSize=11;" value="USER&#xa;states the task + engagement context (clients/&lt;name&gt;/)" vertex="1">
+          <mxGeometry height="62" width="180" x="40" y="92" as="geometry" />
+        </mxCell>
+        <mxCell id="arch" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=#0B3D66;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" value="CHIEF SERVICENOW ARCHITECT  (orchestrator)&#xa;Routes — never impersonates. Clarify-first. Grounds every factual claim in ServiceNowDocs and cites the path. Reconciles specialist outputs; enforces governance." vertex="1">
+          <mxGeometry height="74" width="560" x="246" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="princ" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DEE2E6;strokeColor=#868E96;fontColor=#212529;fontSize=11;" value="Operating principles&#xa;baseline-first · scope &amp; naming hygiene · confidentiality firewall · corporate-English deliverables" vertex="1">
+          <mxGeometry height="62" width="300" x="826" y="92" as="geometry" />
+        </mxCell>
+        <mxCell id="eUA" edge="1" parent="1" source="user" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#495057;fontSize=10;" target="arch" value="request">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bandB" parent="1" style="rounded=1;fillColor=#E8F1FC;strokeColor=#1C7ED6;verticalAlign=top;align=left;fontStyle=1;fontColor=#0B3D91;spacingLeft=10;spacingTop=6;fontSize=12;" value="THE ROUTING PROTOCOL  (mandatory for every substantive task)" vertex="1">
+          <mxGeometry height="266" width="1120" x="20" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="gate" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" value="§1.1 BASELINE-FIRST GATE — a custom table / scoped app / state extension / new group requires an explicit, separate user approval. Self-authorization is prohibited; otherwise HALT and produce no artefact." vertex="1">
+          <mxGeometry height="40" width="1096" x="32" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#FFFFFF;strokeColor=#1C7ED6;fontColor=#0B3D91;fontSize=11;" value="PHASE 1 — Routing-time evaluation  (taxonomy §6.1)&#xa;&#xa;1  Restate the task in one sentence&#xa;2  Read engagement state (clients/&lt;name&gt;/...)&#xa;3  Surface assumptions &amp; OPEN QUESTIONs&#xa;4  Evaluate §1.1 custom-object implications&#xa;5  Domain Expert GATEWAY → 5-Part Constraint Envelope&#xa;6  Resolve routing ambiguity (taxonomy.md)&#xa;7  Flag §3.1 routing-time consults&#xa;8–9  Propose the specialist + await approval&#xa;10  Dispatch via Task tool with the Envelope" vertex="1">
+          <mxGeometry height="180" width="540" x="32" y="258" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;spacingLeft=10;fillColor=#FFFFFF;strokeColor=#1C7ED6;fontColor=#0B3D91;fontSize=11;" value="PHASE 2 — Post-build evaluation  (taxonomy §6.2)&#xa;&#xa;1  Hold the artefact — do not present yet&#xa;2  Classify content (code / flow / config / design)&#xa;3  Scan for §1.1 violations (new table/scope/state)&#xa;4  Domain Expert RE-FIRES in review mode&#xa;5  Post-build consults: Code Reviewer · ATF · Op Docs · Diagramming&#xa;6–7  Present artefact + consult proposals; await decisions&#xa;8  Adopt Code Reviewer (main thread); run 4 checklists&#xa;9  On REWORK → re-dispatch the originating builder" vertex="1">
+          <mxGeometry height="180" width="540" x="588" y="258" as="geometry" />
+        </mxCell>
+        <mxCell id="eAg" edge="1" parent="1" source="arch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#1F3864;fontSize=10;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="gate" value="every task">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eP12" edge="1" parent="1" source="p1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=open;strokeColor=#1C7ED6;fontSize=10;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="p2" value="builder returns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bandC" parent="1" style="rounded=1;fillColor=#E6F4F1;strokeColor=#0B7285;verticalAlign=top;align=left;fontStyle=1;fontColor=#073B4C;spacingLeft=10;spacingTop=6;fontSize=12;" value="DOMAIN EXPERT GATEWAYS  (mandatory, skill-only) — fire at Phase 1 Step 5 AND Phase 2 Step 4 · each emits a 5-Part Constraint Envelope (OOB Process Map · Data Model · §1.1 Verdict · Routing · Anti-Patterns)" vertex="1">
+          <mxGeometry height="118" width="1120" x="20" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="gw1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B7285;strokeColor=#073B4C;fontColor=#FFFFFF;fontSize=10;" value="ITSM Specialist&#xa;incident · problem · change · RITM · MIM · SLA · SOW" vertex="1">
+          <mxGeometry height="54" width="206" x="32" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="gw2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B7285;strokeColor=#073B4C;fontColor=#FFFFFF;fontSize=10;" value="CSM Specialist&#xa;case · account · contact · entitlement · CSM Workspace" vertex="1">
+          <mxGeometry height="54" width="206" x="248" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="gw3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B7285;strokeColor=#073B4C;fontColor=#FFFFFF;fontSize=10;" value="HRSD Specialist&#xa;HR case · Lifecycle Event · Employee Center · HR Profile" vertex="1">
+          <mxGeometry height="54" width="206" x="464" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="gw4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B7285;strokeColor=#073B4C;fontColor=#FFFFFF;fontSize=10;" value="ITOM / Discovery&#xa;MID · Discovery · Service Mapping · Event Mgmt (CI population)" vertex="1">
+          <mxGeometry height="54" width="206" x="680" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="gw5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B7285;strokeColor=#073B4C;fontColor=#FFFFFF;fontSize=10;" value="CMDB &amp; CSDM&#xa;CI class &amp; CSDM model · IRE · Health (the model)" vertex="1">
+          <mxGeometry height="54" width="206" x="896" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="eBC" edge="1" parent="1" source="p1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#0B7285;fontSize=10;exitX=0.2;exitY=1;entryX=0.2;entryY=0;" target="bandC" value="Step 5 (mandatory)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bandD" parent="1" style="rounded=1;fillColor=#E8F1FC;strokeColor=#1864AB;verticalAlign=top;align=left;fontStyle=1;fontColor=#0B3D91;spacingLeft=10;spacingTop=6;fontSize=12;" value="BUILDERS — 9 specialists with isolated sub-agents (dispatched via the Task tool once the Envelope is cleared &amp; approved; each returns a §6.2 post-build manifest)" vertex="1">
+          <mxGeometry height="232" width="1120" x="20" y="584" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Story Writer&#xa;Gherkin features + acceptance criteria" vertex="1">
+          <mxGeometry height="50" width="346" x="32" y="634" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="HLD / LLD Writer&#xa;High- / Low-level &amp; PDD design documents" vertex="1">
+          <mxGeometry height="50" width="346" x="392" y="634" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Technical Designer&#xa;tables · ACL matrix · BR list · flow outline" vertex="1">
+          <mxGeometry height="50" width="346" x="752" y="634" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Integration Specialist&#xa;REST/SOAP · IntegrationHub · MID · auth · retry/DLQ" vertex="1">
+          <mxGeometry height="50" width="346" x="32" y="694" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Flow Designer Specialist&#xa;flows · subflows · custom Actions · orchestration" vertex="1">
+          <mxGeometry height="50" width="346" x="392" y="694" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Developer&#xa;Script Includes · Business Rules · Client Scripts" vertex="1">
+          <mxGeometry height="50" width="346" x="752" y="694" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Now Assist Specialist&#xa;AI Agents · agentic workflows · AI Control Tower" vertex="1">
+          <mxGeometry height="50" width="346" x="32" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="ATF Author (batch)&#xa;full-app test suite + deployment notes" vertex="1">
+          <mxGeometry height="50" width="346" x="392" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C7ED6;strokeColor=#0B3D91;fontColor=#FFFFFF;fontSize=10;" value="Diagramming Specialist (batch)&#xa;draw.io diagram packs — depicts, never decides" vertex="1">
+          <mxGeometry height="50" width="346" x="752" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="eCD" edge="1" parent="1" source="bandC" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#1864AB;fontSize=10;exitX=0.2;exitY=1;entryX=0.2;entryY=0;" target="bandD" value="Constraint Envelope = dispatch context">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eDP2" edge="1" parent="1" source="bandD" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=open;strokeColor=#1864AB;fontSize=10;exitX=1;exitY=0.1;exitDx=0;exitDy=0;entryX=1;entryY=1;entryDx=0;entryDy=0;" target="p2" value="artefact returns → §6.2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bandE" parent="1" style="rounded=1;fillColor=#F3F0FF;strokeColor=#6741D9;verticalAlign=top;align=left;fontStyle=1;fontColor=#4226A8;spacingLeft=10;spacingTop=6;fontSize=12;" value="REVIEWERS &amp; QUALITY  (skill-only) — fire post-build per §6.2 and as §3.1 routing-time consults" vertex="1">
+          <mxGeometry height="92" width="1120" x="20" y="826" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6741D9;strokeColor=#4226A8;fontColor=#FFFFFF;fontSize=10;" value="Code Reviewer&#xa;style · performance · security · best-practice" vertex="1">
+          <mxGeometry height="42" width="262" x="32" y="868" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6741D9;strokeColor=#4226A8;fontColor=#FFFFFF;fontSize=10;" value="ATF Author (inline)&#xa;single-component test design" vertex="1">
+          <mxGeometry height="42" width="262" x="304" y="868" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6741D9;strokeColor=#4226A8;fontColor=#FFFFFF;fontSize=10;" value="Performance &amp; Scale&#xa;scale note + post-build audit" vertex="1">
+          <mxGeometry height="42" width="262" x="576" y="868" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6741D9;strokeColor=#4226A8;fontColor=#FFFFFF;fontSize=10;" value="Security &amp; GRC&#xa;architectural-security consult + review" vertex="1">
+          <mxGeometry height="42" width="262" x="848" y="868" as="geometry" />
+        </mxCell>
+        <mxCell id="eP2E" edge="1" parent="1" source="p2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;strokeColor=#6741D9;fontSize=10;exitX=0.8;exitY=1;entryX=0.8;entryY=0;" target="bandE" value="§6.2 consults">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bandF" parent="1" style="rounded=1;fillColor=#EBFBEE;strokeColor=#2F9E44;verticalAlign=top;align=left;fontStyle=1;fontColor=#1B5E2A;spacingLeft=10;spacingTop=6;fontSize=12;" value="DOMAIN &amp; PLATFORM SPECIALISTS  (skill-only personas — adopted when their concern is in scope)" vertex="1">
+          <mxGeometry height="118" width="1120" x="20" y="928" as="geometry" />
+        </mxCell>
+        <mxCell id="f1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="SPM&#xa;Specialist" vertex="1">
+          <mxGeometry height="52" width="170" x="32" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="App Engine&#xa;Specialist" vertex="1">
+          <mxGeometry height="52" width="170" x="214" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="Migration&#xa;Specialist" vertex="1">
+          <mxGeometry height="52" width="170" x="396" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="Reporting &amp;&#xa;Analytics" vertex="1">
+          <mxGeometry height="52" width="170" x="578" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="f5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="DevOps /&#xa;Release Mgr" vertex="1">
+          <mxGeometry height="52" width="170" x="760" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2F9E44;strokeColor=#1B5E2A;fontColor=#FFFFFF;fontSize=10;" value="UI / UX&#xa;Specialist" vertex="1">
+          <mxGeometry height="52" width="170" x="942" y="980" as="geometry" />
+        </mxCell>
+        <mxCell id="bandG" parent="1" style="rounded=1;fillColor=#FFF4E6;strokeColor=#E8590C;verticalAlign=top;align=left;fontStyle=1;fontColor=#A33A00;spacingLeft=10;spacingTop=6;fontSize=12;" value="CONSULTANTS &amp; DOCUMENTATION  (skill-only)" vertex="1">
+          <mxGeometry height="92" width="1120" x="20" y="1058" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8590C;strokeColor=#A33A00;fontColor=#FFFFFF;fontSize=10;" value="Discovery Specialist&#xa;workshops → Discovery Output (upstream)" vertex="1">
+          <mxGeometry height="42" width="262" x="32" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8590C;strokeColor=#A33A00;fontColor=#FFFFFF;fontSize=10;" value="Operational Documentation&#xa;runbooks · KBAs · training" vertex="1">
+          <mxGeometry height="42" width="262" x="304" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="g3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8590C;strokeColor=#A33A00;fontColor=#FFFFFF;fontSize=10;" value="Estimation &amp; Sizing&#xa;range · rubric · contingency" vertex="1">
+          <mxGeometry height="42" width="262" x="576" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="g4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8590C;strokeColor=#A33A00;fontColor=#FFFFFF;fontSize=10;" value="Licensing &amp; Entitlement&#xa;subscription · SKU/tier · App Engine units" vertex="1">
+          <mxGeometry height="42" width="262" x="848" y="1100" as="geometry" />
+        </mxCell>
+        <mxCell id="bandH" parent="1" style="rounded=1;fillColor=#FFF0F0;strokeColor=#C92A2A;verticalAlign=top;align=left;fontStyle=1;fontColor=#7A1212;spacingLeft=10;spacingTop=6;fontSize=12;" value="GOVERNANCE RAILS  (cross-cutting, always on — governance-rules.md)" vertex="1">
+          <mxGeometry height="92" width="1120" x="20" y="1164" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=10;" value="§1.1 Baseline-First&#xa;zero custom objects w/o approval" vertex="1">
+          <mxGeometry height="42" width="206" x="32" y="1206" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=10;" value="§2.1 MCP write gate&#xa;explicit &quot;write approved&quot;" vertex="1">
+          <mxGeometry height="42" width="206" x="248" y="1206" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=10;" value="§2.2 Update Set capture&#xa;pre-write preference set" vertex="1">
+          <mxGeometry height="42" width="206" x="464" y="1206" as="geometry" />
+        </mxCell>
+        <mxCell id="h4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=10;" value="§4 Delivery artefacts&#xa;ADR · RTM · RAID · NFR" vertex="1">
+          <mxGeometry height="42" width="206" x="680" y="1206" as="geometry" />
+        </mxCell>
+        <mxCell id="h5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C92A2A;strokeColor=#7A1212;fontColor=#FFFFFF;fontSize=10;" value="Confidentiality firewall&#xa;per-client folder discipline" vertex="1">
+          <mxGeometry height="42" width="206" x="896" y="1206" as="geometry" />
+        </mxCell>
+        <mxCell id="ground" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#495057;strokeColor=#212529;fontColor=#FFFFFF;fontSize=11;" value="GROUNDING &amp; ASSETS — ServiceNowDocs/ submodule (Australia release family): read first, cite the path · reusable engine templates in reference/templates/ · prompt patterns PP-01…PP-24 · field notes in docs/" vertex="1">
+          <mxGeometry height="46" width="1120" x="20" y="1270" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

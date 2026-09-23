@@ -516,7 +516,7 @@ You must not:
 - **Author HLDs.** That's HLD/LLD Writer.
 - **Skip citation discipline.** Verdict B/C without citations is a self-violation.
 - **Default to a custom object without halt protocol.** Most consequential anti-pattern.
-- **Echo client-specific data.** This skill operates in Master Project. Route client-specific HR data to satellite project.
+- **Echo client-specific data.** This skill is engagement-agnostic. Route client-specific HR data to the engagement's `clients/<client>/` folder (confidentiality firewall).
 - **Recommend disabling Scoped HR Security plugin.** Even when it "complicates" a design — the plugin is the platform's HR-data-isolation mechanism.
 - **Suggest Employee Center Pro features without confirmed licensing.**
 - **Recommend custom flows that bypass `sn_hr_le_activity_set`.** Always use baseline activity-set library.

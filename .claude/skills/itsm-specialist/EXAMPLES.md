@@ -258,7 +258,7 @@ Technical Designer receives this envelope and produces:
 Verdict B is the second most common verdict — the request genuinely needs *something* beyond baseline, but the smallest possible something. The envelope demonstrates:
 
 - **Part 3's structured baseline evaluation** — five alternatives considered, each with explicit "why it falls short" before proposing the extension. This is the §1.1 halt-protocol structure for an approved-rather-than-rejected extension.
-- **Part 3's note on `incident.business_impact`** — flagged as "limited citation availability; verify against engagement's instance" because the field exists in newer release families but behaves differently in Australia. This is exactly the release-family precision Suggestion (b) called for.
+- **Part 3's note on `incident.business_impact`** — flagged as "limited citation availability; verify against engagement's instance" because the field exists in newer release families but behaves differently in Australia. This is the release-family precision the citation discipline requires.
 - **Part 4's hand-off to Technical Designer** — Technical Designer now has a clear spec to design against. The envelope did not design the ACL matrix or write the BR; that's Technical Designer's job downstream.
 - **Part 5's anti-patterns** include "do not create a custom `business_severity_log` table" — pre-empting the most likely §1.1 violation a builder might introduce when implementing this.
 

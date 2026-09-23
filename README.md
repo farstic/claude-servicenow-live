@@ -1,75 +1,531 @@
-# claude-servicenow-live
+# claude-servicenow-live — installation
 
-A two-tier ServiceNow expertise system for Claude, with live ServiceNow instance integration via NowAIKit MCP.
+Ready-made ServiceNow expertise for Claude, connected to a live ServiceNow instance.
 
-- **Tier 1 — Claude.ai Projects** (web / mobile / desktop): daily driver for stories, HLDs, design discussions, transcript extraction, and client review prep.
-- **Tier 2 — Claude Code** (local CLI): heavy lifting with sub-agents, code review, ATF generation, live instance operations, and batch artefact production.
-- **MCP Layer — NowAIKit**: connects Tier 2 directly to a live ServiceNow instance. Claude can read from and write to the instance via structured MCP tools without switching tabs.
+- **Claude Code (locally, in the terminal)** — the Chief ServiceNow Architect from `CLAUDE.md`: 28 specialists, 9 sub-agents, 29 skills and the official ServiceNow documentation, local in the repo.
+- **claude.ai (in the browser)** — the same skills, uploaded to your account, for work without a terminal.
+- **The `snow-mcp` MCP server** — connects Claude Code to a live ServiceNow instance: 394 tools for reading and writing, without leaving the terminal.
 
-Both tiers share the same `.claude/skills/` directory so expertise is authored once and used everywhere.
+Both layers use the same skills from `.claude/skills/`. You write the expertise once and use it everywhere.
 
----
-
-## Table of Contents
-
-1. [Architecture overview](#1-architecture-overview)
-2. [Prerequisites](#2-prerequisites)
-3. [Step 1 — Clone the repo](#step-1--clone-the-repo)
-4. [Step 2 — Add ServiceNowDocs submodule](#step-2--add-servicenowdocs-submodule)
-5. [Step 3 — Install and configure NowAIKit MCP](#step-3--install-and-configure-nowaikit-mcp)
-6. [Step 4 — Set up Tier 2 (Claude Code)](#step-4--set-up-tier-2-claude-code)
-7. [Step 5 — Set up Tier 1 (Claude.ai Projects)](#step-5--set-up-tier-1-claudeai-projects)
-8. [Step 6 — Daily workflow](#step-6--daily-workflow)
-9. [Step 7 — GitHub security review (mandatory before every push)](#step-7--github-security-review-mandatory-before-every-push)
-10. [Step 8 — Monthly maintenance](#step-8--monthly-maintenance)
-11. [Step 9 — Extending the system](#step-9--extending-the-system)
-12. [Repo layout](#repo-layout)
-13. [Troubleshooting](#troubleshooting)
-14. [Roadmap](#roadmap)
+The steps are for Windows 11. Time for a full installation: about 2 hours.
 
 ---
 
-## 1. Architecture overview
+## Contents
+
+**Before you start:** [How the system works](#1-how-the-system-works) · [What you get](#2-what-you-get) · [Requirements](#3-requirements) · [Let Claude do it](#4-let-claude-do-the-steps-for-you)
+
+**Installation (steps 1–9):** [1 Clone](#step-1--clone-the-repo) · [2 Submodule](#step-2--fetch-the-servicenowdocs-submodule) · [3 Git settings](#step-3--configure-git-for-this-copy) · [4 MCP server](#step-4--build-the-snow-mcp-mcp-server) · [5 instances.json](#step-5--create-instancesjson) · [6 .mcp.json](#step-6--create-mcpjson) · [6a Rights](#step-6a--configure-the-rights-in-mcpjson) · [7 Permission](#step-7--allow-the-server-in-claude-code) · [8 First launch](#step-8--sign-in-and-launch-claude-code) · [9 Check](#step-9--verify-that-it-works-4-tests)
+
+**After installation:** [Enabling writes](#when-you-enable-writes-to-the-instance) · [Skills in claude.ai](#upload-the-skills-to-claudeai) · [Document toolchain](#document-and-diagram-toolchain-optional-per-os) · [Day-to-day work](#day-to-day-work) · [Check before push](#pre-push-check) · [Monthly maintenance](#monthly-maintenance)
+
+**Reference:** [Final check](#final-check) · [If something breaks](#if-something-breaks) · [What in the old documentation is no longer true](#what-in-the-old-documentation-is-no-longer-true) · [Where things live](#where-things-live)
+
+---
+
+## 1. How the system works
 
 ```
-Claude.ai Projects (Tier 1)          Claude Code CLI (Tier 2)
-─────────────────────────────         ──────────────────────────────────────────
-Master Project                        Chief Architect orchestrator (CLAUDE.md)
-  └─ global skills                      ├─ 22 specialists (8 with sub-agents)
-Satellite Projects (per client)         ├─ ServiceNowDocs/ (official docs submodule)
-  └─ client knowledge + skills          └─ NowAIKit MCP ──► Live ServiceNow instance
+claude.ai (browser)                 Claude Code (terminal)
+─────────────────────────           ──────────────────────────────────────────
+Skills in the account               Chief Architect (CLAUDE.md)
+  └─ the same 29 skills               ├─ 28 specialists, 9 sub-agents
+Knowledge projects                    ├─ ServiceNowDocs/ (submodule, australia)
+  └─ one per engagement               └─ snow-mcp ──► live ServiceNow instance
 ```
 
-The Chief Architect (CLAUDE.md) reads the official ServiceNow documentation submodule and can call live instance tools via NowAIKit MCP for validation, creation, and deployment of artefacts.
+The Architect reads the official documentation from the submodule and calls tools against the live instance.
 
 ---
 
-## 2. Prerequisites
+## 2. What you get
 
-Before you begin, install and verify the following:
+- You run `claude` in the repo folder and get the Chief ServiceNow Architect (Engine v2.8.1) with 9 project agents and 29 skills, including the six mandatory domain gateways: ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance.
+- The ServiceNow documentation (`australia` branch) locally, with the citations in the skills verified on every commit.
+- An MCP server with 394 tools that works with several instances from a single file.
+- A Git hook that synchronises the mirrored folders and stops the commit on a broken structure or a citation to a non-existent file.
+- The same skills in claude.ai as well, identical to those in the repo.
 
-| Tool | Minimum version | Install command | Verify |
+---
+
+## 3. Requirements
+
+**This first.** Allow PowerShell scripts (otherwise `npm` and `claude` will not start at all) and enable long paths (otherwise the submodule cannot be fetched).
+
+**PowerShell**
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+git config --global core.longpaths true
+git config --global core.quotepath off
+```
+
+> These three settings apply to the whole user profile and to all repositories, not only this one. If you cannot change the policy, call `npm.cmd` and `claude.cmd` everywhere instead of `npm` and `claude`.
+
+**Then install.** Open a new window after each command — PATH is refreshed only in new windows.
+
+| Tool | Minimum version | Installation | Check |
 |---|---|---|---|
-| Git | 2.30 | [git-scm.com](https://git-scm.com) | `git --version` |
-| Node.js | 18 LTS | [nodejs.org](https://nodejs.org) | `node --version` |
-| npm | 9 | Bundled with Node.js | `npm --version` |
-| Claude Code CLI | latest | `npm install -g @anthropic-ai/claude-code` | `claude --version` |
-| Claude Pro subscription | — | [claude.ai/settings](https://claude.ai/settings) | Settings > Features > Skills: ON |
+| Git for Windows | 2.36 (2.54+ recommended) | `winget install --id Git.Git -e` | `git --version` |
+| Node.js | 22 or newer | `winget install --id OpenJS.NodeJS.LTS -e` | `node -v` |
+| npm | comes with Node | — | `npm -v` |
+| Claude Code | latest | `npm install -g @anthropic-ai/claude-code` | `claude --version` |
+| claude.ai subscription | Pro or higher | [claude.ai](https://claude.ai) | sign in with `/login` |
+| ServiceNow PDI | — | [developer.servicenow.com](https://developer.servicenow.com) | sign in via the browser |
 
-Install Claude Code:
+> Do not add `--omit=optional` to the Claude Code installation. `claude.exe` comes from the optional package `@anthropic-ai/claude-code-win32-x64` and from the postinstall step — without them the command is broken.
+>
+> The sub-agents are pinned to the `claude-opus-4-8` model. Your account must have access to it, otherwise every dispatch to a sub-agent fails with an error. Verify with `/model` in a session.
 
-```bash
-npm install -g @anthropic-ai/claude-code
+**Verify that everything is in place.**
+
+**PowerShell**
+```powershell
+git --version                        # 2.54.0.windows.1 or newer (minimum 2.36)
+node -v                              # v22 or newer (the LTS package usually gives v24.x)
+npm config get ignore-scripts        # false
+claude --version                     # 2.1.274 (Claude Code) or newer
+Get-ExecutionPolicy -Scope CurrentUser   # RemoteSigned
 ```
 
-Verify:
+**What you will need at hand:** `<GITHUB_USERNAME>`, `<GITHUB_EMAIL>`, the address of the PDI `<pdi-instance>`, a user `<USERNAME>` and password `<PASSWORD>` for it, and a short name for the instance `<PDI_ALIAS>`. `<profile>` is the name of your profile folder in `C:\Users\`.
 
-```bash
-claude --version
-# Expected: Claude Code x.y.z
+---
+
+## 4. Let Claude do the steps for you
+
+Steps 1–7 are commands. Claude Code runs them by itself if you give it this file. You only do what requires a browser or a personal account.
+
+**Do this yourself, before the first session:**
+
+1. The two blocks from section 3 — the script permission, long paths, and the installation of Git, Node and Claude Code.
+2. Create a PDI at [developer.servicenow.com](https://developer.servicenow.com). Note down the address, the user and the password.
+
+**Then open a session:**
+
+**PowerShell**
+```powershell
+cd "$env:USERPROFILE\Documents"
+claude
 ```
 
-### Document & diagram generation toolchain (optional, per OS)
+Paste into the chat:
+
+```
+Read the file <full path to this file> and carry out steps 1 to 7 from it, one at a time.
+Stop after every step and show me the result against the "Expected" line.
+Create instances.json with the placeholders only and tell me which values to fill in.
+```
+
+**What it will ask you for along the way:** approval for every command; a GitHub sign-in in the browser, if it prompts during cloning; the values for `instances.json`, which you fill in in Notepad.
+
+**What remains entirely up to you:** signing in to Claude Code (Step 8), the four tests from Step 9, uploading the skills to claude.ai, and the decision on when to enable writes in the instance.
+
+> After `.mcp.json` is created, close the session with `/exit` and start it again, this time from the root of the repo. The MCP server is loaded at session start.
+>
+> The steps are for Windows 11. On macOS or Linux the commands with `winget`, `notepad` and PowerShell are different — ask Claude to translate them for your system.
+
+---
+
+## Step 1 — Clone the repo
+
+The repo contains `CLAUDE.md`, the agents, the skills, the hooks and the scripts.
+
+**PowerShell**
+```powershell
+cd "$env:USERPROFILE\Documents"
+git clone https://github.com/farstic/claude-servicenow-live.git
+cd claude-servicenow-live
+git branch --show-current
+Test-Path CLAUDE.md, .claude\agents, .claude\skills, .githooks\pre-commit, .gitmodules
+(Get-ChildItem .claude\agents -File).Count
+(Get-ChildItem .claude\skills -Directory).Count
+```
+
+**Expected:** branch `main`, `True` five times, then `9` and `29`.
+
+> Do not place the repo in OneDrive. The submodule from the next step has over 46 thousand files and very long paths.
+
+---
+
+## Step 2 — Fetch the ServiceNowDocs submodule
+
+The submodule is the official ServiceNow documentation (branch `australia`). The skills cite paths in it, and the hook checks every citation.
+
+**PowerShell** (in the repo folder)
+```powershell
+git config --global --get core.longpaths
+git submodule update --init --recursive
+git submodule status
+```
+
+**Expected:**
+- `true` from the first command.
+- A download of 130–280 MB and 46,053 files, 2–6 minutes.
+- `git submodule status` prints a line that starts with a **space**, then a hash and `ServiceNowDocs`. If the line starts with `-`, the submodule has not been fetched — run the command again.
+
+> The warning `the following paths have collided` is expected and harmless — the `australia` branch contains two files that differ only in letter case. Do not touch any files in `ServiceNowDocs/`.
+
+---
+
+## Step 3 — Configure git for this copy
+
+These settings live in `.git/config` and **are not carried over when cloning**. Without them the hook does not run, and the submodule looks permanently modified.
+
+**PowerShell** (in the repo folder)
+```powershell
+git config core.hooksPath .githooks
+git config submodule.ServiceNowDocs.ignore dirty
+git config user.name "<GITHUB_USERNAME>"
+git config user.email "<GITHUB_EMAIL>"
+git config --get core.hooksPath
+git status --short
+```
+
+**Expected:** `.githooks`; `git status --short` shows no ` m ServiceNowDocs` line.
+
+> Edit only `.claude/skills/` and `.claude/agents/`. The root-level `skills/` and `agents/` are copies for GitHub that the hook generates itself — a change made only there disappears on the next commit.
+
+---
+
+## Step 4 — Build the snow-mcp MCP server
+
+The server is not an npm package. You clone it separately and build it locally.
+
+**PowerShell**
+```powershell
+cd $env:USERPROFILE
+git clone https://github.com/farstic/snow-mcp.git
+cd snow-mcp
+npm ci
+npm run build
+Test-Path .\dist\cli\index.js
+Test-Path .\dist\tools-manifest.json
+```
+
+**Expected:** both commands finish without `ERR!` and without TypeScript errors; then `True` and `True`.
+
+> If `npm ci` reports that `package.json` and `package-lock.json` do not match — run `npm install`, then `npm run build`. After every `git pull` in `snow-mcp`, run `npm run build` again — the `dist/` folder is not in git.
+>
+> Steps 4–7 are only for the MCP layer. If you do not have an instance yet, defer them and go straight to Step 8.
+
+---
+
+## Step 5 — Create instances.json
+
+This is where the instances and passwords live. The file sits in the repo root but never goes into git.
+
+**First, exclude it from git.** The repo's `.gitignore` covers `.env`, `.mcp.json` and the settings files, but does **not** cover `instances.json`, `mcp.json` or the `.bak` copies — and they carry the same password.
+
+**PowerShell** (in the repo folder)
+```powershell
+Add-Content -Path .git\info\exclude -Encoding ascii -Value ".mcp.json*","instances.json*","mcp.json",".env",".claude/settings.local.json",".claude/settings.json"
+git check-ignore -v .mcp.json .mcp.json.bak instances.json instances.json.bak mcp.json .env .claude/settings.local.json .claude/settings.json
+```
+
+**Expected:** eight lines — one per path. Run the first command only once; running it again duplicates the lines.
+
+**Now create the file.**
+
+**PowerShell**
+```powershell
+$f = "$env:USERPROFILE\Documents\claude-servicenow-live\instances.json"
+$t = @'
+{
+  "default_instance": "<PDI_ALIAS>",
+  "instances": {
+    "<PDI_ALIAS>": {
+      "instance_url": "https://<pdi-instance>.service-now.com",
+      "auth_method": "basic",
+      "username": "<USERNAME>",
+      "password": "<PASSWORD>"
+    }
+  }
+}
+'@
+if (Test-Path $f) { Write-Warning "$f already exists - stop and check" } else { [IO.File]::WriteAllText($f, $t, (New-Object Text.UTF8Encoding $false)); notepad $f }
+```
+
+If you see a warning, the file already exists — open it with `notepad $f` and compare it against the content above instead of deleting it.
+
+Replace the values in angle brackets in Notepad and save with Ctrl+S:
+
+- `<PDI_ALIAS>` — a short lowercase name with no spaces. It appears twice and must match **exactly**, including letter case.
+- `instance_url` — no trailing `/`.
+- In the password, `"` becomes `\"` and `\` becomes `\\` (JSON rules).
+- If you use File → Save As, choose `UTF-8` in the Encoding field, not `UTF-8 with BOM`.
+
+**Verify** (does not display passwords):
+
+**PowerShell** (in the repo folder)
+```powershell
+node -e "const b=require('fs').readFileSync('instances.json'); console.log(b[0]===0xEF?'BOM!':'no BOM'); const j=JSON.parse(b.toString('utf8')); console.log('default:', j.default_instance); for (const [k,v] of Object.entries(j.instances)) console.log(k, v.auth_method, v.instance_url?'url ok':'NO URL', v.username?'user ok':'NO USER', v.password?'pwd ok':'NO PWD')"
+```
+
+**Expected:** `no BOM`, `default: <PDI_ALIAS>`, then one line `<PDI_ALIAS> basic url ok user ok pwd ok`.
+
+> The password sits in plain text on disk — keep your profile folder on an encrypted drive (BitLocker) and use a dedicated PDI user, not your personal admin account. Do not write JSON with `Set-Content` or `Out-File` — they add a BOM and the server will not start.
+>
+> Start with the PDI only. Add another instance only after you have read the rules of the corresponding engagement.
+
+---
+
+## Step 6 — Create .mcp.json
+
+This file tells Claude Code how to launch the server. `__HOME__` is replaced automatically — there is nothing for you to fill in.
+
+**PowerShell**
+```powershell
+$f = "$env:USERPROFILE\Documents\claude-servicenow-live\.mcp.json"
+$h = $env:USERPROFILE.Replace('\','\\')
+$t = @'
+{
+  "mcpServers": {
+    "snow-mcp": {
+      "command": "node",
+      "args": ["__HOME__\\snow-mcp\\dist\\cli\\index.js", "start"],
+      "cwd": "__HOME__\\snow-mcp",
+      "env": {
+        "SN_INSTANCES_CONFIG": "__HOME__\\Documents\\claude-servicenow-live\\instances.json",
+        "WRITE_ENABLED": "false",
+        "SCRIPTING_ENABLED": "false",
+        "CMDB_WRITE_ENABLED": "false",
+        "ATF_ENABLED": "false",
+        "NOW_ASSIST_ENABLED": "false",
+        "FLUENT_ENABLED": "false",
+        "MCP_TOOL_PACKAGE": "full"
+      }
+    }
+  }
+}
+'@
+$t = $t.Replace('__HOME__', $h)
+if (Test-Path $f) { Write-Warning "$f already exists - stop and check" } else { [IO.File]::WriteAllText($f, $t, (New-Object Text.UTF8Encoding $false)) }
+```
+
+**Verify:**
+
+**PowerShell** (in the repo folder)
+```powershell
+node -e "const b=require('fs').readFileSync('.mcp.json'); console.log(b[0]===0xEF?'BOM!':'no BOM'); const s=JSON.parse(b.toString('utf8')).mcpServers['snow-mcp']; console.log('entry exists:', require('fs').existsSync(s.args[0]), '| instances.json exists:', require('fs').existsSync(s.env.SN_INSTANCES_CONFIG)); console.log('SERVICENOW_* keys:', Object.keys(s.env).filter(k=>k.startsWith('SERVICENOW_')).length); for (const k of ['WRITE_ENABLED','SCRIPTING_ENABLED','CMDB_WRITE_ENABLED','ATF_ENABLED','NOW_ASSIST_ENABLED','FLUENT_ENABLED','MCP_TOOL_PACKAGE','SN_INSTANCES_CONFIG']) console.log(k, '=', s.env[k] ?? '(unset)')"
+```
+
+**Expected:** `no BOM`; `entry exists: true | instances.json exists: true`; `SERVICENOW_* keys: 0`; all flags `false`, `MCP_TOOL_PACKAGE = full` and the full path to `instances.json`.
+
+> The paths must be absolute — Claude Code does not honour `cwd`. The flags apply to **all** instances in the file. The file is created read-only. **The next step (6a) deliberately asks you which rights you want** — without it, every attempt to write to the instance returns `WRITE_NOT_ENABLED`.
+
+---
+
+## Step 6a — Configure the rights in .mcp.json
+
+The flags in `.mcp.json` determine what Claude is allowed to do in the instance. Step 6 leaves them all at `false` (read-only) — this is intentional, but **you need to decide now**, otherwise you will later wonder why writes are not working.
+
+| Flag | What it enables | When `true` |
+|---|---|---|
+| `WRITE_ENABLED` | create / update / delete of records | you want Claude to write to the instance |
+| `SCRIPTING_ENABLED` | business rules, script includes, ACL, client scripts, update set tools | almost always together with WRITE_ENABLED |
+| `CMDB_WRITE_ENABLED` | writes to the CMDB (CI, relationships, reconcile) | only for ITOM/CMDB work |
+| `ATF_ENABLED` | running ATF tests | for testing work |
+| `NOW_ASSIST_ENABLED` | Now Assist / AI tools | for Now Assist work |
+| `FLUENT_ENABLED` | Fluent (ServiceNow SDK) tools | rarely |
+
+**Option A — via the terminal (prompts you for each flag):**
+
+**PowerShell** (in the repo folder)
+```powershell
+$f = "$env:USERPROFILE\Documents\claude-servicenow-live\.mcp.json"
+$j = Get-Content $f -Raw -Encoding UTF8 | ConvertFrom-Json
+$env2 = $j.mcpServers.'snow-mcp'.env
+foreach ($k in 'WRITE_ENABLED','SCRIPTING_ENABLED','CMDB_WRITE_ENABLED','ATF_ENABLED','NOW_ASSIST_ENABLED','FLUENT_ENABLED') {
+  $cur = $env2.$k
+  $a = Read-Host "$k (now: $cur) - true / false [Enter = keep $cur]"
+  if ($a -eq 'true' -or $a -eq 'false') { $env2.$k = $a }
+}
+[IO.File]::WriteAllText($f, ($j | ConvertTo-Json -Depth 10), (New-Object Text.UTF8Encoding $false))
+Write-Host "Saved. Run the check from Step 6."
+```
+
+**Option B — by hand:**
+
+**PowerShell**
+```powershell
+notepad "$env:USERPROFILE\Documents\claude-servicenow-live\.mcp.json"
+```
+
+Change `"false"` to `"true"` for the flags you want (for writes: `WRITE_ENABLED` **and** `SCRIPTING_ENABLED`). Save with Ctrl+S.
+
+**After any change, always:** `/exit` Claude Code and run `claude` again — the server reads the flags only at start-up. Run the check from Step 6 again and confirm the flags are set the way you want them.
+
+> The flags apply to **all** instances in `instances.json`. Do not keep a production instance in the file while writes are enabled. An actual write from Claude Code still has to pass your `write approved` (`CLAUDE.md` §2.1) and update set capture (§2.2) — the flag only makes it possible.
+
+---
+
+## Step 7 — Allow the server in Claude Code
+
+Without this file, Claude Code asks you to approve the server on every start.
+
+**PowerShell**
+```powershell
+$f = "$env:USERPROFILE\Documents\claude-servicenow-live\.claude\settings.local.json"
+$t = @'
+{
+  "enabledMcpjsonServers": ["snow-mcp"],
+  "permissions": {
+    "allow": [
+      "mcp__snow-mcp__snow_core_current_instance_read",
+      "mcp__snow-mcp__snow_core_instances_index",
+      "mcp__snow-mcp__snow_core_records_query",
+      "mcp__snow-mcp__snow_core_record_read",
+      "mcp__snow-mcp__snow_core_table_schema_read",
+      "mcp__snow-mcp__snow_us_current_update_set_read"
+    ]
+  }
+}
+'@
+if (Test-Path $f) { Write-Warning "$f already exists - stop and check" } else { [IO.File]::WriteAllText($f, $t, (New-Object Text.UTF8Encoding $false)) }
+Get-Content $f | ConvertFrom-Json | Select-Object -ExpandProperty enabledMcpjsonServers
+```
+
+**Expected:** `snow-mcp`.
+
+> The list contains read-only tools only. A write tool placed here runs without any prompt from Claude Code — the only remaining safeguard is then the `write approved` rule in `CLAUDE.md` §2.1.
+
+---
+
+## Step 8 — Sign in and launch Claude Code
+
+Always launch Claude Code **from the repo root**. From any other folder, Claude loads neither its role, nor the agents, nor its memory.
+
+First, the user settings. This is the **user-level** file in your profile folder — it is different from the one in the repo from Step 7.
+
+**PowerShell**
+```powershell
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude" | Out-Null
+notepad "$env:USERPROFILE\.claude\settings.json"
+```
+
+- If the file is **empty**, paste the entire block below and save.
+- If it already has content, add only the `"theme"` and `"cleanupPeriodDays"` lines **inside** the existing `{ }`, with a comma after the previous line.
+
+```json
+{
+  "theme": "dark",
+  "cleanupPeriodDays": 3650
+}
+```
+
+Then:
+
+**PowerShell**
+```powershell
+cd "$env:USERPROFILE\Documents\claude-servicenow-live"
+claude
+```
+
+1. Accept the folder trust dialog.
+2. If prompted to sign in — `/login`, then the browser and your claude.ai account.
+
+Verify in a **second PowerShell window**:
+```powershell
+Test-Path "$env:USERPROFILE\.claude\.credentials.json"
+Test-Path Env:ANTHROPIC_API_KEY
+```
+
+**Expected:** `True` and `False`. You sign in with your subscription; no API key is used. If the second line is `True`, remove the variable (`Remove-Item Env:ANTHROPIC_API_KEY`) and run `claude` again — otherwise you pay per API call instead of through the subscription.
+
+> `cleanupPeriodDays` keeps the transcripts. Without it, Claude Code deletes them after 30 days. Transcripts may contain passwords — keep your profile folder on an encrypted drive.
+
+---
+
+## Step 9 — Verify that it works (4 tests)
+
+All tests are run in a `claude` session started from the repo root. Nothing is written to the instance.
+
+**1. The Architect.** Type `Status`, then `/agents`.
+
+**Expected:** a response as Chief ServiceNow Architect, Engine v2.8.1, release family `australia`, 28 specialists and the six gateways; `/agents` shows 9 project agents.
+
+**2. Routing.** Paste exactly:
+
+```
+I have a transcript snippet. Draft 3 Gherkin stories for restricting incident creation to GSC agents only.
+```
+
+**Expected:** it proposes `story-writer` and **waits** for approval. It may fire the ITSM gateway first — that is correct. Type `no` — we are only testing the routing, not the output.
+
+**3. MCP connection.** Type `/mcp`, then:
+
+```
+Call snow_core_instances_index and snow_core_current_instance_read and show the result without comment.
+```
+
+**Expected:** `snow-mcp` is connected; `current` is `<PDI_ALIAS>`, `total` is `1`.
+
+**4. A real query against the PDI.**
+
+```
+Call snow_core_records_query with {"table":"sys_user","query":"user_name=<USERNAME>","fields":"sys_id,user_name","limit":1,"instance":"<PDI_ALIAS>"}
+```
+
+**Expected:** `{"count":1,...}`.
+
+> Pass `instance` explicitly on every call. Instance names are written exactly as they appear in `instances.json` — in this version they are case-sensitive. If any test fails, see [If something breaks](#if-something-breaks).
+
+---
+
+## When you enable writes to the instance
+
+If you left everything at `false` in Step 6a, every write returns `WRITE_NOT_ENABLED`. Enabling it is the same procedure — Step 6a (Option A or B), then `/exit` and `claude` again.
+
+**PowerShell**
+```powershell
+notepad "$env:USERPROFILE\Documents\claude-servicenow-live\.mcp.json"
+```
+
+Change `"WRITE_ENABLED": "false"` to `"WRITE_ENABLED": "true"` and `"SCRIPTING_ENABLED": "false"` to `"SCRIPTING_ENABLED": "true"`. Save with Ctrl+S, close the session with `/exit` and start `claude` again. Re-run the check from Step 6.
+
+> `SCRIPTING_ENABLED` is required for business rules, script includes, ACLs and the update set tools. The flags apply to **all** instances in the file — do not keep a production instance in the file while writes are enabled.
+
+---
+
+## Upload the skills to claude.ai
+
+This way the same expertise also works in the browser. Skills live at the **account** level, not in individual projects.
+
+First enable the feature: claude.ai → Settings → Capabilities → Skills → enabled (the labels in the interface change from time to time).
+
+**Check the description lengths.** claude.ai limits the frontmatter `description` to 1024 characters and rejects longer ones.
+
+**PowerShell** (in the repo root)
+```powershell
+node -e "const fs=require('fs');for(const d of fs.readdirSync('.claude/skills')){const t=fs.readFileSync('.claude/skills/'+d+'/SKILL.md','utf8');const m=t.match(/^---\r?\n([\s\S]*?)\r?\n---/);const fm=m?m[1]:'';const x=fm.match(/^description:[ \t]*(.*)$/m);const n=x?x[1].trim().replace(/^['\x22]|['\x22]$/g,'').length:0;if(n>1024)console.log(d,n)}"
+```
+
+**Expected:** a list of the skills over the limit. As of today there are 13 — these may be rejected on upload. Shorten the `description` in `.claude/skills/<name>/SKILL.md`, commit through the hook and upload again.
+
+**Create the archives.** The archive must contain the folder itself, not just the files inside it.
+
+**PowerShell**
+```powershell
+New-Item -ItemType Directory -Force "$env:TEMP\claude-ai-uploads" | Out-Null
+cd "$env:USERPROFILE\Documents\claude-servicenow-live\.claude\skills"
+Get-ChildItem -Directory | ForEach-Object { tar.exe -a -c -f "$env:TEMP\claude-ai-uploads\$($_.Name).zip" $_.Name }
+(Get-ChildItem "$env:TEMP\claude-ai-uploads" -Filter *.zip).Count
+tar.exe -t -f "$env:TEMP\claude-ai-uploads\itsm-specialist.zip"
+cd "$env:USERPROFILE\Documents\claude-servicenow-live"
+```
+
+**Expected:** `29`, then `itsm-specialist/`, `itsm-specialist/EXAMPLES.md`, `itsm-specialist/SKILL.md`.
+
+Upload via Settings → Capabilities → Skills → Upload skill. Upload in this order: the six gateways and the core first — `itsm-specialist`, `csm-specialist`, `hrsd-specialist`, `itom-discovery-specialist`, `cmdb-csdm-specialist`, `fso-insurance-specialist`, `developer`, `code-reviewer`. Then the remaining 21.
+
+**Expected:** every uploaded skill appears in the list in claude.ai.
+
+> Finally, delete the temporary folder: `Remove-Item -Recurse -Force "$env:TEMP\claude-ai-uploads"`. Re-upload every time you change a `SKILL.md` — `CLAUDE.md` requires this to happen within 24 hours.
+
+---
+
+## Document and diagram toolchain (optional, per OS)
 
 Needed only when you produce Word/PDF deliverables (proposals, HLD/LLD) or render diagrams.
 **Generating a `.docx` needs nothing beyond Python 3 (macOS/Linux) or PowerShell (Windows)** — no
@@ -89,540 +545,156 @@ end-to-end pipeline are in **[`scripts/README.md`](./scripts/README.md)**.
 
 ---
 
-## Step 1 — Clone the repo
+## Day-to-day work
 
-```bash
-# Choose a parent directory — ~/work is a common convention
-cd ~/work
+Always start the session from here:
 
-git clone https://github.com/farstic/claude-servicenow-live.git claude-servicenow-live
-cd claude-servicenow-live
+**PowerShell**
+```powershell
+cd "$env:USERPROFILE\Documents\claude-servicenow-live"
+claude
 ```
 
-After this step your directory should contain `CLAUDE.md`, `README.md`, `.claude/`, `skills/`, `agents/`, and `templates/` at minimum.
-
-Install the pre-commit hook (one-time per machine):
-
-```bash
-git config core.hooksPath .githooks
-```
-
-This activates the agents/skills sync guard — commits are blocked if the repo root mirrors (`agents/`, `skills/`) drift from the source of truth (`.claude/agents/`, `.claude/skills/`).
+- The Architect first restates the task, shows the assumptions and **proposes** a specialist. After your approval it launches it.
+- A direct call with `@<name>` (for example `@developer`) skips the approval, but not the domain gateway.
+- Every write to an instance requires a separate `write approved` from you in the same conversation (`CLAUDE.md` §2.1) — and works only after you have enabled the flags.
+- Before a configuration write, set the active update set via `sys_user_preference` (`CLAUDE.md` §2.2, using the new tool names from the table below). `snow_us_update_set_switch` and `snow_us_active_update_set_ensure` do not switch the context.
+- Tools are named `snow_<domain>_<object>_<action>` — for example `snow_core_records_query`, `snow_scr_script_include_add`. Queries return 10 rows by default (`MAX_RECORDS`); ask for more explicitly.
+- Engagement work stays in `clients/<name>/`. Do not mix two engagements in one conversation. After every change to `.mcp.json` or `instances.json`, close the session with `/exit` and start `claude` again.
 
 ---
 
-## Step 2 — Add ServiceNowDocs submodule
+## Pre-push check
 
-The submodule pulls the official ServiceNow documentation repo (Australia release branch) so Claude Code can read it directly without copying files.
+Run this before every `git push`. It checks the outgoing commits, not the working folder. First open Git Bash from PowerShell while you are in the repo folder:
 
-```bash
-cd ~/work/claude-servicenow-live
-
-git submodule add -b australia https://github.com/ServiceNow/ServiceNowDocs.git ServiceNowDocs
-git submodule update --init --recursive
+**PowerShell**
+```powershell
+& "C:\Program Files\Git\bin\bash.exe"
 ```
 
-Verify the submodule is populated:
-
+**Git Bash** (in the repo root)
 ```bash
-ls ServiceNowDocs/markdown/
-# Expected: a list of documentation folders (it-service-management, now-platform, etc.)
+R=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo origin/main)
+echo "range: $R..HEAD"
+git log --name-only --format= "$R..HEAD" | sort -u | grep -E '^(clients|products|_migration)/|instances\.json|\.mcp\.json|(^|/)mcp\.json|(^|/)\.env$' && echo "STOP: confidential or secret path in outgoing commits" || echo "OK: no confidential paths in outgoing commits"
+git diff "$R..HEAD" | grep -iE "password|secret|api_key|token|client_secret|bearer\s" && echo "WARNING: possible credentials in outgoing commits" || echo "OK: no credential patterns found"
+git diff "$R..HEAD" | grep -iE "service-now\.com" | grep -v "<pdi-instance>" && echo "WARNING: instance URL in outgoing commits" || echo "OK: no instance URLs found"
 ```
 
-### Updating to the latest docs (do this monthly)
+**Expected:** three `OK` lines.
 
-```bash
+> Review every `WARNING` line by line. Never `git add -A` blindly.
+
+---
+
+## Monthly maintenance
+
+About 30 minutes once a month.
+
+**PowerShell** (in the repo folder)
+```powershell
 git submodule update --remote ServiceNowDocs
 git add ServiceNowDocs
 git commit -m "chore: bump ServiceNowDocs to latest australia"
+cd "$env:USERPROFILE\snow-mcp"
+git status --short
+git pull --rebase origin main
+npm ci
+npm run build
 ```
 
-### Switching release families
+**Expected:** the commit passes through the hook (about 35 seconds); `git status --short` in `snow-mcp` is empty; the build completes without errors.
 
-```bash
-cd ServiceNowDocs
-git fetch origin
-git checkout <new-branch-name>   # e.g., bangalore
-cd ..
-git add ServiceNowDocs
-git commit -m "chore: switch ServiceNowDocs to <new-branch-name>"
-```
+> If `git status --short` in `snow-mcp` is not empty, stop — you have local changes. Save them with `git stash` before the `pull`.
+
+Then: review the release notes in `ServiceNowDocs/markdown/release-notes/`, update the affected skills in `.claude/skills/`, upload the changed ones to claude.ai and restart `claude`. If a skill cites a deleted file, the hook blocks the commit — that is the intent; fix the citation.
 
 ---
 
-## Step 3 — Install and configure NowAIKit MCP
+## Final check
 
-NowAIKit is the MCP (Model Context Protocol) server that connects Claude Code to a live ServiceNow instance. This is the key differentiator of this setup: Claude can read from and write to your PDI or production instance directly from a Claude Code conversation.
+Everything in PowerShell, **from the repo root**, unless stated otherwise.
 
-### 3a — Install NowAIKit
-
-```bash
-npm install -g claude-servicenow-mcp
-```
-
-Verify:
-
-```bash
-npx claude-servicenow-mcp --version
-```
-
-### 3b — Locate the Claude Desktop config file
-
-The MCP server is registered in Claude's desktop configuration file. Its location depends on your OS:
-
-| OS | Path |
-|---|---|
-| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
-| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
-| Linux | `~/.config/Claude/claude_desktop_config.json` |
-
-Create the file if it does not exist:
-
-```bash
-# macOS
-mkdir -p ~/Library/Application\ Support/Claude
-touch ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
-
-### 3c — Add NowAIKit to the config
-
-Open the config file in a text editor and add the following JSON. Replace the placeholder values with your own — **do not commit credentials to Git** (see [Step 7](#step-7--github-security-review-mandatory-before-every-push)):
-
-```json
-{
-  "mcpServers": {
-    "nowaikit": {
-      "command": "npx",
-      "args": ["claude-servicenow-mcp"],
-      "env": {
-        "SERVICENOW_INSTANCE_URL": "https://<your-instance>.service-now.com",
-        "SERVICENOW_USERNAME": "<your-username>",
-        "SERVICENOW_PASSWORD": "<your-password>",
-        "WRITE_ENABLED": "true",
-        "SCRIPTING_ENABLED": "true",
-        "CMDB_WRITE_ENABLED": "false",
-        "ATF_ENABLED": "false",
-        "MCP_TOOL_PACKAGE": "full"
-      }
-    }
-  }
-}
-```
-
-#### Configuration flags
-
-| Flag | Values | Purpose |
+| # | Command | Expected result |
 |---|---|---|
-| `WRITE_ENABLED` | `true` / `false` | Allow MCP tools to create and update records. Set `false` for read-only exploration. |
-| `SCRIPTING_ENABLED` | `true` / `false` | Allow background script execution (requires instance-level access). |
-| `CMDB_WRITE_ENABLED` | `true` / `false` | Allow writes to CMDB tables. Keep `false` unless you are doing CMDB work. |
-| `ATF_ENABLED` | `true` / `false` | Allow ATF test execution via MCP. |
-| `MCP_TOOL_PACKAGE` | `full` / `lite` | `full` exposes all 300+ tools; `lite` exposes a safe read-only subset. |
-
-**Security note:** The `SERVICENOW_PASSWORD` field is a plain-text credential stored locally on your machine. It is never read by Claude Code directly — it is only passed as an environment variable to the MCP server process. Never commit `claude_desktop_config.json` to any Git repository. Add it to your global `.gitignore` if needed:
-
-```bash
-echo "claude_desktop_config.json" >> ~/.gitignore_global
-git config --global core.excludesfile ~/.gitignore_global
-```
-
-### 3d — Install the pre-commit hook (agents/skills sync guard)
-
-The repo keeps `.claude/agents/` and `.claude/skills/` as the source of truth, with `agents/` and `skills/` at the repo root as mirrors (visible on GitHub). A pre-commit hook prevents commits where the mirrors are out of sync.
-
-Install once per machine:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-To sync manually at any time:
-
-```bash
-bash scripts/sync-agents-skills.sh        # sync source → mirror
-bash scripts/sync-agents-skills.sh --check  # check only
-```
-
-### 3e — Configure Claude Code hooks (context-mode)
-
-This repo uses [context-mode](https://www.npmjs.com/package/context-mode) to protect Claude's context window from flooding. Install it globally:
-
-```bash
-npm install -g context-mode
-```
-
-Then create your local settings file from the provided example:
-
-```bash
-cp .claude/settings.example.json .claude/settings.json
-```
-
-Open `.claude/settings.json` and replace every `/path/to/your/npm-global` with the actual path on your machine:
-
-```bash
-# Find your npm global prefix
-npm root -g
-# Example output: /Users/yourname/.npm-global/lib/node_modules
-# Replace /path/to/your/npm-global with: /Users/yourname/.npm-global
-```
-
-**Note:** `.claude/settings.json` and `.claude/settings.local.json` are gitignored — they contain machine-specific paths and must never be committed.
-
-### 3f — Restart Claude Code
-
-After saving the config, restart Claude Code completely so it picks up the new MCP server:
-
-```bash
-# Exit any running claude session, then re-open
-claude
-```
-
-### 3g — Verify MCP connection
-
-In a Claude Code session, type:
-
-```
-> Check the current ServiceNow instance connection
-```
-
-Expected: Claude calls `get_current_instance` and returns the instance URL and version. If you see an error, check the config path and credential values.
-
-### 3h — Understanding the Update Set capture pattern
-
-When Claude creates or updates records via MCP, changes must be captured into an Update Set for deployment. Standard REST API calls bypass the ServiceNow session mechanism that auto-captures changes. The correct pattern is:
-
-1. Create an Update Set via `create_update_set`.
-2. Get your user sys_id: `query_records(sys_user, user_name=<your-username>)`.
-3. Set the active Update Set preference: update (or create) a `sys_user_preference` record with `name=sys_update_set` and `value=<update_set_sys_id>` for your user.
-4. Perform create/update operations — they are now captured automatically.
-5. Verify: `query_records(sys_update_xml, update_set=<update_set_sys_id>)`.
-
-Claude Code handles this automatically when `WRITE_ENABLED=true` and the active Update Set preference is set. You will be prompted to confirm write operations before they execute (see `§2.1 Write Approval Gate` in `CLAUDE.md`).
+| 1 | `node -v` | `v22` or newer |
+| 2 | `claude --version` | `2.1.274 (Claude Code)` or newer |
+| 3 | `git config --global --get core.longpaths` | `true` |
+| 4 | `(Get-ChildItem .claude\agents -File).Count; (Get-ChildItem .claude\skills -Directory).Count` | `9`, `29` |
+| 5 | `git config --get core.hooksPath` | `.githooks` |
+| 6 | `git submodule status` | a line that starts with a space (not with `-` or `+`) |
+| 7 | `& "C:\Program Files\Git\bin\bash.exe" scripts/verify-structure.sh` | `OK: structure audit passed (...)` |
+| 8 | `& "C:\Program Files\Git\bin\bash.exe" scripts/verify-citations.sh` | `dead: 0` and `OK: all ServiceNowDocs citations resolve.` |
+| 9 | `git check-ignore -v .mcp.json .mcp.json.bak instances.json instances.json.bak mcp.json .env .claude/settings.local.json .claude/settings.json` | 8 lines |
+| 10 | `Test-Path "$env:USERPROFILE\snow-mcp\dist\cli\index.js"` | `True` |
+| 11 | `claude mcp list` | `snow-mcp: ... - ✔ Connected` |
+| 12 | In a session: `Status` | Chief ServiceNow Architect, v2.8.1, `australia`, 28 specialists, 6 gateways |
 
 ---
 
-## Step 4 — Set up Tier 2 (Claude Code)
+## If something breaks
 
-```bash
-cd ~/work/claude-servicenow-live
-claude
-```
-
-Claude Code reads `CLAUDE.md` automatically on startup and loads everything in `.claude/skills/` and `.claude/agents/`.
-
-### Smoke test 1 — Architect identity
-
-```
-> Who are you and what specialists are available?
-```
-
-Expected: Claude introduces itself as the Chief ServiceNow Architect and lists all 22 specialists including ITSM Specialist, CSM Specialist, Developer, Code Reviewer, and others.
-
-### Smoke test 2 — Routing
-
-```
-> I have a transcript snippet. Draft 3 Gherkin stories for restricting incident creation to GSC agents only.
-```
-
-Expected: the orchestrator routes to `story-writer`, asks your approval, then produces Gherkin stories using the `story-writer` skill.
-
-### Smoke test 3 — MCP connection (requires Step 3 complete)
-
-```
-> Check the current ServiceNow instance connection
-```
-
-Expected: Claude returns the connected instance URL and ServiceNow version.
-
----
-
-## Step 5 — Set up Tier 1 (Claude.ai Projects)
-
-### 5a — Enable Skills
-
-1. Go to [claude.ai](https://claude.ai) > **Settings** > **Features**.
-2. Toggle **Skills** ON.
-
-### 5b — Create the Master Project
-
-1. Go to **claude.ai/projects** > **New Project**.
-2. Name: `ServiceNow Architect — Master`
-3. Description: `Master orchestrator for all ServiceNow expertise. No client-confidential data here.`
-4. **Custom instructions**: ⚠️ **Not yet available.** The Tier 1 master instructions file (`claude-ai-projects/master-project-instructions.md`) is **not yet shipped** — see the note below. Tier 1 (Claude.ai) setup cannot be completed until it is authored; use Tier 2 (Claude Code) in the meantime.
-
-   > ⚠️ **Not yet implemented:** the `claude-ai-projects/` templates (`master-project-instructions.md`, `satellite-project-template.md`, `state-file-template.md`) do **not** exist in the repo yet and are not generated by any current step. Tier 1 (Claude.ai) onboarding is therefore **not yet available** — use Tier 2 (Claude Code) per the steps above. This section is retained as a placeholder for when the Tier 1 templates are authored.
-
-5. **Project knowledge** (optional — small, non-confidential anchors):
-   - `templates/gherkin-feature-template.md`
-   - `templates/hld-template.md`
-6. **Skills**: upload each skill as an individual markdown file. Go to **Settings > Skills** in Claude.ai, click **New Skill**, and upload the `SKILL.md` file from each folder. The 12 available skills are:
-
-   | Skill file | Purpose |
-   |---|---|
-   | `.claude/skills/itsm-specialist/SKILL.md` | ITSM gateway (incident, problem, change, SLA) |
-   | `.claude/skills/csm-specialist/SKILL.md` | CSM gateway (case, account, contact) |
-   | `.claude/skills/hrsd-specialist/SKILL.md` | HRSD gateway (HR case, Lifecycle Events) |
-   | `.claude/skills/itom-discovery-specialist/SKILL.md` | ITOM gateway (Discovery, CMDB, MID Server) |
-   | `.claude/skills/developer/SKILL.md` | Server-side and client-side scripting |
-   | `.claude/skills/code-reviewer/SKILL.md` | Four-checklist code review |
-   | `.claude/skills/flow-designer-specialist/SKILL.md` | Flow Designer flows and subflows |
-   | `.claude/skills/integration-specialist/SKILL.md` | REST/SOAP, IntegrationHub, MID Server |
-   | `.claude/skills/story-writer/SKILL.md` | Gherkin stories and acceptance criteria |
-   | `.claude/skills/hld-lld-writer/SKILL.md` | HLD and LLD documents |
-   | `.claude/skills/technical-designer/SKILL.md` | Table models, ACLs, business rule design |
-   | `.claude/skills/now-assist-specialist/SKILL.md` | AI Agents, Now Assist skills, agentic workflows |
-
-   Start with the five Domain Expert skills (itsm, csm, hrsd, itom, cmdb-csdm) and the developer + code-reviewer pair — those cover 90% of daily use.
-
-### 5c — Create Satellite Projects (one per active client)
-
-For each client engagement:
-
-1. **New Project** > name: `<Client> — Active Engagement`
-2. **Custom instructions**: ⚠️ **Not yet available** — depends on the `claude-ai-projects/` templates that are not yet shipped (see the note under §5b). Satellite (per-client) Tier 1 setup cannot be completed until they are authored.
-3. **Project knowledge**: client-specific docs only — transcripts, scoped app exports, current-state diagrams, naming conventions. Upload the state file (`clients/<client>/<client>-engagement-state.md`).
-4. **Skills**: upload the same skills as in Step 5b. All skills are client-agnostic — same set for every project.
-
-### 5d — Confidentiality firewall
-
-- The Master Project **never** receives client transcripts, scoped app names, internal client IDs, or client-specific business logic.
-- Client-specific data lives **only** inside the matching satellite Project.
-- When copying a finding from a satellite back to the master, anonymise it first.
-- In Claude Code (Tier 2), client work lives in `clients/<client-name>/` — never in root-level files.
-
----
-
-## Step 6 — Daily workflow
-
-### Tier 1 (Claude.ai)
-
-- Casual brainstorming, single-document tasks, transcript extraction → use the matching satellite Project.
-- Cross-client reusable methodology, template improvements → Master Project.
-- Domain Expert gateway (ITSM Specialist, CSM Specialist, etc.) fires automatically on domain keywords.
-
-### Tier 2 (Claude Code)
-
-- Run from `~/work/claude-servicenow-live`.
-- Use when a task needs: multiple ServiceNow doc pages, linked artefacts, local code operations, or live instance validation via MCP.
-- Sub-agents are invoked by the orchestrator automatically, or explicitly with `@<agent-name>` to skip the routing-approval step.
-- **Write operations require explicit approval.** Before any MCP write call, Claude will state the operation and wait for your `write approved` confirmation.
-
-### Typical flow for a code deliverable
-
-```
-User request
-  → Chief Architect restates + surfaces assumptions
-  → Domain Expert gateway fires (ITSM / CSM / HRSD / ITOM / CMDB & CSDM)
-  → Developer sub-agent dispatched (with constraint envelope)
-  → Code Reviewer pass proposed (§6.2 hook)
-  → ATF Author pass proposed
-  → Deploy to instance (with Update Set capture, write approval required)
-```
-
----
-
-## Step 7 — GitHub security review (mandatory before every push)
-
-This step protects your repository from accidentally publishing credentials, client data, or internal instance details.
-
-### What to check before every `git push`
-
-Run the following scan from the repo root:
-
-```bash
-# Check for common secret patterns
-git diff --staged | grep -iE \
-  "password|secret|api_key|token|client_secret|SERVICENOW_PASSWORD|bearer\s" \
-  && echo "WARNING: possible credentials in staged changes" \
-  || echo "OK: no credential patterns found"
-
-# Check for instance URLs
-git diff --staged | grep -iE "service-now\.com" \
-  && echo "WARNING: instance URL in staged changes" \
-  || echo "OK: no instance URLs found"
-
-# Check for client-specific names (update this list per your engagements)
-git diff --staged | grep -iE "<client-name-1>|<client-name-2>" \
-  && echo "WARNING: client name in staged changes" \
-  || echo "OK"
-```
-
-### What must never be committed
-
-| Item | Where it lives instead |
+| Symptom | What to do |
 |---|---|
-| ServiceNow instance URL | `claude_desktop_config.json` (local, not in Git) |
-| ServiceNow username / password | `claude_desktop_config.json` (local, not in Git) |
-| Client names, internal project codes | `clients/<name>/` folder — confirm the folder is in `.gitignore` if the client requires it |
-| Update Set sys_ids from a specific instance | Session memory only — not in committed files |
-| User sys_ids, preference sys_ids | Session memory / `MEMORY.md` (project-local, not pushed to public remotes) |
-
-### Recommended `.gitignore` additions
-
-```gitignore
-# Local MCP / Claude config
-claude_desktop_config.json
-
-# Client deliverables (add per-client as needed)
-clients/*/deliverables/
-clients/*/transcripts/
-
-# Context-mode sandbox
-.ctx/
-```
-
-### Claude Code security review protocol
-
-Before every `git push`, Claude Code will (when invoked):
-
-1. Run `git diff HEAD` and scan for the patterns listed above.
-2. Report any findings with file name and line number.
-3. Require your explicit confirmation (`security review approved`) before allowing the push to proceed.
-4. If findings exist, propose remediation (remove the value, move to config, redact) before re-scanning.
-
-To invoke manually:
-
-```
-> Review staged changes for security before push
-```
+| `running scripts is disabled on this system` on `npm` or `claude` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. Until then, call `npm.cmd` and `claude.cmd`. |
+| `claude` is not recognised or does not start after installation | Open a new window. `npm config get ignore-scripts` must be `false`. Reinstall without `--omit=optional`. |
+| Model error when dispatching to a sub-agent | The agents are pinned to `claude-opus-4-8`. Check with `/model` whether your account has access to it. |
+| `Status` gives a generic answer, `/agents` shows no project agents | You started `claude` outside the repo root. `cd` back and start it again. |
+| `error: unable to create file ...: Filename too long` | `git config --global core.longpaths true`, then run `git submodule update --init --recursive` again. |
+| `git status` always shows ` m ServiceNowDocs` | `git config submodule.ServiceNowDocs.ignore dirty`. Do not rename files in the submodule. |
+| Commit passes without checks, or prints `SKIP: ServiceNowDocs submodule not populated` | `git config core.hooksPath .githooks` is missing (Step 3), or the submodule has not been fetched and the citation check is disabled (Step 2). |
+| `/mcp` shows snow-mcp failed, `MCP error -32000: Connection closed` | The path in `args[0]` must be absolute and `npm run build` must have completed. |
+| Asks on every start whether to approve the MCP server | `"enabledMcpjsonServers": ["snow-mcp"]` is missing from `.claude/settings.local.json`. |
+| The server stops after editing the JSON; `SyntaxError` or `BOM!` | Save the file again without a BOM — from Notepad with Encoding `UTF-8`, not `UTF-8 with BOM`. |
+| `Unknown instance "default". Available: ` with an empty list | `SN_INSTANCES_CONFIG` does not point to a valid `instances.json`. Absolute path, the check from Step 6, restart. |
+| `WRITE_NOT_ENABLED` or `SCRIPTING_NOT_ENABLED` | The flag is not exactly `"true"` in `.mcp.json`. The update set tools also require `SCRIPTING_ENABLED`. Restart after the change. |
+| `AUTHENTICATION_FAILED` or 401 | Wrong username or password in `instances.json`. Log in through the browser with the same user. |
+| `query_records`, `create_update_set` or `mcp__nowaikit__*` do not exist | The old names are gone. Use the table below; the full map is in `snow-mcp\tool-rename-map.json`. |
+| `snow_deploy_background_script_exec` returns `{"action":"failed"}` | The script-execution tools do not work. Run scripts by hand: System Definition → Scripts - Background. |
 
 ---
 
-## Step 8 — Monthly maintenance (~30 minutes)
+## What in the old documentation is no longer true
 
-1. **Update ServiceNowDocs**:
-   ```bash
-   git submodule update --remote ServiceNowDocs
-   git add ServiceNowDocs
-   git commit -m "chore: bump ServiceNowDocs to latest australia"
-   ```
+The files `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/ADVANCED-WEB-SETUP.md` and `docs/MCP-OPERATIONS-GUIDE.md` were written for the previous MCP server. Wherever they disagree with this file, this file takes precedence.
 
-2. **Skim release notes** for breaking changes affecting skills:
-   ```bash
-   ls ServiceNowDocs/markdown/release-notes/
-   ```
+- **The MCP server is not an npm package.** `claude-servicenow-mcp` does not exist on npm. It is compiled locally (Step 4).
+- **`claude_desktop_config.json` is not read by Claude Code.** It is only for Claude Desktop. Claude Code reads `.mcp.json` in the repo root plus `enabledMcpjsonServers`.
+- **Node must be at least 22** (a Claude Code requirement), not 18. The value `lite` for `MCP_TOOL_PACKAGE` does not exist — the valid values are `full` and the specialised packages.
+- **For basic auth the server reads `SERVICENOW_BASIC_USERNAME` / `SERVICENOW_BASIC_PASSWORD`**, not `SERVICENOW_USERNAME` / `SERVICENOW_PASSWORD`.
+- **`context-mode` is not part of the working environment.** Do not copy `.claude/settings.example.json` as `.claude/settings.json` — the paths in it are Unix paths.
+- **There are 28 specialists** (29 skills, 9 sub-agents, 6 gateways — FSO Insurance was added on 21 Sep 2026), not 22. The templates in `claude-ai-projects/` do not exist — the claude.ai projects are set up by hand.
+- **The tool names have changed.** `CLAUDE.md` §2.1 and §2.2 still use the old ones:
 
-3. **Update affected SKILL.md files.** Bump the version in the file header comment.
-
-4. **Re-upload changed skills** to your Claude.ai Projects (Master + any satellites that use the skill).
-
-5. **Update NowAIKit MCP**:
-   ```bash
-   npm update -g claude-servicenow-mcp
-   ```
-
-6. **Tag the repo**:
-   ```bash
-   git tag v1.x.0
-   git push && git push --tags
-   ```
-
----
-
-## Step 9 — Extending the system
-
-### Add a new sub-agent
-
-1. Create `.claude/agents/<role>.md` with YAML frontmatter (`name`, `description`, `tools`, `model`) and a body describing the persona and protocols.
-2. Add a corresponding `.claude/skills/<domain>/SKILL.md` if the role needs domain knowledge other agents could also use.
-3. Register the role in `CLAUDE.md` under "Specialist roster".
-4. Test with `@<role>` in a Claude Code session.
-
-### Add new domain knowledge
-
-1. Create `.claude/skills/<domain>/SKILL.md`.
-2. Reference it in any sub-agent that should auto-load it.
-3. Upload to the relevant Claude.ai Projects.
-
-### Add a new client engagement
-
-1. Run the onboarding ritual described in `client-onboarding.md`.
-2. Create `clients/<client-name>/` with state file and instructions.
-3. Create a Satellite Project in Claude.ai.
-
----
-
-## Repo layout
-
-```
-.
-├── README.md                         ← this file (setup + reference)
-├── CLAUDE.md                         ← Chief Architect orchestrator config (v2.6+)
-├── taxonomy.md                       ← specialist boundaries; routing-ambiguity resolver
-├── governance-rules.md               ← §1.1 Baseline-First and other global rules
-├── client-onboarding.md              ← repeatable onboarding ritual
-├── prompt-patterns.md                ← reusable prompt templates (PP-01 through PP-18)
-├── .claude/
-│   ├── settings.example.json         ← copy to settings.json and fill in your paths (see Step 3d)
-│   ├── skills/                       ← portable expertise (Tier 1 + Tier 2)
-│   │   ├── itsm-specialist/          ← SKILL.md + EXAMPLES.md
-│   │   ├── csm-specialist/
-│   │   ├── hrsd-specialist/
-│   │   ├── itom-discovery-specialist/
-│   │   ├── developer/
-│   │   ├── code-reviewer/
-│   │   ├── flow-designer-specialist/
-│   │   ├── integration-specialist/
-│   │   ├── hld-lld-writer/
-│   │   ├── now-assist-specialist/
-│   │   ├── story-writer/
-│   │   └── technical-designer/
-│   └── agents/                       ← sub-agents (Tier 2 only)
-│       ├── story-writer.md
-│       ├── hld-lld-writer.md
-│       ├── technical-designer.md
-│       ├── now-assist-specialist.md
-│       ├── developer.md
-│       ├── flow-designer-specialist.md
-│       └── integration-specialist.md
-├── skills/                           ← mirror of .claude/skills/ (for repo sync tooling)
-├── agents/                           ← mirror of .claude/agents/ (for repo sync tooling)
-├── templates/
-│   ├── gherkin-feature-template.md
-│   └── hld-template.md
-├── docs/
-│   └── nowaikit-field-notes.md       ← MCP tool patterns and known limitations (cross-laptop knowledge base)
-├── claude-ai-projects/               ← (NOT YET IMPLEMENTED) planned Tier 1 templates — none ship yet
-├── clients/                          ← gitignored — per-client working folders
-│   └── <client-name>/
-│       ├── <client>-engagement-state.md
-│       └── deliverables/
-└── ServiceNowDocs/                   ← git submodule (australia branch)
-```
-
----
-
-## Troubleshooting
-
-| Symptom | Fix |
+| Old name | New name |
 |---|---|
-| Claude Code doesn't pick up skills | Confirm you are in `~/work/claude-servicenow-live`. Run `claude /agents` and `claude /skills` to list. |
-| `ServiceNowDocs/` is empty | `git submodule update --init --recursive` |
-| Sub-agent not invoked automatically | Tighten the `description` field in the agent file — that is what the router matches against. Add explicit trigger phrases. |
-| Skills not loading in claude.ai | Settings > Features > Skills must be ON; skills must be uploaded to the specific Project. |
-| MCP tools not available in Claude Code | Check `claude_desktop_config.json` path and syntax. Restart Claude Code after any config change. |
-| MCP returns 401 Unauthorized | Verify `SERVICENOW_USERNAME` and `SERVICENOW_PASSWORD` in config. Confirm the user has the `rest_api_explorer` or `admin` role on the instance. |
-| MCP write operations not captured in Update Set | Use the `sys_user_preference` pattern: set `name=sys_update_set`, `value=<update_set_sys_id>` for your user before write operations. See `CLAUDE.md §2.2`. |
-| `execute_background_script` returns 404 | This endpoint is unavailable on PDI instances. Use the manual background script UI instead: System Definition > Scripts - Background. |
-| Output drifts from English | Add `LANGUAGE: English (corporate, professional)` to the satellite Project's custom instructions. |
+| `query_records` | `snow_core_records_query` |
+| `get_record` | `snow_core_record_read` |
+| `create_record` | `snow_core_record_add` |
+| `update_record` | `snow_core_record_modify` |
+| `create_update_set` | `snow_us_update_set_add` |
+| `switch_update_set` | `snow_us_update_set_switch` |
 
 ---
 
-## Roadmap
+## Where things live
 
-> **Note on versioning:** the roadmap below uses a `v1.x` product-release cadence. The engine's internal `CLAUDE.md` version (currently v2.6) tracks protocol and governance changes on a separate increment. Both version numbers are maintained; they do not conflict.
+`<repo>` = `C:\Users\<profile>\Documents\claude-servicenow-live`
 
-**v1.0** (shipped): Story Writer, HLD/LLD Writer, Technical Designer, Now Assist Specialist as full sub-agents. ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM as Domain Expert gateway skills (v2.0) with 5-Part Constraint Envelope and mandatory §1.1 Baseline-First governance.
+| Path | What it is | In git |
+|---|---|---|
+| `<repo>\CLAUDE.md` | The architect's instructions, v2.8.1 | yes |
+| `<repo>\.claude\agents\` (9) | The agents that Claude Code reads | yes |
+| `<repo>\.claude\skills\` (28) | The skills that Claude Code reads | yes |
+| `<repo>\agents\`, `<repo>\skills\` | Copies for GitHub — do not edit | yes |
+| `<repo>\.githooks\pre-commit` | The hook: sync, structure, citations | yes |
+| `<repo>\ServiceNowDocs\` | The ServiceNow documentation (submodule, `australia`) | pointer |
+| `<repo>\instances.json` | Instances and passwords | **no, never** |
+| `<repo>\.mcp.json` | Registration of `snow-mcp` | **no** |
+| `<repo>\.claude\settings.local.json` | Permissions and `enabledMcpjsonServers` | **no** |
+| `<repo>\clients\<name>\` | The working folder for a single engagement | local |
+| `C:\Users\<profile>\snow-mcp\` | The MCP server; the entry point is `dist\cli\index.js` | separate repo |
+| `%USERPROFILE%\.claude\settings.json` | The user-level Claude Code settings | — |
 
-**v1.1** (shipped): Developer, Code Reviewer, Flow Designer Specialist, Integration Specialist sub-agents and skills. NowAIKit MCP integration live — §2.1 Write Approval Gate and §2.2 Update Set Capture Protocol operational. 13-test validation suite live (`VALIDATION-TESTS.md`). Three artefacts deployed to live PDI. CLAUDE.md v2.6.
-
-**v1.2** (next):
-- ATF Author — skill + batch sub-agent (currently planned; not yet shipped).
-- Expand remaining planned skills to full implementation: Performance & Scale Specialist, Security & GRC Specialist, CMDB & CSDM Specialist.
-- `claude-ai-projects/` Tier 1 instruction templates (currently placeholders).
-- Multi-instance support in NowAIKit config (dev / test / prod profiles).
-
-**v2.0** (future):
-- App Engine Specialist, DevOps / Release Manager as full sub-agents.
-- ATF artefact deployment: Claude Code writes ATF test records directly to instance via MCP.
-- Performance & Scale audit automation against live instance data.
+---

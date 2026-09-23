@@ -53,7 +53,7 @@ The six v2.7.6 specialist skills were deepened to the rigour of the ITSM/CSM/HRS
 
 ### Notes
 
-Both are skill-only (no sub-agent); the 22-specialist count is unchanged (these were already in the roster as planned personas). All skill citations across the repo still resolve (0 missing). First commits authored under the RobertBH17 identity.
+Both are skill-only (no sub-agent); the 22-specialist count is unchanged (these were already in the roster as planned personas). All skill citations across the repo still resolve (0 missing).
 
 ### Fixed (post-release QA review)
 
@@ -390,4 +390,4 @@ This is a documentation-only release. No changes to `CLAUDE.md`, the orchestrato
 
 ---
 
-*Maintained by the Enterprise Architecture Team. Repository: [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live).*
+*Maintained by the engine's contributors. Repository: [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live).*

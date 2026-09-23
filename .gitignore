@@ -13,7 +13,8 @@ reports/
 .claude/settings.local.json
 
 # Local MCP server config — contains the live instance URL and a PLAINTEXT password. NEVER commit.
-.mcp.json
+# The trailing * covers .bak copies, which carry the same password.
+.mcp.json*
 
 # Scratch nowaikit example — hardcodes the live instance URL (instance values are local-only per the Standing Rule).
 nowaikit-example.ts
@@ -23,3 +24,14 @@ nowaikit-example.ts
 
 # Local rendered diagram previews (SVGs/HTML) — scratch viewing only, regenerable from .mmd.
 diagram-preview/
+
+# Product build-progress notes — quote live instance data (URLs, sys_ids, usernames). Local-only per the Standing Rule.
+products/**/build/*PROGRESS*.md
+
+# Multi-instance MCP config � contains PLAINTEXT passwords for every instance. NEVER commit.
+instances.json
+# ...and any backup of it - a .bak carries the same plaintext passwords
+instances.json*
+
+# stray MCP config holding a plaintext ServiceNow password — never commit
+mcp.json
