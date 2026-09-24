@@ -846,3 +846,11 @@ does not reject over-length input, it silently trims it.
 - Loader-built catalog steps ran on a real RITM of an existing item: Get Catalog Variables exposed the item's variables as pills (`{{<step>.<variable_name>}}` resolved to the submitted values), Create Catalog Task created the task with those values and the given assignment group, Send Email produced a `sys_email` record, and Wait For Condition with a timeout resumed after the timeout with its state output set.
 - Record Updated trigger with a `CHANGESTO` condition fired once on the state change (not on insert), with the changed field's display value available as a pill.
 - **Creating an update set over REST:** `sys_update_set.application` is taken from the creating user's current application (`apps.current_app`), not from the `application` value in the POST body, and a later PATCH of `application` is silently ignored. To create a global set, make sure the user's current application is Global first — otherwise the set lands in whatever scoped app the user last worked in.
+- **Do not verify a flow run by searching `syslog` for its message.** A `message STARTSWITH …` query with no time bound ran past the two-minute REST timeout on a busy instance. Check `sys_flow_context` (`flow=<id>`, state `COMPLETE` / `ERROR`) and the records the flow wrote; when the log line itself is needed, bound the query with `sys_created_on>=` the run window.
+
+## 26. A problem cannot be cancelled or closed over the Table API (confirmed 2026-09-25, Australia P5, Problem state model active)
+
+- `problem.resolution_code` is **read-only in the dictionary**. The Table API drops it without an error: the PATCH returns 200 and the field stays empty.
+- The Problem model has no New → Closed transition. Assess, Root Cause Analysis and Fix in Progress → Closed each require `resolution_code = canceled` with `close_notes`, or `resolution_code = duplicate` with `duplicate_of`. Because the code is dropped, the *Problem Model: Check State Transition* business rule aborts the state change. The response is still 200 and the state is unchanged.
+- New → Assess does work over REST once `assigned_to` is set.
+- Rule: cancel or close problems in the UI (**Cancel** / **Mark Duplicate**). Never script a problem closure over REST. After any REST state change, read the state back: a 200 does not mean the transition happened.
