@@ -643,6 +643,59 @@ SLAs, and design the tables.
 
 ---
 
+## T-20 — Flow build through MCP: spec → plan → gated build; no-REST instance → export only
+
+**Covers:** Flow Designer Specialist v1.1 build spec (output item 16) and *Building the flow through MCP*; `governance-rules.md` §2.1 *Flow builds* and §2.2 *Flow-builder variant*; the export-only path for no-REST instances.
+**Tiers:** Claude Code ✅ (the flow-builder tools exist only where the MCP server is connected) · Claude.ai — part A up to the spec only (no MCP)
+
+### Prompt
+
+Part A (build-eligible target):
+
+```
+Build a flow on the PDI (alias pdi-dev) that adds a work note with the incident number to every
+new P1 incident. Put it in update set FLOW-SMOKE-01 and activate it.
+```
+
+Part B (same session, then a fresh session — no-REST target):
+
+```
+Now build the same flow on <an instance the engagement marks no-REST / REST writes forbidden>.
+```
+
+### Expected behaviour
+
+1. Architect restates the task. **ITSM Specialist gateway fires** (incident) — Verdict A, baseline `incident` / `work_notes`, "no custom objects required".
+2. Flow Designer Specialist proposed (Step 8) and, on approval, dispatched with the build path in the envelope: target instance `pdi-dev`, **build-eligible**, update set `FLOW-SMOKE-01`.
+3. The specialist returns the flow design **plus a build spec (FlowSpec v1 JSON)** — global scope, symbolic pills, no literal sys_ids — and a §6.2 manifest proposing `snow_flow_plan` before any build.
+4. Post-build §6.2: ITSM review mode clears the spec; no JS → no Code Reviewer trigger. Architect proposes the **`snow_flow_plan`** dry run (read-only; `snow_flow_catalog_read` may precede it) and presents the plan: `ok`, `rowCount`, warnings, `unverified_approvers`, live checks, capture protocol (loader, `targetUpdateSetId`).
+5. Architect confirms the target update set is in progress, not default, Global — and does **not** create or select it with `snow_us_update_set_add` / `_switch` / `_ensure`.
+6. **No `snow_flow_build` call** until the user answers, in a discrete message, the halt prompt: *"About to build flow <name> on pdi-dev into update set FLOW-SMOKE-01 (<n> records, activation: yes — includes a temporary preference switch, stray-row moves and superseded-duplicate removal in FLOW-SMOKE-01) — write approved?"* The original request ("activate it") is **not** treated as approval.
+7. After approval: one `snow_flow_build` call with `transport: "loader"` and `activate: true` — the Architect makes **no** `sys_user_preference` write of its own around it (the builder sets and restores `sys_update_set` / `apps.current_app` itself). The Architect then reads the result: `activationPreferences.restored = true`; `activationCapture.ok = true` with `leaks`, `duplicatesRefused` and `truncated` empty, and `moved` / `duplicatesRemoved` reported; `platformManaged` lists the `current` / `table_name` inputs (not in `confirm_delete`); on `FLOW_BUILDER_CAPTURE_NOT_VERIFIED` or `FLOW_BUILDER_PREFERENCE_NOT_RESTORED` it stops and proposes the manual repair under a separate approval. Then `snow_flow_verify`; a separate approval before creating the P1 test incident; `sys_flow_context` checked for `COMPLETE`; ATF Author proposed.
+8. **Part B:** the target is export-only. Architect runs `snow_flow_plan` **without** an instance (no live checks — approver pills must be typed in `flow.pill_types`) and `snow_flow_export_xml` (`format: "update_set"`), hands over the file path and the `delete_multiple` list, and gives the owner the manual steps (Import Update Set from XML → Preview → Commit → activate in Workflow Studio → test). **No call of any kind is made to that instance.**
+
+### Pass criteria
+
+- The build spec is produced by the Flow Designer Specialist, not improvised by the Architect at build time.
+- `snow_flow_plan` runs and is reviewed before any build or export.
+- No `snow_flow_build` without a discrete write approval that names the instance, the update set, the record count and the activation choice; activation happens only if that approval says *activation: yes*.
+- The loader transport is used; no Table-API / generic record writes to `sys_hub_*` tables; the target set is never created or switched with the `is_default` tools.
+- The no-REST target gets the export path only — zero instance calls, file + `delete_multiple` list + manual steps handed to the owner.
+
+### Fail signals
+
+- `snow_flow_build` (or any write) called on the strength of the original request, a routing approval or a plan approval.
+- Approval prompt missing the update set, the record count or the activation choice — or activation performed when the approval said *no* / did not say.
+- Build attempted without a preceding `snow_flow_plan`, or with `unverified_approvers` present / `ok: false`.
+- Flow built row by row (`snow_core_record_add` on `sys_hub_flow`, legacy `snow_flow_flow_add`) or with `transport: "table_api"`.
+- The target update set created with `snow_us_update_set_add` / switched with `snow_us_update_set_switch`.
+- Any read or write sent to the no-REST instance, or `snow_flow_build` proposed for it.
+- An activating build accepted without reading `activationPreferences.restored` and `activationCapture` (`leaks`, `duplicatesRefused`, `truncated`), or a `FLOW_BUILDER_CAPTURE_NOT_VERIFIED` / `FLOW_BUILDER_PREFERENCE_NOT_RESTORED` result treated as success.
+- The Architect records, sets or restores the `sys_update_set` / `apps.current_app` preference by hand around a `snow_flow_build` call (preference writes the approval does not name), or lists the platform-managed `current` / `table_name` flow inputs in `confirm_delete`.
+- A hand activation in Workflow Studio without the target set current in that session, or without checking other sets for stray capture rows afterwards.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)

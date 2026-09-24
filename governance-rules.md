@@ -71,7 +71,7 @@ This rule applies to all 25 specialists at all tiers — builders, reviewers, do
 
 ## §2.1 — MCP Write Operations Explicit Approval Gate
 
-Every MCP write operation against a live ServiceNow instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to any `create_*`, `update_*`, `delete_*`, `execute_*`, and any other MCP tool that mutates instance state.
+Every MCP write operation against a live ServiceNow instance requires an explicit **"write approved"** from the user in the current conversation before the tool is called. This gate applies to every MCP tool that mutates instance state — in the current `snow_*` tool naming, the `*_add`, `*_modify`, `*_remove`, `*_exec` and `*_set` families and every other state-changing verb (`*_close`, `*_resolve`, `*_publish`, `*_approve`, `*_complete`, `*_switch`, `*_trigger`, `*_upload`, `*_import`, …), `snow_flow_build`, and any legacy `create_*` / `update_*` / `delete_*` / `execute_*` tool. When in doubt whether a tool writes, treat it as a write.
 
 **What counts as "write approved":**
 - A clear, explicit user message in the current conversation that authorises the specific write action about to be taken (e.g., "write approved", "go ahead and create", "yes, deploy it", "yes, update it").
@@ -85,6 +85,21 @@ Every MCP write operation against a live ServiceNow instance requires an explici
 **Halt protocol:** If a write operation is about to be executed without a "write approved" in the current conversation, stop and surface: *"About to [describe action] — write approved?"* Wait for explicit confirmation before proceeding.
 
 **Self-approval is prohibited.** Claude may not infer write approval from context, urgency, or logical flow. Approval must be a discrete user message.
+
+### Flow builds (`snow_flow_build`)
+
+A flow build is a write in its own right and needs its own "write approved", given after the `snow_flow_plan` dry run has been reviewed. The halt prompt names the flow, the instance, the update set, the record count from the plan and whether activation is included:
+
+> *"About to build flow <name> on <instance> into update set <name> (<n> records, activation: no) — write approved?"*
+>
+> *"About to build flow <name> on <instance> into update set <name> (<n> records, activation: yes — includes a temporary preference switch, stray-row moves and superseded-duplicate removal in <set>) — write approved?"*
+
+- **Activation is part of that approval only if the approved prompt states `activation: yes`.** Activating later — by `activate: true` on another build call or by hand on the engine's behalf — needs a separate approval.
+- **An approval with `activation: yes` also covers the builder's own side-writes inside that one call**, and only those: the temporary switch and restore of the authenticated user's `sys_update_set` and `apps.current_app` preferences around the activation call (insert, update or delete of those `sys_user_preference` rows, back to their previous state); the move (`sys_update_xml.update_set`) into the target set of rows of this flow that the same account's activation wrote into another set; and the deletion of a superseded duplicate `sys_update_xml` row **in the target set**. The Architect adds no preference write of its own around the call.
+- **Manual repair is a separate write.** Moving or removing rows by hand after a `FLOW_BUILDER_CAPTURE_NOT_VERIFIED` failure, and resetting a preference by hand after `FLOW_BUILDER_PREFERENCE_NOT_RESTORED`, each need their own approval.
+- Any existing child row the build would delete (`confirm_delete`) is named in the prompt; an approval that does not name it does not cover it.
+- The approval covers exactly the approved spec on the named instance and update set. A changed spec, a different instance or a different update set is a new write and needs a new approval.
+- `snow_flow_build` is never placed on an auto-allow list and never run from a sub-agent or a playbook; export-only targets (no-REST and production instances) get `snow_flow_export_xml`, which writes a local file and nothing to the instance.
 
 ---
 
@@ -110,6 +125,15 @@ Before executing any `create_*` or `update_*` MCP write operation that produces 
 - `execute_script` / `execute_background_script` — call non-existent ServiceNow endpoints; fail with 400/404.
 
 **Halt protocol:** If steps 1–3 have not been completed before a configuration write, stop and complete them first. Retroactive capture via REST is not possible.
+
+### Flow-builder variant (`snow_flow_build`, loader transport)
+
+Flow Designer flows are never built by row-by-row record writes (a flow written that way keeps `version = 1` and is not usable). They are loaded as one document through the instance-side loader, which captures differently:
+
+1. **Target update set** — must exist, be `in progress`, **not** `is_default`, and belong to the flow's application (Global). Create or select it in the UI or as a plain `sys_update_set` record write under its own §2.1 approval. **Never** use `snow_us_update_set_add`, `snow_us_update_set_switch` or `snow_us_active_update_set_ensure` for the target — they set `is_default`, and the builder refuses a default set.
+2. **The load itself needs no preference write.** The loader captures by the `targetUpdateSetId` it is given: one `sys_update_xml` row `sys_hub_flow_<id>` containing the flow and every child. Steps 2–3 of the standard protocol are **not** run for a build without activation.
+3. **Activation is the exception — and the builder brackets it.** The activation call runs in the user's session and is captured wherever the user's global-scope `sys_update_set` preference points (and the platform may re-point it to another in-progress global set). With `activate: true`, `snow_flow_build` itself sets `sys_update_set` to the target set and `apps.current_app` to the flow's scope immediately before the activation call, and restores both to their previous state immediately after — inside the approved call (§2.1 *Flow builds*). Steps 2–3 of the standard protocol are therefore **not** run by hand around a build; the Architect checks `activationPreferences.restored` in the result. No interactive UI session of the same account may be open meanwhile — it rewrites the preference. A hand activation in Workflow Studio is done with the target set current in that session.
+4. **Verify capture** — the builder requires the target set's `sys_hub_flow_<id>` row to have changed during the load (and during the activation, showing the flow active). Rows of this flow that the same account's activation wrote into another set — including the flow-input documentation rows (`sys_documentation_var__m_sys_hub_flow_input_<flow id>_*`) — are moved into the target set by the builder; a superseded duplicate in the target set is deleted only after the kept row is shown to hold every planned row. A row that pre-existed, was created by another account or before the activation is never moved; an incomplete safety-net read moves nothing (and, before activation, stops the activation); an incomplete newer duplicate means the older row is not deleted. Each of these fails the build with `FLOW_BUILDER_CAPTURE_NOT_VERIFIED`. The Architect reads `activationCapture`; moving or removing rows by hand after such a failure is a write under its own approval.
 
 ---
 
@@ -168,4 +192,4 @@ Drift between this file and downstream references is a maintenance bug. Resolve 
 
 ---
 
-*End of governance-rules.md v1.3 — added §4 Delivery Artefact Governance (ADR §4.1, Requirements Traceability §4.2, RAID & NFR §4.3), seeded from `reference/templates/`; §3 deliberately skipped to avoid the routing-consult §3.x namespace; §1.1 scope updated 22 → 25 specialists. Prior — v1.2: §2.1 MCP write gate + §2.2 update-set capture.*
+*End of governance-rules.md v1.4 — §2.1 names the current `snow_*` write families and adds the flow-build approval (`snow_flow_build`: instance, update set, record count, activation yes/no); §2.2 adds the flow-builder variant (loader capture by `targetUpdateSetId`, preference set and restored by the builder only around activation — its side-writes covered by the `activation: yes` approval — no `is_default` target). Prior — v1.3: added §4 Delivery Artefact Governance (ADR §4.1, Requirements Traceability §4.2, RAID & NFR §4.3), seeded from `reference/templates/`; §3 deliberately skipped to avoid the routing-consult §3.x namespace; §1.1 scope updated 22 → 25 specialists. Prior — v1.2: §2.1 MCP write gate + §2.2 update-set capture.*

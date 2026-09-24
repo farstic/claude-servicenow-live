@@ -413,6 +413,33 @@ Conventions:
 
 ---
 
+### PP-25: Flow build from spec
+**When to use:** A Flow Designer Specialist design has returned with a build spec (FlowSpec v1 JSON), cleared §1.1 and the Domain Expert review, and you want the flow built on the connected instance through the MCP flow builder — or, for a no-REST / production instance, exported as XML for a manual import. Unlike PP-19, this pattern does **not** carry the write approval: the `snow_flow_plan` dry run must be reviewed first, and the build is approved in a separate message answering the §2.1 flow-build prompt (`governance-rules.md` §2.1 *Flow builds*, §2.2 *Flow-builder variant*; path in `skills/flow-designer-specialist/SKILL.md` — *Building the flow through MCP*).
+
+**Template:**
+> Build flow {{FLOW_NAME}} from the build spec in {{SPEC_LOCATION — design section / file}}.
+> Target instance: {{INSTANCE_ALIAS}} — {{build-eligible / export-only (no-REST or production)}}.
+> Update set: {{UPDATE_SET_NAME — in progress, not default, Global}}.
+> Activation: {{yes / no}}.
+> Mode: {{create / update — for update, list any child rows expected to be deleted}}.
+> §1.1 status: {{confirmed Verdict A — baseline only / Verdict B — approved extension: describe}}.
+>
+> Run `snow_flow_plan` and show me the plan (row count, warnings, unverified approvers, live checks) before anything is built. Ask for write approval separately.
+
+**Example (filled):**
+> Build flow P1 Smoke - Work Note from the build spec in the Flow Designer design (Example 4 pattern).
+> Target instance: pdi-dev — build-eligible.
+> Update set: FLOW-SMOKE-01.
+> Activation: yes.
+> Mode: create.
+> §1.1 status: confirmed Verdict A — baseline only (incident, work_notes).
+>
+> Run `snow_flow_plan` and show me the plan before anything is built. Ask for write approval separately.
+
+*Expected response: the plan review, then the halt prompt "About to build flow P1 Smoke - Work Note on pdi-dev into update set FLOW-SMOKE-01 (<n> records, activation: yes) — write approved?". Only a discrete reply to that prompt authorises `snow_flow_build`. For an export-only target the response is `snow_flow_plan` without an instance, then `snow_flow_export_xml`, with the file, its `delete_multiple` list and the owner's manual import steps — nothing is sent to the instance. Validated by VALIDATION-TESTS T-20.*
+
+---
+
 ## Group G — Planning, estimation, and delivery governance
 
 ### PP-20: Estimation and sizing
@@ -515,4 +542,4 @@ Updates committed with message: `prompt-patterns: <change-summary>`.
 
 ---
 
-*End of prompt-patterns.md v1.2 — added Group G (PP-20 Estimation & sizing, PP-21 Licensing & entitlement check, PP-22 ADR capture, PP-23 Traceability update / gap check, PP-24 RAID / NFR capture) for the engine v2.8.0 delivery-governance layer.*
+*End of prompt-patterns.md v1.3 — added PP-25 Flow build from spec (Group F, after PP-19: plan first, write approval separately; export-only path for no-REST instances). Prior — v1.2: added Group G (PP-20 Estimation & sizing, PP-21 Licensing & entitlement check, PP-22 ADR capture, PP-23 Traceability update / gap check, PP-24 RAID / NFR capture) for the engine v2.8.0 delivery-governance layer.*

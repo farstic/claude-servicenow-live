@@ -1,8 +1,8 @@
 # Flow Designer Specialist — EXAMPLES
 
-**Version:** 1.0
-**Pairs with:** Flow Designer Specialist SKILL.md v1.0
-**Purpose:** Three gold-standard task → output pairs that exemplify the Flow Designer Specialist skill in production use.
+**Version:** 1.1
+**Pairs with:** Flow Designer Specialist SKILL.md v1.1
+**Purpose:** Four gold-standard task → output pairs that exemplify the Flow Designer Specialist skill in production use.
 
 Each example: input prompt → expected output (the flow design specification) → explanation.
 
@@ -382,4 +382,126 @@ The idempotency design is the most important detail. A naive approach would set 
 
 ---
 
-*End of Flow Designer Specialist EXAMPLES.md v1.0.*
+## Example 4 — Record-triggered smoke flow built through MCP (build spec, plan, gated build, activation, real run)
+
+### Input prompt
+
+> Flow Designer Specialist task: design a smoke-test flow for the MCP flow builder and hand back a build spec.
+>
+> Behaviour: when a Priority 1 incident is created, add a work note to that incident that contains its number.
+>
+> Dispatch envelope: ITSM gateway Verdict A (baseline `incident`, `work_notes`; no custom objects required). Scope: global. Target instance: `pdi-dev` — **build-eligible** (non-production, on the builder's allow list). Update set: `FLOW-SMOKE-01` (in progress, not default, Global). Activation: requested. Volume: a handful of test records.
+
+### Expected output
+
+#### Capability statement
+This flow takes the creation of a Priority 1 `incident` and produces a work note on that incident naming its number, proving end to end that an MCP-built flow triggers, resolves its data pills and writes to the record.
+
+#### Layer placement
+- **Top-level flow**, one Record trigger, one action. No subflow — nothing is reused.
+
+#### Trigger
+| Property | Value |
+|---|---|
+| Type | Record — created |
+| Table | `incident` |
+| Condition | `priority=1` |
+| Run as | System |
+| Run flow in | Background (the user save is never blocked) |
+
+#### Inputs / Outputs
+- Input: the trigger record (`current`). Outputs: none — one side-effect (a work note).
+
+#### Steps
+1. **Update Record** — table `incident`, record = trigger record, values: `work_notes` = "Flow smoke test: P1 {{trigger.current.number}} received". On error: the flow ends in error and the execution is inspected in Workflow Studio (smoke flow — no dead-letter handling by design).
+
+#### Transaction strategy
+- Background; idempotent by construction — the trigger fires once per created record, and a repeated note on a manual re-run is harmless.
+
+#### Custom scripts / spokes
+- None. Baseline Update Record action only.
+
+#### Scope and naming
+- Global scope. Flow name `P1 Smoke - Work Note`; spec key `p1_smoke_work_note`.
+
+#### Observability
+- `sys_flow_context` for the flow (state, runtime); Workflow Studio execution details; the work note itself.
+
+#### Test approach
+- Smoke run on a real record (build step 8). A release-path flow would go to ATF Author; this one is a platform check and is deactivated after the run.
+
+#### Build spec (FlowSpec v1 JSON)
+
+```json
+{
+  "spec_version": "1",
+  "flow": {
+    "key": "p1_smoke_work_note",
+    "name": "P1 Smoke - Work Note",
+    "description": "Smoke test: writes a work note on every new P1 incident",
+    "scope": "global",
+    "run_as": "system"
+  },
+  "trigger": {
+    "key": "trg",
+    "type": "record.created",
+    "table": "incident",
+    "condition": "priority=1",
+    "run_flow_in": "background"
+  },
+  "steps": [
+    {
+      "kind": "action",
+      "key": "note",
+      "action": "updateRecord",
+      "inputs": {
+        "table_name": "incident",
+        "record": { "pill": "trigger.current" },
+        "values": {
+          "template": {
+            "work_notes": { "text": "Flow smoke test: P1 {{trigger.current.number}} received" }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+*Variant — when an approval step is added, the approver pill is typed so the builder can prove it is a Group reference (fragment):*
+
+```json
+"flow": { "key": "...", "name": "...", "pill_types": { "trigger.current.assignment_group": "reference" } },
+
+{ "kind": "action", "key": "approve", "action": "askForApproval",
+  "inputs": { "table": "incident", "record": { "pill": "trigger.current" },
+              "approval_field": "approval", "journal_field": "work_notes",
+              "approval_conditions": { "approval_rules": { "rule_sets": [
+                { "action": "Approves", "rules": [[
+                  { "rule": "Any", "groups": [ { "pill": "trigger.current.assignment_group" } ] } ]] } ] } } } }
+```
+
+#### Build run sheet (Chief Architect, main thread)
+1. `snow_flow_catalog_read { name: "updateRecord" }` — confirm `table_name`, `record`, `values` and their types.
+2. `snow_flow_plan { spec, instance: "pdi-dev", update_set: { name: "FLOW-SMOKE-01" } }` — review with the user: `ok: true`; `rowCount`; the decoded Update Record values (the pill shows as a platform pill, not literal text); `warnings` empty; `unverified_approvers` absent; live checks — `incident` exists, the flow does not yet exist, no same-name flow; `captureProtocol` = loader, capture by `targetUpdateSetId`, no preference writes for the load (the activation step describes the builder's own preference switch and restore).
+3. Surface: *"About to build flow P1 Smoke - Work Note on pdi-dev into update set FLOW-SMOKE-01 (<n> records, activation: yes — includes a temporary preference switch, stray-row moves and superseded-duplicate removal in FLOW-SMOKE-01) — write approved?"* (`<n>` = the plan's `rowCount`). Wait for a discrete approval that keeps *activation: yes*.
+4. Before the build call, confirm that no UI session of the same account is open. Do **not** touch the `sys_update_set` / `apps.current_app` preferences by hand — the build call sets them around the activation and restores them itself.
+5. `snow_flow_build { spec, instance: "pdi-dev", update_set: { name: "FLOW-SMOKE-01" }, transport: "loader", mode: "create", activate: true }`. Expected read-back: every planned row present, `version = 2`, one `sys_update_xml` row `sys_hub_flow_<id>` in `FLOW-SMOKE-01` changed by this load; activation: `status = published`, `active = true`, snapshots set; `activationPreferences.restored = true`; `activationCapture.ok = true` with `leaks`, `duplicatesRefused` and `truncated` empty (`moved` and `duplicatesRemoved` list anything the builder put right).
+6. Check the platform-managed inputs: `platformManaged` reports the two `sys_hub_flow_input` rows (`current`, `table_name`) and their documentation as `platform_managed` (not stale, not in `confirm_delete`), and their `sys_documentation_var__m_sys_hub_flow_input_<flow id>_*` capture rows sit in `FLOW-SMOKE-01` — written there, or moved there by the builder (`activationCapture.moved`) — none in any other set. If the build ends in `FLOW_BUILDER_CAPTURE_NOT_VERIFIED` or `FLOW_BUILDER_PREFERENCE_NOT_RESTORED`, stop: the named rows or preferences are repaired by hand, each under its own approval, before anything else runs.
+7. `snow_flow_verify { instance: "pdi-dev", spec }` — no field diffs, no unresolved pills.
+8. Surface: *"About to create a test incident (Priority 1) on pdi-dev to trigger the smoke flow — write approved?"* After approval, create it; then read `sys_flow_context` for the flow — expected state `COMPLETE` within seconds, and the incident carries the work note with its own number in it.
+9. Record the evidence (flow sys_id, update set, context state and duration) in the build ledger; deactivate the smoke flow afterwards (by hand in Workflow Studio, or a rebuild under its own approval).
+
+#### Export-only variant (no-REST instance)
+Same spec. `snow_flow_plan { spec }` with no `instance` (no live checks — approver pill types must therefore come from `flow.pill_types`), then `snow_flow_export_xml { spec, format: "update_set", update_set_name: "FLOW-SMOKE-01", out_path: "p1-smoke.xml" }`. Hand the owner the file plus the returned `delete_multiple` list; the owner imports it (Import Update Set from XML → Preview → Commit), activates the flow in Workflow Studio with the session on the target set, and runs the P1 test by hand. The engine sends nothing to the instance.
+
+#### Open questions
+- None for the smoke flow. For a real flow: every `{{static.<sys_id>}}` reference and its table; who deactivates or removes the flow after a test.
+
+### Why this is the gold standard
+
+The design and the build spec say the same thing, and the spec is authored against the catalogue rather than from memory. The build is never a single leap: the plan is reviewed first, with its warnings and live checks in front of the user; the approval names the instance, the update set, the record count and whether activation is included; and activation is treated as the separate capture risk it is — the approval names the builder's own side-writes (the temporary preference switch, stray-row moves, superseded-duplicate removal), the Architect keeps its hands off the preference, and the result is read for every capture row (including the platform's own flow-input documentation rows) and for the restored preference before anything else runs. Success is proven on a real trigger record through `sys_flow_context`, not inferred from a 200 response. The export-only variant shows the same spec serving an instance the engine must not touch.
+
+---
+
+*End of Flow Designer Specialist EXAMPLES.md v1.1.*
