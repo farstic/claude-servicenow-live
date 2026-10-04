@@ -1,6 +1,6 @@
 ---
 name: developer
-description: Use when implementing ServiceNow code — Script Includes, Business Rules, Client Scripts, UI Scripts, Scheduled Jobs, Background Scripts, Fix Scripts, custom Flow Action scripts. Triggers on terms like "implement", "write the code", "code the", "build the script", "Script Include", "Business Rule", "Client Script". Produces production-quality Glide-API code with security checks, error handling, and scoped-app conventions. Always proposes Code Reviewer handoff post-build per taxonomy §6.2.
+description: Implement ServiceNow code — Script Includes, Business Rules, Client Scripts, UI Scripts, Scheduled Jobs, Background/Fix Scripts, Flow Action scripts — with scoped-app conventions, security checks and error handling. Use for "implement", "write the code", "Script Include", "Business Rule", "Client Script". Hands off to Code Reviewer post-build.
 version: 1.0.0
 ---
 

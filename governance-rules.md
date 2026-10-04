@@ -105,24 +105,24 @@ A flow build is a write in its own right and needs its own "write approved", giv
 
 ## §2.2 — MCP Update Set Capture Mandatory Pre-Write Protocol
 
-Before executing any `create_*` or `update_*` MCP write operation that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, Flow, etc.), the active `sys_user_preference` for `sys_update_set` **must** be set to the target Update Set for the authenticated user.
+Before executing any MCP write operation (`snow_core_record_add` / `snow_core_record_modify`, the typed `snow_*_add` / `*_modify` tools, or legacy `create_*` / `update_*`) that produces a ServiceNow configuration object (Script Include, Business Rule, Client Script, UI Policy, Flow, etc.), the active `sys_user_preference` for `sys_update_set` **must** be set to the target Update Set for the authenticated user.
 
 **Why:** ServiceNow REST API calls honour the `sys_user_preference` record with `name=sys_update_set` for the authenticated user. Setting this preference before write operations causes automatic capture of created/updated objects into the target Update Set. Without this step, objects land on the instance but are not captured in any Update Set and cannot be promoted or migrated.
 
 **Mandatory steps before any configuration write:**
 
-1. Identify or create the target Update Set — `create_update_set` or confirm an existing one is `in progress`.
-2. Resolve the authenticated user's sys_id — `query_records(sys_user, user_name=<username>)`.
-3. Set the user preference — `query_records(sys_user_preference, user=<sys_id>^name=sys_update_set)`:
-   - If exists → `update_record(sys_user_preference, <pref_sys_id>, {value: <update_set_sys_id>})`
-   - If not exists → `create_record(sys_user_preference, {user: <sys_id>, name: 'sys_update_set', value: <update_set_sys_id>, type: 'string'})`
+1. Identify or create the target Update Set — create it (UI or a `sys_update_set` record write) or confirm an existing one is `in progress`.
+2. Resolve the authenticated user's sys_id — `snow_core_records_query` on `sys_user` with `user_name=<username>`.
+3. Set the user preference — `snow_core_records_query` on `sys_user_preference` with `user=<sys_id>^name=sys_update_set`:
+   - If exists → `snow_core_record_modify` on that row, `{value: <update_set_sys_id>}`
+   - If not exists → `snow_core_record_add` on `sys_user_preference`, `{user: <sys_id>, name: 'sys_update_set', value: <update_set_sys_id>, type: 'string'}`
 4. Execute the write operation — object is now captured automatically.
-5. Verify capture — `query_records(sys_update_xml, update_set=<update_set_sys_id>)`.
+5. Verify capture — `snow_core_records_query` on `sys_update_xml` with `update_set=<update_set_sys_id>`.
 
 **What does NOT work (confirmed non-functional on ServiceNow REST API):**
-- `switch_update_set` — only sets `is_default: true` on the record; does NOT switch session context.
+- `snow_us_update_set_switch` (legacy `switch_update_set`) — only sets `is_default: true` on the record; does NOT switch session context.
 - Direct POST to `sys_update_xml` — blocked by `INSUFFICIENT_PRIVILEGES` even for admin users.
-- `execute_script` / `execute_background_script` — call non-existent ServiceNow endpoints; fail with 400/404.
+- Legacy `execute_script` / `execute_background_script` — called non-existent ServiceNow endpoints and failed with 400/404. The current `snow_deploy_background_script_exec` has not been verified for update-set capture; do not rely on it for configuration writes until it is.
 
 **Halt protocol:** If steps 1–3 have not been completed before a configuration write, stop and complete them first. Retroactive capture via REST is not possible.
 

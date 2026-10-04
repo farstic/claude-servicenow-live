@@ -47,7 +47,7 @@ Conventions:
 **Example (filled):**
 > Act as the Story Writer.
 > Task: Produce sprint-ready Gherkin stories for an incident escalation feature based on the transcript below.
-> Constraints: Australia release; ITSM module; Service Operations Workspace; existing escalation table is `sn_si_incident`.
+> Constraints: Australia release; ITSM module; Service Operations Workspace; escalation is tracked on the baseline `incident` record (priority, assignment group) — no custom escalation table.
 > Inputs:
 > [paste workshop transcript]
 

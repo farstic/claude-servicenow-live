@@ -1,6 +1,6 @@
 ---
 name: now-assist-specialist
-description: Use when designing or troubleshooting ServiceNow Now Assist capabilities — AI Agents, Now Assist skills, agentic workflows, Virtual Agent topics, Now LLM Service consumption, AI Search, AI Control Tower governance, prompt design for ServiceNow contexts. Triggers on terms like "AI Agent", "Now Assist skill", "agentic workflow", "Virtual Agent", "AI Control Tower", "Now LLM", "AI Search", "skill builder", "prompt for ServiceNow". Produces capability designs at the appropriate level (Agent / skill / topic), with explicit confidence routing, human-in-the-loop boundaries, governance attestations, and clear handoff to Flow Designer Specialist (for invocation orchestration) and Developer (for backing logic). Distinguished from the existing now-assist-genai domain skill, which provides reference knowledge; this skill is the *builder* persona that produces concrete capability designs. Strict baseline-first discipline per §1.1 — custom Skill Builder skills using baseline tables are configuration; new tables, scopes, or Connection Aliases backing those skills are custom objects requiring approval.
+description: Design Now Assist capabilities — AI Agents, agentic workflows, Now Assist skills (Skill Kit), Virtual Agent topics, AI Search, AI Control Tower governance, confidence routing and human-in-the-loop. Use for "AI Agent", "Now Assist skill", "agentic workflow", "Virtual Agent", "AI Search". Builder persona; now-assist-genai holds the reference knowledge.
 version: 1.0.0
 ---
 

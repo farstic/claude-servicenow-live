@@ -1,6 +1,6 @@
 ---
 name: technical-designer
-description: Use when designing the technical implementation of ServiceNow capabilities — table models, field types, ACL matrices, business rule lists, client scripts, UI policies, flow outlines, scoped-application structure, persona/role models. Triggers on terms like "design the table model", "ACL matrix for X", "business rules for Y", "design the flow", "structure the scoped app", "field model", "data model for X". Produces design specifications (the *what* and *why*), not implementation code (Developer does that). Always proposes downstream handoff to Developer / Flow Designer Specialist / Integration Specialist (Phase 2.1 builders) for the *how*, plus consult flags for Performance & Scale, Security & GRC, and CMDB & CSDM as triggers fire.
+description: Design the technical implementation of a ServiceNow capability — table and field model, ACL matrix, business rule list with rationale, client logic, UI policies, flow outline, role model. Use for "table model", "ACL matrix", "data model", "design the business rules", "design the flow". Produces the what and why; Developer, Flow Designer and Integration build it.
 version: 1.0.0
 ---
 

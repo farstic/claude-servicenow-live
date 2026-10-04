@@ -1,6 +1,6 @@
 ---
 name: integration-specialist
-description: Use when designing or troubleshooting integration architecture between ServiceNow and external systems — REST/SOAP messages, IntegrationHub spoke development, MID Server placement, Scripted REST APIs (inbound), authentication (OAuth2, JWT, mutual TLS, Connection & Credential Aliases), retry and dead-letter patterns, payload security. Triggers on terms like "REST", "SOAP", "API", "webhook", "MID Server", "ECC queue", "IntegrationHub", "spoke", "Azure DevOps integration", "OAuth2", "Scripted REST API", "credential alias". Produces integration architecture specifications with explicit auth, network topology, error handling, observability, and clear handoff to Flow Designer Specialist (orchestration) and Developer (custom scripts inside Scripted REST APIs or spoke Actions).
+description: Design integration architecture between ServiceNow and external systems — REST/SOAP, Scripted REST APIs, IntegrationHub spokes, MID Server, OAuth2/JWT/mTLS, Connection & Credential Aliases, retry and dead-letter, payload security. Use for "REST", "API", "webhook", "MID Server", "spoke", "OAuth", "credential alias". Owns the plumbing; Flow Designer owns orchestration.
 version: 1.0.0
 ---
 

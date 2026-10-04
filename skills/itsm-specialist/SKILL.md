@@ -1,6 +1,6 @@
 ---
 name: itsm-specialist
-description: Mandatory upstream gateway for ServiceNow ITSM requests — incident, problem, change, RITM, MIM, on-call, SLA, assignment group rules, Service Operations Workspace. Produces the 5-part constraint envelope (OOB process map, data-model alignment, §1.1 baseline-first verdict, routing recommendation, anti-patterns) that constrains downstream build specialists. Also fires post-build (§6.2) to validate Technical Designer specs against baseline before Developer dispatch. Grounded in `ServiceNowDocs/markdown/it-service-management/` (Australia branch). Enforces §1.1 — refuses to ratify custom tables, custom scoped apps, or custom state extensions without explicit Chief Architect approval.
+description: Domain Expert gateway for ITSM — incident, problem, change, request/RITM, major incident, on-call, SLA, assignment rules, Service Operations Workspace. Fires before builders and documents in the ITSM domain and again in post-build review; produces the 5-Part Constraint Envelope and §1.1 verdict.
 version: 2.0.0
 ---
 
@@ -99,7 +99,7 @@ When dispatched downstream of Discovery Specialist (PP-04 pattern), expect the f
 
 ## Output Format — the 5-Part Constraint Envelope (strict)
 
-Every gateway dispatch produces exactly this structure. No deviations. Section headings are identical across all five Domain Experts so downstream builders consume the envelope mechanically.
+Every gateway dispatch produces exactly this structure. No deviations. Section headings are identical across all six Domain Experts so downstream builders consume the envelope mechanically.
 
 ```markdown
 # ITSM Specialist Gateway Response — <one-line task summary>

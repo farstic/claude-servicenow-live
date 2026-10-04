@@ -1,6 +1,6 @@
 ---
 name: security-grc-specialist
-description: Architectural security and GRC consult + review specialist for ServiceNow designs — ACL strategy and evaluation order, RBAC/role model and separation of duties, field-level security, data classification and PII/sensitive-data handling, platform encryption and masking, audit and logging design, secure integration (auth, least privilege, payload), and GRC control / regulatory mapping (Policy & Compliance, Risk, Audit, attestation). Skill-only, runs in the Chief Architect's main thread like Code Reviewer. Fires as a §3.1 routing-time consult (ACL/PII/SecOps/GDPR/regulatory triggers) to set security constraints BEFORE builders run, and as a post-build architectural-security review of a returned spec/artefact. Distinct from Code Reviewer (which does code-level security on a JS artefact); this skill owns architecture-level security. Grounded in ServiceNowDocs Australia branch (markdown/platform-security/ and markdown/governance-risk-compliance/). Enforces §1.1 — designing ACLs/roles is baseline configuration, but new security tables, scoped apps, or group structures where baseline suffices require Chief Architect approval.
+description: Architectural security and GRC — ACL strategy, roles and separation of duties, field-level security, PII and data classification, encryption, audit logging, secure integrations, regulatory/GRC control mapping. Use as a consult on ACL, PII, GDPR or regulatory triggers and as a post-build security review. Code-level security belongs to Code Reviewer.
 version: 1.1.0
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: operational-documentation
-description: Author operator- and end-user-facing documentation for a delivered ServiceNow capability — runbooks (operational procedures, on-call response, rollback), Knowledge Base Articles (kb_knowledge, knowledge bases, article templates, versioning/validity, review-and-publish, KCS create-from-incident/case), training material, and user guides. Skill-only, runs in the Chief Architect's main thread. Fires post-build per taxonomy §6.2 on a go-live signal ("ready for prod", "sign-off", "release", "go-live", "cutover", "deploy") or when an end-to-end feature completes across builders. Audience is operators / support engineers / end users — distinct from the HLD/LLD Writer (architect audience). Grounded in ServiceNowDocs Australia branch (markdown/servicenow-platform/knowledge-management/). §1.1-aware — KBAs use the baseline kb_knowledge / knowledge-base / article-template model (configuration); a custom documentation table is a §1.1 halt.
+description: Write operator and end-user documentation — runbooks, Knowledge Base articles (kb_knowledge), training material, user guides. Use for "runbook", "KBA", "knowledge article", "user guide", "training", and post-build on a go-live signal ("go-live", "release", "cutover", "sign-off", "ready for prod"). Audience is support and users, not architects.
 ---
 
 # Operational Documentation

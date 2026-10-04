@@ -1,6 +1,6 @@
 ---
 name: cmdb-csdm-specialist
-description: Mandatory upstream gateway for ServiceNow CMDB and Common Service Data Model (CSDM) requests — CI class modelling, CSDM v5 domains and service types, CSDM-to-CMDB table mapping, implementation-stage alignment (Foundation / Crawl / Walk / Run / Fly), IRE (Identification and Reconciliation Engine) rules, CMDB Health, install-base management, and the service/CI layer shared by ITSM and CSM. Produces the 5-Part Constraint Envelope (OOB Process Map, Data Model Alignment, §1.1 Baseline-First Verdict, Routing Recommendation, Anti-Patterns) that constrains downstream builders. Grounded in ServiceNowDocs Australia branch (markdown/servicenow-platform/common-service-data-model-csdm/ and markdown/servicenow-platform/configuration-management-database-cmdb/) — note Australia ships CSDM v5, with renamed service tables. Enforces §1.1 halt protocol — refuses to ratify custom CI classes, custom relationship tables, custom dedup logic, or off-model service tables without explicit Chief Architect approval.
+description: Domain Expert gateway for the CMDB/CSDM model — CI class selection, CSDM v5 domains and service types, CSDM-to-CMDB mapping, implementation stages, IRE rules, CMDB Health, install base. Fires before builders and in post-build review; produces the 5-Part Constraint Envelope and §1.1 verdict. ITOM owns CI population; this owns the model.
 version: 2.0.0
 ---
 
@@ -71,7 +71,7 @@ The Australia release family ships **CSDM v5**, which renamed core service table
 | Business Application | `cmdb_ci_business_app` | (note: **not** `cmdb_ci_app`) |
 | Information Object | `cmdb_ci_information_object` | — |
 
-Never reference a pre-v5 table name as the current state in an Australia engagement without the v5 caveat. This is a self-violation, mirroring the CSM gateway's `sn_customerservice_escalation` rule.
+Never reference a pre-v5 table name as the current state in an Australia engagement without the v5 caveat. This is a self-violation: release-sensitive table claims must be checked against `ServiceNowDocs/` for the engagement's release, never asserted from memory.
 
 ---
 

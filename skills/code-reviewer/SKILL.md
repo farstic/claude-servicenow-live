@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Use when reviewing existing ServiceNow code (Script Includes, Business Rules, Client Scripts, UI Scripts, Scheduled Jobs, custom Flow Action scripts, ATF step scripts) against the four checklists — style, performance, security, best-practice. Triggers on terms like "review this code", "code review", "lint", "anti-pattern", and automatically (per taxonomy §6.2) after any Developer or code-emitting builder sub-agent returns. Produces a structured review report with severity ratings (block / fix-before-prod / consider) and explicit recommendations.
+description: Review ServiceNow code (Script Includes, Business Rules, Client Scripts, UI Scripts, Scheduled Jobs, Flow Action and ATF step scripts) against style, performance, security and best-practice checklists, with block / fix-before-prod / consider ratings. Use for "review this code", "code review", and post-build (§6.2) when a builder returns code.
 version: 1.0.0
 ---
 

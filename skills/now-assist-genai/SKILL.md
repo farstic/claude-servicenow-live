@@ -1,6 +1,6 @@
 ---
 name: now-assist-genai
-description: Reference-knowledge skill for ServiceNow Now Assist and the generative-AI platform layer — what Now Assist is, the out-of-box Now Assist skill catalogue (summarization, resolution notes, chat/email reply, code generation, knowledge generation across ITSM/CSM/HRSD), Now Assist Skill Kit (custom skills), the Now LLM Service / AI-native SKU and Generative AI Controller (BYO-LLM), AI Agents / agentic experiences, Now Assist Center / admin console enablement, and AI Control Tower governance. This skill provides grounded *reference* knowledge ("what it is / what it can do / how it's governed"); it does NOT produce buildable designs — that's the Now Assist Specialist (builder). Use it to answer capability/pricing-tier/governance questions and to ground the builder. Grounded in ServiceNowDocs Australia branch (markdown/intelligent-experiences/). §1.1-aware — OOB Now Assist skills and Skill-Kit skills over baseline tables are configuration; new tables, scopes, or Connection Aliases backing them are custom objects requiring approval.
+description: Reference knowledge on Now Assist and generative AI in ServiceNow — OOB skill catalogue, Skill Kit, Now LLM / Generative AI Controller, AI Agents, Now Assist admin, AI Control Tower governance. Use to answer "what is / what can it do / which tier / how is it governed" questions. For buildable designs use now-assist-specialist.
 version: 1.0.0
 ---
 

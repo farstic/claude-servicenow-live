@@ -1,6 +1,6 @@
 ---
 name: spm-specialist
-description: Domain specialist for ServiceNow Strategic Portfolio Management (SPM, formerly ITBM/PPM) — demand and idea management, project and program management (PPM), portfolio planning and investment funding, resource management, goal framework/alignment (OKR), and agile / Enterprise Agile Planning (SAFe — stories, epics, sprints, ARTs, program increments). Produces baseline-process guidance, data-model alignment, a §1.1 baseline-first verdict, anti-patterns, and routing/consult recommendations for downstream builders. Skill-only, main thread, adopted when an SPM/portfolio/project/demand/resource/agile task is in scope. Triggers on "demand", "idea", "project", "program", "portfolio", "resource plan/management", "investment funding", "goal/OKR", "agile", "scrum", "story/epic", "SAFe", "PPM", "SPM", "PMO". Grounded in ServiceNowDocs Australia branch (markdown/it-business-management/). Enforces §1.1 — baseline SPM tables and processes are configuration; custom demand/project/portfolio/resource tables, scoped apps, or state extensions need Chief Architect approval.
+description: Strategic Portfolio Management — demand and ideas, projects and programs, portfolio planning and funding, resource management, goals/OKRs, agile and SAFe. Use for "demand", "project", "portfolio", "resource plan", "agile", "scrum", "epic", "SAFe", "PPM", "PMO". Produces baseline process guidance and a §1.1 verdict for builders.
 version: 1.1.0
 ---
 

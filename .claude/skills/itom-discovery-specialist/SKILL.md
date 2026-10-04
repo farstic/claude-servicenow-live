@@ -1,6 +1,6 @@
 ---
 name: itom-discovery-specialist
-description: Mandatory upstream gateway for ServiceNow IT Operations Management requests — MID Server, Discovery, CMDB Discovery, Service Mapping, Event Management, IRE (Identification and Reconciliation Engine) rules, CSDM phase alignment, Service Graph Connectors, Cloud Discovery. Produces the 5-Part Constraint Envelope (OOB Process Map, Data Model Alignment, §1.1 Baseline-First Verdict, Routing Recommendation, Anti-Patterns) that constrains downstream builders. Grounded in ServiceNowDocs Australia branch (markdown/it-operations-management/). Enforces §1.1 halt protocol — refuses to ratify custom CMDB tables, custom dedup logic, or custom service-map tables without explicit Chief Architect approval.
+description: Domain Expert gateway for ITOM — MID Server, Discovery, Cloud Discovery, Service Mapping, Event Management, alert correlation, Service Graph Connectors. Fires before builders and in post-build review; produces the 5-Part Constraint Envelope and §1.1 verdict. Owns CI population; CMDB & CSDM owns the model.
 version: 2.0.0
 ---
 

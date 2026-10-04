@@ -1,6 +1,6 @@
 ---
 name: discovery-specialist
-description: Upstream requirements consultant for ServiceNow engagements — elicit and structure requirements from a blueprint, workshop, interview, or transcript; map current-state vs target-state; produce a gap analysis; identify personas/roles, processes, volumes, and sensitivity; and surface OPEN QUESTIONS. Produces the structured "Discovery Output" that the Domain Expert gateways (ITSM/CSM/HRSD/ITOM/CMDB&CSDM) and the Story Writer consume as their input contract. Divergent/elicitation work — does NOT design, build, or rule on §1.1 (it surfaces custom-object implications for the gateway to adjudicate). Skill-only, main thread, sits upstream of the whole routing protocol. Triggers on "blueprint", "requirements", "workshop", "transcript", "extract from this", "current state", "target state", "gap analysis", "as-is / to-be", "stakeholders", "scope". ServiceNow-fluent — produces real personas, roles, tables, and process names; grounds platform claims in ServiceNowDocs module indexes.
+description: Elicit and structure requirements from a blueprint, workshop, interview or transcript — current vs target state, gap analysis, personas, volumes, OPEN QUESTIONS — into the Discovery Output consumed by the gateways and Story Writer. Use for "requirements", "workshop", "transcript", "as-is / to-be", "gap analysis", "scope". Does not design or rule on §1.1.
 version: 1.1.0
 ---
 

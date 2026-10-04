@@ -118,10 +118,10 @@ Review the Code Reviewer verdict. If it flagged anything as `FIX-BEFORE-PROD`, f
 ### What you type
 
 ```
-Design and implement an audit trail for case escalations on the customer
-service case form. We need a separate structured log of every escalation
-event with timestamp, escalated-by user, escalated-to group, and escalation
-reason. Show me the table model and the Script Include. Australia release.
+Our CSM agents need each customer account's monthly product-usage history
+from our billing platform (product, metric, quantity, month) for the last
+three years, reportable per account. Show me the table model and the Script
+Include that loads it nightly. Australia release.
 ```
 
 ### What happens — and the visual
@@ -136,13 +136,13 @@ sequenceDiagram
     participant CSM as CSM Specialist
     participant Builder as Builder Specialists<br/>(NOT invoked yet)
 
-    You->>CA: Design a custom escalation log table
+    You->>CA: Design a usage-history table + loader
 
     rect rgb(245, 240, 230)
     Note over CA,CSM: Engine checks baseline first
     CA->>CSM: Take a look — this is CSM territory
-    CSM->>CSM: Evaluate baseline candidates:<br/>• work_notes (free text only)<br/>• sys_history_set (no reason field)<br/>• case.escalation (flag, not a log)<br/>• sn_customerservice_escalation (Vancouver+, NOT in Australia)
-    CSM-->>CA: No baseline construct covers a structured per-event log.<br/>This needs explicit approval before we build it.
+    CSM->>CSM: Evaluate baseline candidates:<br/>• install base attributes (current value only)<br/>• remote table (live view, nothing stored)<br/>• work notes / attachments (not reportable)
+    CSM-->>CA: No baseline table holds a per-account monthly time series.<br/>This needs explicit approval before we build it.
     end
 
     rect rgb(254, 235, 235)
@@ -163,7 +163,7 @@ sequenceDiagram
     end
 ```
 
-The key moment is the red zone. The engine **pauses**: no table model, no field list, no ACL matrix, no code. It surfaces the four baseline candidates it considered, names the smallest possible custom object it would propose, lists the consequences, and offers degraded alternatives. Then it waits.
+The key moment is the red zone. The engine **pauses**: no table model, no field list, no ACL matrix, no code. It surfaces the baseline candidates it considered, names the smallest possible custom object it would propose, lists the consequences, and offers degraded alternatives. Then it waits.
 
 ### What you receive (before you've decided)
 
@@ -183,7 +183,7 @@ Four legitimate responses:
 | Reply | What happens |
 |---|---|
 | `"Approved. Use a new table in the existing x_acme_csm scoped app."` | The engine resumes and builds it with the approved scope as a constraint |
-| `"Rejected — use the work_notes baseline alternative instead."` | The engine produces a baseline-only design with documented gaps |
+| `"Rejected — use the remote-table baseline alternative instead."` | The engine produces a baseline-only design with documented gaps |
 | `"Re-evaluate option 2 more carefully — I think there's a baseline path."` | The CSM Specialist re-runs with the refined constraint |
 | `"Defer this feature to the next release."` | The engine acknowledges and closes the thread |
 

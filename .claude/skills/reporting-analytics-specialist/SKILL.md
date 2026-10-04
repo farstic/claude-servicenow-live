@@ -1,6 +1,6 @@
 ---
 name: reporting-analytics-specialist
-description: Domain specialist for ServiceNow reporting and analytics — reports (list/bar/pie/trend/pivot/heatmap/multi-level pivot), dashboards and responsive canvas, and Performance Analytics (indicators, breakdowns, scores, time-series snapshots, widgets, scorecards, targets/thresholds, data-collection jobs). Decides report-vs-PA (live query vs pre-aggregated snapshots), designs the metric/indicator model, and sets ACL/visibility. Produces report/analytics design specifications, NOT implementation code and NOT the underlying data model. Skill-only, main thread, adopted when reporting, dashboards, KPIs, or analytics are in scope. Triggers on "report", "dashboard", "Performance Analytics", "PA", "indicator", "KPI", "metric", "breakdown", "scorecard", "trend", "data visualization", "chart", "analytics". Grounded in ServiceNowDocs Australia branch (markdown/now-intelligence/). Enforces §1.1 — reports, dashboards, and PA indicators are baseline configuration; a custom reporting/rollup/data-mart table needs Chief Architect approval (use a PA indicator first).
+description: Design reports, dashboards and Performance Analytics — report types, indicators, breakdowns, scorecards, targets, data collection, report-vs-PA choice and visibility. Use for "report", "dashboard", "Performance Analytics", "KPI", "indicator", "metric", "scorecard". Prefers PA indicators over any custom reporting table.
 version: 1.1.0
 ---
 

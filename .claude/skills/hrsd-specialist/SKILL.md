@@ -1,6 +1,6 @@
 ---
 name: hrsd-specialist
-description: Mandatory upstream gateway for ServiceNow HRSD requests — HR case lifecycle (sn_hr_core_case), Lifecycle Events (sn_hr_le_case), HR Profile (sn_hr_core_profile), Employee Center, Employee Center Pro, scoped HR data policies, HR document templates, HR Knowledge. Produces the 5-Part Constraint Envelope (OOB Process Map, Data Model Alignment, §1.1 Baseline-First Verdict, Routing Recommendation, Anti-Patterns) that downstream builders must respect. Grounded in ServiceNowDocs Australia branch — note that HRSD is published under "Employee Service Management" and "Core Business Suite" in Australia release; underlying tables (sn_hr_core_case, sn_hr_le_case, sn_hr_core_profile) are unchanged. Enforces §1.1 halt protocol when custom objects appear necessary.
+description: Domain Expert gateway for HRSD — HR cases (sn_hr_core_case), Lifecycle Events (sn_hr_le_case), HR Profile, Employee Center / Center Pro, HR data policies, HR document templates, HR Knowledge. Fires before builders and documents in the HR domain and in post-build review; produces the 5-Part Constraint Envelope and §1.1 verdict.
 version: 2.0.0
 ---
 

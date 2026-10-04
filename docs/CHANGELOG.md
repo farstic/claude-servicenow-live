@@ -3,9 +3,36 @@
 All notable changes to the Claude ServiceNow Architecture Engine are documented in this file.
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Last updated:** 3 June 2026
+**Last updated:** 4 October 2026
 
 The engine follows a minor-version cadence where the **first digit** signals a major architectural shift, and the **second digit** signals an additive or corrective patch within that architecture.
+
+---
+
+## v2.8.2 — Instruction tuning for current Claude models
+
+**Released:** 4 October 2026
+**Trigger:** Audit of the instruction files against current-model behaviour. Newer models follow instructions more literally, so over-emphasis and duplication now cost more than they help; and long skill descriptions overflowed the skill-listing budget, so nine skills reached the model with no description at all.
+
+### Changed
+- **Skill descriptions** (all 29 `SKILL.md`): rewritten to ≈300–400 characters — what the skill does, when to use it, trigger phrases. Previously 600–1,600 characters; the listing dropped the descriptions of nine skills and truncated two. Skill bodies unchanged.
+- **CLAUDE.md** rewritten from ≈8,500 to ≈3,250 words with no rule removed: the four duplicate roster/registry lists merged into one table; §2.1 / §2.2 condensed to summaries pointing at `governance-rules.md`; the two inline validation tests replaced by a pointer to T-01 / T-02 in `VALIDATION-TESTS.md`; the multi-builder worked example condensed; emphatic wording ("mandatory", "non-negotiable", "critical") reserved for the real hard gates (§1.1 halt, write approval, confidentiality). Gateway Step 5 now states that a gateway fires when the task works in the domain, not when a keyword merely appears.
+- **Stale content fixed:** version mismatch (header v2.8.0 / body v2.8.1 / footer v2.7.8) → v2.8.2; removed the non-existent `claude-ai-projects/` folder from the repo map; repo map now shows `.claude/` as source of truth with mirrors; diagrams default to draw.io in the artefact standards.
+- **governance-rules.md §2.2:** legacy MCP tool names (`query_records`, `create_record`, `update_record`, `create_update_set`, `switch_update_set`) mapped to the current `snow_*` tools; `snow_deploy_background_script_exec` flagged as unverified for update-set capture. Rule content unchanged.
+- **VALIDATION-TESTS.md:** troubleshooting pointer updated to the new CLAUDE.md section name.
+
+### Fixed
+- **False release claim in the CSM gateway.** `csm-specialist` asserted that `sn_customerservice_escalation` is "Vancouver+, NOT in Australia". The Australia docs ship the Case and Account Escalation feature with that table (`markdown/customer-service-management/case-escalation-components.md`). Corrected in SKILL.md (hot spot, Part 5 library, review check, anti-pattern), the CMDB & CSDM cross-reference, and EXAMPLES.md — Example 3 is now the correct Verdict A (configure baseline escalation), and a new Example 4 (account usage-history time series) is the Verdict C pattern.
+- **T-02** relied on that claim to expect Verdict C. Its prompt is replaced with a genuine Verdict C case (account usage history); the old prompt is now correctly Verdict A. CLAUDE.md, VALIDATION-TESTS.md and USER-GUIDE scenario 3 updated to match.
+- **Diagram format.** draw.io is the default delivered format everywhere; the Diagramming Specialist proposal text (CLAUDE.md, taxonomy, skill) and the skill's output template no longer say "Mermaid by default". Mermaid stays an optional draft notation.
+
+### Earlier CLAUDE.md version footers (moved here verbatim)
+
+*CLAUDE.md v2.7.8 — Phase 2.7 arc: CMDB & CSDM Specialist promoted to 5th v2.0 Domain Expert gateway with Phase 1 Step 5 wiring + multi-gateway co-fire rule (v2.7); Security & GRC consult/review skill (v2.7.1); repo-wide ServiceNowDocs citation-path audit, ~50 dead paths remapped (v2.7.2); ATF Author skill + batch sub-agent (v2.7.3); Operational Documentation skill, completing the §6.2 consult chain (v2.7.4); Discovery Specialist + UI/UX Specialist skills (v2.7.5); the final six specialist skills — Performance & Scale, SPM, App Engine, Migration, Reporting & Analytics, DevOps / Release Manager (v2.7.6), completing the 22-specialist roster (every specialist now has a SKILL.md). Diagramming Specialist added as the 23rd specialist and 9th sub-agent — skill + batch diagram-pack sub-agent, wired as a §6.2 post-build consult plus HLD/LLD Writer and Technical Designer downstream handoff; depicts architecture (Mermaid/draw.io/PlantUML/SVG), never decides it, and flags unapproved custom objects PENDING per §1.1 (v2.7.7). Merged with the field-notes branch (F-0xx fixes, T-11/12/13; this session's tests renumbered T-14/15/16). Document-gateway rule — Domain Expert gateways now also fire before finalizing a domain-scoped document deliverable (proposal / scoping doc / HLD / LLD / PDD), not only before builder dispatch; Phase 1 Step 5 intro + new "Document deliverables fire the gateway too" note, and taxonomy §6.1 Step 7, updated accordingly (v2.7.8).*
+
+*v2.8.0 — Phase 2.8 (Delivery Governance) opens. Two skill-only cross-cutting advisory consults added, taking the roster to 27 (corrected from "25" — see the authoritative roster-count note): **Licensing & Entitlement Specialist** (`skills/licensing-specialist/`) — what a design costs to license (subscription/fulfiller, SKU/tier, App Engine units, Now Assist Assists, third-party SaaS), §3.1 consult + post-build review; and **Estimation & Sizing Specialist** (`skills/estimation-specialist/`) — the sizing methodology and the number (ranges, ServiceNow complexity rubric, contingency, baseline-vs-custom §1.1 delta), recorded into baseline SPM. New governance family **§4 Delivery Artefact Governance** in `governance-rules.md` — ADR (§4.1), Requirements Traceability / RTM (§4.2), RAID & NFR (§4.3) — seeded from new engine-level `reference/templates/` (adr / traceability-matrix / raid-log / nfr-checklist). Wiring: taxonomy v1.5 (roster 25, §3.1 consults, §2.4 boundaries, §4.5 triggers), prompt-patterns v1.2 (PP-20 estimation, PP-21 licensing, PP-22 ADR, PP-23 RTM, PP-24 RAID/NFR), CLAUDE.md repo map + roster + §3.1 table + Artefact standards + Phase delivery-governance touchpoints. Carries forward v2.6: docs/ knowledge base, Standing Rule, repo map.*
+
+*v2.8.1 — FSO Insurance Specialist (`skills/fso-insurance-specialist/`) added as the 28th specialist and the sixth Domain Expert gateway, (21 Sep 2026): built from a nine-group digest of `ServiceNowDocs/markdown/financial-services-operations/` (≈520 files: FSO Core, P&C policy operations, the four claims apps + Insurance Claims Core, underwriting, life servicing, Document Processor / Document Intelligence, Complaint Management, Customer Lifecycle / KYC, FSO integration guide + Guidewire / FRISS / Socure / FSM / Service Exchange, Now Assist for FSO, banking catalogue). Wiring: Phase 1 Step 5 gateway table row, registry, Status list, FSO ↔ CSM co-fire boundary; taxonomy v1.6 (roster 28, §2.4 boundary, §3.2 gateway list, §4.4 triggers, §6.1 Step 7); prompt-patterns PP-02b; VALIDATION-TESTS T-19. 192 new citations, all resolving (367 total).*
 
 ---
 

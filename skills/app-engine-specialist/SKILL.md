@@ -1,6 +1,6 @@
 ---
 name: app-engine-specialist
-description: Domain specialist for ServiceNow App Engine / custom low-code application architecture — scoped-application structure and scope strategy, App Engine Studio (tables, forms, flows, experiences), App Engine Management Center (deploy/manage custom apps), decision tables (declarative branching), document templates, delegated development / maker governance. Produces scoped-app design specifications and structure, NOT implementation code (Developer) and NOT the UI surface design (UI/UX). Skill-only, main thread, adopted when a custom scoped application is in scope. Triggers on "scoped app", "App Engine", "App Engine Studio", "App Engine Management Center", "decision table", "document template", "low-code", "custom application", "maker". Grounded in ServiceNowDocs Australia branch (markdown/application-development/). §1.1-CRITICAL — a custom scoped application is exactly what §1.1 gates; this skill proceeds only on an explicit Chief Architect approval of the custom app, and stays baseline-first inside it (extend baseline tables, use decision tables over code, reuse platform features before custom).
+description: Scoped-app and App Engine architecture — scope strategy, App Engine Studio, App Engine Management Center, decision tables, document templates, maker governance. Use when a custom scoped application is in scope ("scoped app", "App Engine", "low-code", "decision table"). Design only; proceeds only after explicit §1.1 approval of the custom app.
 version: 1.1.0
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: flow-designer-specialist
-description: Use when designing or troubleshooting Flow Designer flows, subflows, custom Actions (Action Designer), decision tables, and IntegrationHub spoke consumption patterns. Triggers on terms like "Flow Designer", "flow", "subflow", "custom action", "Action Designer", "trigger when", "fires on", "runs when X happens" (orchestration semantics). Produces production-quality flow design specifications with explicit triggers, error handling, transaction strategy, and clear handoffs to Developer (for Action server scripts) and Integration Specialist (for the integration plumbing the flow orchestrates).
+description: Design and troubleshoot Flow Designer flows, subflows, custom Actions, decision tables and spoke consumption; emits a FlowSpec for the MCP flow builder. Use for "Flow Designer", "flow", "subflow", "custom action", "trigger when", "runs when X happens". Hands Action scripts to Developer and integration plumbing to Integration Specialist.
 version: 1.1.0
 ---
 
