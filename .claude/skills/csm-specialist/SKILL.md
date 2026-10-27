@@ -1,7 +1,7 @@
 ---
 name: csm-specialist
 description: Domain Expert gateway for CSM — case lifecycle, account/contact/consumer, contracts and entitlements, CSM Workspace, Customer Service Portal. Fires before builders and documents in the CSM domain and again in post-build review; produces the 5-Part Constraint Envelope and §1.1 verdict.
-version: 2.0.0
+version: 2.0.3
 ---
 
 # CSM Specialist v2.0
@@ -26,6 +26,7 @@ Trigger conditions — any of these in a user request fires this skill:
 - Request is about ITSM (incident, problem, change, RITM, MIM) → `itsm-specialist`.
 - Request is about HRSD (HR case, Lifecycle Event, Employee Center) → `hrsd-specialist`.
 - Request is about CMDB, Discovery, MID Server, Service Mapping → `itom-discovery-specialist`.
+- Request touches a Customer Success Management object (`sn_acct_lc_*` — account onboarding case, engagement, success objectives and plays, health score, risk signal, product adoption, Customer Success touchpoint) → `customer-success-specialist` is the gateway; you co-fire on the base layer it runs on (accounts, contacts, sold products, contracts, workspace, portal). "CSM" in a request can mean either product — confirm which.
 - Request asks for code → after gateway, Technical Designer then Developer.
 - Request asks for ACL matrix or table model → after gateway, Technical Designer.
 
@@ -90,7 +91,7 @@ When dispatched downstream of Discovery Specialist, expect these structured fiel
 
 ## Output Format — the 5-Part Constraint Envelope (strict)
 
-Every gateway dispatch produces exactly this structure. Identical section headings across all six Domain Experts (ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance) so downstream builders consume the envelope mechanically.
+Every gateway dispatch produces exactly this structure. Identical section headings across all nine Domain Experts (ITSM, CSM, Customer Success, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance, IRM & TPRM, FSM & Telecom) so downstream builders consume the envelope mechanically.
 
 ```markdown
 # CSM Specialist Gateway Response — <one-line task summary>
@@ -245,6 +246,7 @@ Cases where a partner organisation (not the direct customer) is the responsible 
 3. **"We need a custom customer-contact table because the baseline lacks fields X, Y, Z."** → Extend `customer_contact` with fields, not a new table. Verdict B.
 4. **"We need a custom contract-renewal tracking table."** → `sn_customerservice_contract` has `end_date` and renewal-tracking baseline fields. Verdict A or B.
 5. **"We need a custom audit table for case work-notes changes."** → `sys_journal_field` baseline. Verdict A.
+6. **"We need per-account product-usage history or a customer health score."** → Not in the CSM baseline. If the engagement holds the separate **Customer Success Management** subscription (`com.sn_acct_lc`), its Data Context Engine (an External data source written through the Table API into Context Engine Data) and its Product Usage records are the baseline path — co-fire `customer-success-specialist`. Without that subscription, no CSM table holds a per-account metric time series and the request is Verdict C (EXAMPLES.md Example 4), with the subscription listed as an alternative, never assumed. Cite `markdown/acct-lifecycle-events/account-lifecycle-define-data-source.md`.
 
 ## Post-Build Review Mode — §6.2 Closed Loop
 
@@ -303,6 +305,7 @@ Return rejection when:
 | Request touches CMDB or service mapping | **ITOM/Discovery Specialist** routing-time consult |
 | Request touches sensitive customer data | **Security & GRC Specialist** routing-time consult |
 | Request touches Now Assist for CSM | **Now Assist Specialist** for AI capability design |
+| Request touches Customer Success Management objects (`sn_acct_lc_*`) | **Customer Success Specialist** gateway; you co-fire on the base layer |
 | Workshop / current-state mapping needed | **Discovery Specialist** upstream of gateway |
 
 ## Anti-Patterns (in your own output)
@@ -318,4 +321,4 @@ Return rejection when:
 
 ---
 
-*End of CSM Specialist SKILL.md v2.0.*
+*End of CSM Specialist SKILL.md v2.0.2 — Customer Success co-fire boundary and usage-history hot spot added (engine v2.9.0). v2.0.2 (26 Oct 2026): one EXAMPLES citation (case and account escalation) citations remapped to the ServiceNowDocs Australia refresh of 16 Oct 2026.*

@@ -36,75 +36,77 @@ This request touches three core baseline ITSM processes: incident lifecycle, on-
 
 ### On-call coordination
 
-- The on-call engineer for an assignment group at any point in time is resolved via `cmn_rota_roster` (active member of the rotation defined in `cmn_rota`).
-- The baseline `OnCallRotation` Script Include exposes `OnCallRotation.getUsersOnSchedule(rotationSysId, dateTime)` to return the on-call user(s).
-- The duty manager role in baseline `cmn_rota` is typically configured as a separate rotation member type — "On-Call Engineer" and "On-Call Manager" can coexist in the same rotation with different escalation tiers.
-- *(citation: `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
+- On-Call Scheduling (`com.snc.on_call_rotation`) is active. The group's Shift [`cmn_rota`] holds Rosters [`cmn_rota_roster`] — one per escalation level (primary, secondary…) — with On-call Members [`cmn_rota_member`].
+- An escalation is a series of notifications along the shift's escalation path. Escalation policies define the steps (escalation level, **time to next step**, reminders) and a final **Catch-All** that can notify the group manager, the shift manager or an individual when nobody has acknowledged.
+- A **Trigger Rule** [`trigger_rule`] on `incident` (conditions such as priority 1–2 and the assignment group) starts the shipped subflow **On-Call: Assign by Acknowledgement**, which notifies along the escalation path until someone acknowledges and then assigns the incident.
+- "Who is on call" is available through the `OnCallRotation` script include (`whoIsOnCall`, `getPrimaryUser`, `getEscalatees`).
+- *(citations: `markdown/it-service-management/on-call-scheduling/tables-oob-oncall.md`, `markdown/it-service-management/on-call-scheduling/create-custom-esc-policy-oncall.md`, `markdown/it-service-management/on-call-scheduling/create-update-schedule-oncall.md`, `markdown/it-service-management/on-call-scheduling/create-trigger-rule-oncall.md`, `markdown/it-service-management/on-call-scheduling/subflows-installed-on-call-scheduling.md`, `markdown/api-reference/server-api-reference/c_OnCallRotationAPI.md`)*
 
-### Baseline notifications
+### Notifications
 
-- Baseline ServiceNow notification records on `incident` include "Incident Assigned", "Incident Resolved", "Major Incident Communication". The escalation notification in this request is **not** in the baseline set — but the mechanism (a notification record with a condition and a `Send to` resolution script) is baseline.
-- *(citation: `markdown/platform-administration/c_EmailNotifications.md`)*
+- On-call notifications are sent by the On-Call subflows through the channels set for the roster or member — email, SMS and voice (Notify), Microsoft Teams, Slack, mobile push — with reminders between escalation steps. No separate notification record is needed for the escalation itself.
+- *(citations: `markdown/it-service-management/on-call-scheduling/subflows-installed-on-call-scheduling.md`, `markdown/it-service-management/on-call-scheduling/escalation-remind-settings-oncall.md`)*
 
 ## Part 2 — Data Model Alignment
 
 | Table | Action | Critical fields |
 |---|---|---|
-| `incident` | Read only — no extension required | `priority` (1–5), `state` (1–7), `assignment_group` (ref to `sys_user_group`), `assigned_to` (ref to `sys_user`), `sys_created_on` (used for 15-min timer), `work_notes` (used for escalation audit) |
-| `sys_user_group` | Read only | `manager` (the static manager field — *not* the on-call duty manager) |
-| `cmn_rota` | Read only — pre-existing in engagement | `group` (FK to `sys_user_group`) |
-| `cmn_rota_roster` | Read only — resolved at runtime | `member` (FK to `sys_user`), `rotation` (FK to `cmn_rota`), active time block |
-| `sys_journal_field` | Write via `current.work_notes.setJournalEntry()` — baseline audit | `value`, `sys_created_by`, `sys_created_on` |
-| Baseline notification record | New record, no table extension | `name`, `table`, `when`, `condition`, `Send to`, `message_html` |
+| `incident` | Read only — no extension required | `priority` (1–5), `state`, `assignment_group` (ref to `sys_user_group`), `assigned_to` (ref to `sys_user`; set by the subflow on acknowledgement), `work_notes` (escalation audit) |
+| `sys_user_group` | Read only | `manager` (the static manager — used only if the Catch-All targets the group manager) |
+| `cmn_rota` | Configuration — pre-existing in engagement | the group's Shift |
+| `cmn_rota_roster`, `cmn_rota_member` | Configuration | escalation levels and their members (the duty manager as a later level or as the Catch-All) |
+| `trigger_rule` (extends `sysrule_assignment`) | New configuration record | table `incident`, conditions (priority 1–2, assignment group), Run once, subflow On-Call: Assign by Acknowledgement |
+| `on_call_escalation` and related `on_call_escalation_*` tables | Written by the platform | baseline record of every escalation, its levels, contact attempts and responses |
 
 No new tables. No new scoped app. No new state values. No new Connection Aliases. No new sys_user_group structures.
 
-*(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`, `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
+*(citations: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`, `markdown/it-service-management/on-call-scheduling/tables-oob-oncall.md`)*
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
 **Verdict A — Fully covered by baseline.**
 
-The escalation requirement is fully satisfied by combining four baseline constructs:
+The escalation requirement is fully satisfied by On-Call Scheduling configuration:
 
-1. **A scheduled job** that runs every 5 minutes scanning `incident` for `priority IN 1,2 AND state=1 AND sys_created_on < 15 minutes ago AND <no work_note from assigned_to>` — or equivalent baseline `IncidentInactivityMonitor` pattern. *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
-2. **Baseline `OnCallRotation` Script Include** to resolve the on-call duty manager for the incident's assignment group at the moment of escalation.
-3. **A baseline notification record** with: table = `incident`, when = "Event is fired", event = a custom event name like `incident.escalated_to_duty_manager`, condition = the 15-min/no-ack predicate, recipient = the resolved on-call duty manager. The event is fired from the scheduled job.
-4. **A work_note append** by the scheduled job, written via `gr.work_notes = "Escalated to duty manager <name> — no acknowledgement within 15 min of creation"`.
+1. **An escalation policy on the group's shift** — step 1 notifies the primary roster; **time to next step = 15 minutes**; the next step (or the **Catch-All**) is the duty manager — the shift manager, the group manager or a duty-manager roster. *(citations: `markdown/it-service-management/on-call-scheduling/create-custom-esc-policy-oncall.md`, `markdown/it-service-management/on-call-scheduling/create-update-schedule-oncall.md`)*
+2. **A trigger rule on `incident`** — conditions priority 1–2 and the assignment group, Run once, action = subflow **On-Call: Assign by Acknowledgement**, which notifies along the path until someone acknowledges and then assigns the incident. *(citations: `markdown/it-service-management/on-call-scheduling/create-trigger-rule-oncall.md`, `markdown/it-service-management/on-call-scheduling/subflows-installed-on-call-scheduling.md`)*
+3. **Audit** — work notes plus the `on_call_escalation*` records; the escalation tracking icon on the Assignment group field (property `com.snc.on_call_rotation.log_escalations`). *(citations: `markdown/it-service-management/on-call-scheduling/tables-oob-oncall.md`, `markdown/it-service-management/on-call-scheduling/track-escalation-progress-oncall.md`)*
 
-No custom tables. No new scope. No state-machine changes.
+No scheduled job, custom event or custom notification is needed. No custom tables. No new scope. No state-machine changes.
 
-The "custom event name" (`incident.escalated_to_duty_manager`) is **not** a §1.1 concern — events are baseline platform infrastructure, registered via the `sysevent_register` table which is baseline. Adding an event is configuration, not a custom architectural object.
+If the engagement defines "acknowledged" differently from an on-call acknowledgement (for example, a state change or a work note — Open Question 2), the shipped subflow no longer covers it and the gap goes to Technical Designer as a design decision.
 
 ## Part 4 — Routing Recommendation
 
 **PROCEED — dispatch to Technical Designer with constraints.**
 
-Technical Designer receives this envelope and produces:
-- The Scheduled Job definition (name, schedule, condition script).
-- The baseline notification record (name, condition, Send to script, message_html template).
-- The event registration.
-- The Script Include if the scheduled job's logic is more than a few lines.
+Technical Designer receives this envelope and produces a configuration spec:
+- The escalation policy (steps, 15-minute time to next step, reminders, Catch-All = duty manager).
+- The rosters and members (primary, duty-manager level) if they do not exist yet.
+- The trigger rule (table, conditions, Run once, subflow).
+- The notification channels per roster or member.
 
-Downstream of Technical Designer, Developer implements the Scheduled Job's server script and (if needed) the Script Include. Post-build, ITSM Specialist re-fires for the §6.2 review, and Code Reviewer fires for the code.
+No Developer work is expected; Code Reviewer fires only if a script is introduced. Licensing & Entitlement is consulted if SMS or voice (Notify) is chosen. Post-build, ITSM Specialist re-fires for the §6.2 review.
 
 ## Part 5 — Anti-Patterns to Block
 
 The following are explicitly blocked in any downstream design:
 
-- **Do not create a custom escalation table per priority tier.** The `cmn_rota` + on-call resolution pattern handles this. *(citation: `markdown/it-service-management/on-call-scheduling/c_OnCallSchedulingConcepts.md`)*
+- **Do not create a custom escalation table per priority tier.** Escalation policies on the shift (one per priority if needed) handle tiers, and the `on_call_escalation*` records are the audit. *(citations: `markdown/it-service-management/on-call-scheduling/create-custom-esc-policy-oncall.md`, `markdown/it-service-management/on-call-scheduling/tables-oob-oncall.md`)*
+- **Do not poll incidents with a scheduled job to detect "no acknowledgement".** On-Call: Assign by Acknowledgement with the policy's time to next step and reminders already does this. *(citations: `markdown/it-service-management/on-call-scheduling/subflows-installed-on-call-scheduling.md`, `markdown/it-service-management/on-call-scheduling/escalation-remind-settings-oncall.md`)*
 - **Do not extend `incident.state` with a new "Escalated" value.** Escalation is an event, not a state — the incident remains in New or In Progress. *(citation: `markdown/it-service-management/incident-management/reference-section-for-incident-management.md`)*
-- **Do not duplicate the baseline assignment-rule logic in the scheduled job.** The scheduled job reads `assignment_group` from the incident; it does not re-route. *(citation: `markdown/it-service-management/incident-management/t_DefinAnAssignRuleIncidents.md`)*
-- **Do not hardcode the duty-manager rotation sys_id in the scheduled job.** Resolve at runtime via `OnCallRotation.getUsersOnSchedule()` or externalise to a system property if a default fallback is needed.
-- **Do not write the work_note in a custom audit table** — use `incident.work_notes`. This is a §1.1 hot spot; the work_notes journal is the baseline audit for state changes and operational events. *(citation: `markdown/platform-security/audit-mgmt-console.md`)*
-- **Do not query `task_sla.stage='completed'` if SLA tracking is added** — baseline value is `complete` without the -ed. (Defensive — relevant if Technical Designer adds SLA-aware logic.)
+- **Do not use `OnCallRotation.startEscalations` or a custom paging script.** It is a legacy scripted path (event + escalation business rule); use the trigger rule and the shipped subflow. *(citation: `markdown/api-reference/server-api-reference/c_OnCallRotationAPI.md`)*
+- **Do not hardcode shift or roster sys_ids.** If a script ever needs the on-call person, resolve it at runtime with `OnCallRotation.whoIsOnCall()`. *(citation: `markdown/api-reference/server-api-reference/c_OnCallRotationAPI.md`)*
+- **Do not write the escalation audit to a custom table** — use `incident.work_notes` and the `on_call_escalation*` records. This is a §1.1 hot spot. *(citation: `markdown/it-service-management/on-call-scheduling/tables-oob-oncall.md`)*
+- **If SLA tracking is added, do not detect breaches through the `task_sla` stage** — on the 2011 engine a breach sets Has breached and leaves the stage unchanged. *(citation: `markdown/it-service-management/service-level-management/r_TaskSLATable.md`)*
 
 ## Open Questions
 
-1. **Duty manager resolution.** The baseline `cmn_rota` typically defines a single on-call engineer. Confirm whether the engagement has a separate `cmn_rota` rotation specifically for "Duty Manager", or whether the duty manager is the on-call engineer's escalation contact (in which case the rotation needs a second tier configured).
-2. **Acknowledgement definition.** "Not acknowledged within 15 minutes" — does "acknowledged" mean `state=2 (In Progress)`, or `assigned_to is set`, or "a work_note has been added by `assigned_to`"? The three are subtly different. Recommend defaulting to "assigned_to is set AND state transitioned out of New (state != 1)".
-3. **15-minute timer reference point.** From `sys_created_on` of the incident, or from `incident.assigned_at` (when assignment first happened)? Defaulting to `sys_created_on` if no assignment SLA is active.
-4. **Re-escalation behaviour.** If the duty manager doesn't ack within another 15 minutes, escalate further? Out of scope unless specified.
+1. **Duty manager resolution.** Is the duty manager the shift manager, the group manager, a dedicated duty-manager roster configured as a later escalation level, or an individual set as the Catch-All?
+2. **Acknowledgement definition.** Is "acknowledged" the on-call acknowledgement through the notification channel (covered by On-Call: Assign by Acknowledgement), or a state change / work note on the incident (not covered by the shipped subflow — a design decision)?
+3. **Channels.** Email only, or SMS and voice (needs Notify), Microsoft Teams, Slack, mobile push?
+4. **Re-escalation and reminders.** How many reminders before the next step (default interval 15 minutes), and who follows the duty manager if nobody responds?
+5. **Coverage.** Do the shift hours cover the P1/P2 expectation (for example 24×7)?
 ```
 
 ### Explanation
@@ -113,7 +115,7 @@ Verdict A is the most common verdict for ITSM requests — ITSM has unusually ri
 
 - **Part 1's rigorous coverage** of three baseline processes (incident, on-call, notifications) so Technical Designer knows what's already there.
 - **Part 2's explicit "no new tables, no new scope"** — the §1.1 enforcement statement is upfront, not hidden.
-- **Part 3's Verdict A rationale** decomposes the request into four baseline constructs, with citations for each.
+- **Part 3's Verdict A rationale** decomposes the request into baseline On-Call configuration — escalation policy, trigger rule with a shipped subflow, baseline audit — with citations for each, and rejects the custom scheduled-job / event / notification build.
 - **Part 4's routing** sends to Technical Designer (because the design has multiple moving parts) but flags that the design itself is configuration-shaped.
 - **Part 5's anti-pattern list** includes the "do not create a custom escalation table" pattern explicitly — even though Technical Designer hasn't started yet, the constraint is documented so the §6.2 post-build review can flag violations cleanly.
 
@@ -207,7 +209,7 @@ The smallest viable extension is **a new integer/choice field on the baseline `i
 - **One new field on `incident`:** `u_business_severity` (Choice, 1–4).
 - **One new ACL** restricting write to Service Owners.
 - **One new Business Rule** (server-side enforcement, complements ACL).
-- **One Data Lookup Definition** mapping `u_business_severity` to an escalation timing parameter (a system property or a `sys_choice` value the scheduled-job pattern from Example 1 can read).
+- **Escalation timing driven by the field** — with On-Call Scheduling, one escalation policy per business severity on the shift (policy conditions on `u_business_severity`), as in Example 1; otherwise a Data Lookup Definition mapping `u_business_severity` to an escalation timing parameter.
 
 No new tables. No new scoped app. No new state values. The "extension" is a column addition on a baseline table.
 
@@ -233,7 +235,7 @@ Technical Designer receives this envelope and produces:
 - The ACL rule (target table=`incident`, field=`u_business_severity`, operation=write, role=Service Owner role, condition=Service Owner is mapped to this incident's `cmdb_ci`).
 - The Business Rule (server-side enforcement, same logic as ACL but as a defensive layer).
 - The Data Lookup Definition (`u_business_severity` → escalation timing parameter).
-- The escalation scheduled job (combined with the Example 1 pattern if both are active).
+- The escalation timing: On-Call escalation policies conditioned on `u_business_severity` (the Example 1 pattern).
 
 ## Part 5 — Anti-Patterns to Block
 

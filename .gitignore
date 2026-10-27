@@ -1,4 +1,6 @@
 clients/
+_migration/
+products/
 deliverables/
 .backups/
 claude-ai-projects/
@@ -28,7 +30,7 @@ diagram-preview/
 # Product build-progress notes — quote live instance data (URLs, sys_ids, usernames). Local-only per the Standing Rule.
 products/**/build/*PROGRESS*.md
 
-# Multi-instance MCP config � contains PLAINTEXT passwords for every instance. NEVER commit.
+# Multi-instance MCP config   contains PLAINTEXT passwords for every instance. NEVER commit.
 instances.json
 # ...and any backup of it - a .bak carries the same plaintext passwords
 instances.json*

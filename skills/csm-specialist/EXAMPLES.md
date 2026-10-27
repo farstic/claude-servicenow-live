@@ -275,7 +275,7 @@ Australia ships the baseline **Case and Account Escalation** feature, which is e
 
 "From-tier → to-tier" as two explicit references is the only element without a dedicated field; the assignment-group history on the case covers it. If the business insists on explicit fields, that is a Verdict B field extension on `sn_customerservice_escalation`, not a new table.
 
-(citation: markdown/customer-service-management/case-escalation-components.md, markdown/customer-service-management/case-escalation-form.md, markdown/customer-service-management/administer-case-account-escalation.md)
+(citation: markdown/customer-service-management/case-escalation-components.md, markdown/customer-service-management/case-escalation-form.md, markdown/customer-service-management/customer-service-case-escalation.md)
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -340,10 +340,11 @@ CSM models the customer (`customer_account`, contacts, consumers), what they own
 | Install base item attributes | Current configuration of what the account owns | One current value per attribute, no monthly time series |
 | Remote table over the billing platform | Live display on the case without storing data | Nothing persisted — no three-year reporting on the instance, every view hits the billing API |
 | Work notes / attachments on the account | Free-text or file snapshots | Not structured, not reportable |
+| Customer Success Management — Data Context Engine (External data source → Context Engine Data) and Product Usage | Per-context, per-period metric values per account and sold product | Separate subscription (`com.sn_acct_lc`) — not part of CSM and not assumed for this engagement |
 
-No baseline table holds a per-account, per-metric, per-month time series.
+No CSM baseline table holds a per-account, per-metric, per-month time series.
 
-(citation: markdown/customer-service-management/csm-remote-tables-definition.md)
+(citation: markdown/customer-service-management/csm-remote-tables-definition.md, markdown/acct-lifecycle-events/account-lifecycle-define-data-source.md)
 
 ## Part 3 — §1.1 Baseline-First Verdict
 
@@ -362,6 +363,7 @@ No baseline table holds a per-account, per-metric, per-month time series.
    - (i) Remote table only — live view on the case, no on-instance history or reporting.
    - (ii) Report in the billing platform and link to it from the account — no data in ServiceNow.
    - (iii) Store only the latest month on install base attributes — current figure, no history.
+   - (iv) If the client holds or buys Customer Success Management, re-route to the Customer Success gateway — its Data Context Engine covers this without a custom table (Licensing consult).
 
 Decision required from the Chief Architect before any specialist is dispatched.
 ```

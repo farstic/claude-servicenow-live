@@ -1,7 +1,7 @@
 ---
 name: fso-insurance-specialist
 description: Domain Expert gateway for Financial Services Operations, insurance side — policy servicing, claims (FNOL, reserves, payments, SIU), underwriting, life servicing, Document Processor, Complaint Management, KYC, FSO integrations (Guidewire, FRISS, Socure), Now Assist for FSO, sn_bom_* / sn_ins_* tables. Produces the 5-Part Constraint Envelope; CSM co-fires on the base case/customer layer.
-version: 1.0.1
+version: 1.0.2
 ---
 
 # FSO Insurance Specialist v1.0
@@ -81,7 +81,7 @@ You ground every factual claim about baseline FSO behaviour in the Australia bra
 - `markdown/financial-services-operations/integration-with-fsm.md`, `markdown/financial-services-operations/integration-with-service-bridge.md`, `markdown/financial-services-operations/spokes.md`
 
 **Now Assist for FSO:**
-- `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/supporting-information-for-now-assist-for-financial-services-operations-fso.md`, `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/skill-inputs-and-triggers-for-now-assist-for-financial-services-operations-fso.md`, `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/configure-now-assist-for-fso.md`, `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/exploring-now-assist-for-financial-services-operations-fso.md`, `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/now-assist-for-financial-services-operations.md`
+- `markdown/financial-services-operations/supporting-information-for-now-assist-for-financial-services-operations-fso.md`, `markdown/financial-services-operations/skill-inputs-and-triggers-for-now-assist-for-financial-services-operations-fso.md`, `markdown/financial-services-operations/configure-now-assist-for-fso.md`, `markdown/financial-services-operations/exploring-now-assist-for-financial-services-operations-fso.md`
 
 **Base layer (co-fire):** `markdown/customer-service-management/index.md`, `markdown/now-platform/index.md`, `markdown/build-workflows/index.md`.
 
@@ -283,7 +283,7 @@ Client Lifecycle `sn_bom_clo_b2c` (`sn_bom_clo_b2c_service` / `_task`; workflows
 
 ### Now Assist for FSO
 
-`sn_fso_gen_ai` (Xanadu+; depends on `sn_genai_platform`, `sn_bom`, `sn_con_frm_dt_coll`; documented activation order also lists `sn_bom_credit_card` — confirm whether required for insurance-only use). The **only insurance-specific skill is Claim case summarization** on `sn_bom_claim_base` (+ Claim Participant, Claim Incident, Participant Role); everything else (disputes intake via VA, friendly fraud, ACH agents, banking CSR agents) is banking. Skill inputs are read-only; roles per surface set in the Now Assist Admin console; PII two-way masking; **not for PHI**; regional/SKU restrictions apply *(citations: markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/supporting-information-for-now-assist-for-financial-services-operations-fso.md, markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/skill-inputs-and-triggers-for-now-assist-for-financial-services-operations-fso.md, markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/exploring-now-assist-for-financial-services-operations-fso.md)*. AI capability design beyond activation → Now Assist Specialist.
+`sn_fso_gen_ai` (Xanadu+; depends on `sn_genai_platform`, `sn_bom`, `sn_con_frm_dt_coll`; documented activation order also lists `sn_bom_credit_card` — confirm whether required for insurance-only use). The **only insurance-specific skill is Claim case summarization** on `sn_bom_claim_base` (+ Claim Participant, Claim Incident, Participant Role); everything else (disputes intake via VA, friendly fraud, ACH agents, banking CSR agents) is banking. Skill inputs are read-only; roles per surface set in the Now Assist Admin console; PII two-way masking; **not for PHI**; regional/SKU restrictions apply *(citations: markdown/financial-services-operations/supporting-information-for-now-assist-for-financial-services-operations-fso.md, markdown/financial-services-operations/skill-inputs-and-triggers-for-now-assist-for-financial-services-operations-fso.md, markdown/financial-services-operations/exploring-now-assist-for-financial-services-operations-fso.md)*. AI capability design beyond activation → Now Assist Specialist.
 
 ## Adjacent Processes — Lightweight Coverage
 
@@ -316,7 +316,7 @@ Deposit, Loan, Card, Payment, Treasury, Credit Operations, Dispute Management (+
 | Modifying the shared FNOL landing page for one LOB | Clone the Processor / Adjuster / Manager landing pages per LOB | `markdown/financial-services-operations/insurance-claims/insurance-claims-dashboards-and-workspaces.md` |
 | Custom complaint-category tables | `sn_bom_compl_regulation_category` / `_subcategory` + Type/Category/Subcategory picklists | `markdown/financial-services-operations/financial-services-complaint-management/configure-regulation-categories-fso-complaint-mgmt.md` |
 | Custom claim-triage business rules | Decision tables (*Claim triage rules*, *Insurance claims automation rules*) + their subflows | `markdown/financial-services-operations/insurance-claims/update-insurance-claims-automation-using-decision-tables.md` |
-| Now Assist summarisation on life/health claims carrying PHI | Excluded by the Now Assist AI usage terms — keep PHI workloads out | `markdown/financial-services-operations/now-assist-for-financial-services-operations-fso/exploring-now-assist-for-financial-services-operations-fso.md` |
+| Now Assist summarisation on life/health claims carrying PHI | Excluded by the Now Assist AI usage terms — keep PHI workloads out | `markdown/financial-services-operations/exploring-now-assist-for-financial-services-operations-fso.md` |
 
 ## §1.1 Hot Spots — Where Build Specialists Routinely Propose Custom Objects
 
@@ -407,4 +407,4 @@ Return rejection when:
 
 ---
 
-*End of FSO Insurance Specialist SKILL.md v1.0.1 — T-19 live-fire fixes (new-LOB decision pattern, policy-viewer role grounding, two documentation defects).*
+*End of FSO Insurance Specialist SKILL.md v1.0.2 — T-19 live-fire fixes (new-LOB decision pattern, policy-viewer role grounding, two documentation defects). v1.0.2 (26 Oct 2026): Now Assist for FSO citations remapped to the ServiceNowDocs Australia refresh of 16 Oct 2026.*

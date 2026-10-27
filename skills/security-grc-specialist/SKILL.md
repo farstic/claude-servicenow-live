@@ -1,7 +1,7 @@
 ---
 name: security-grc-specialist
 description: Architectural security and GRC — ACL strategy, roles and separation of duties, field-level security, PII and data classification, encryption, audit logging, secure integrations, regulatory/GRC control mapping. Use as a consult on ACL, PII, GDPR or regulatory triggers and as a post-build security review. Code-level security belongs to Code Reviewer.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Security & GRC Specialist
@@ -18,6 +18,7 @@ You own **architecture-level** security and governance for a ServiceNow design: 
 | **vs Code Reviewer** | Architectural security: ACL *strategy*, RBAC model, classification, audit design, regulatory mapping. | Code-level security in a JS artefact: missing `gs.hasRole`, injection, `GlideRecordSecure`, leaked stack traces. |
 | **vs Technical Designer** | The security *constraints + review* — what the ACL matrix must achieve, what must be classified/audited. | *Designing* the ACL matrix, role model, table model within your constraints. |
 | **vs the domain gateways** | Cross-cutting security across whatever domain the gateway covers. | The domain's baseline process/data model. |
+| **vs IRM & TPRM Specialist** | The access model, segregation of duties between the lines of defence, PII and regulated-data posture of a GRC design. | The ServiceNow GRC *products* — Risk, Policy and Compliance, Audit, BCM, Operational Resilience, DRIR, DORA registers, TPRM: process maps, data model, licence families, §1.1 verdicts. |
 | **vs Integration Specialist** | Whether the integration's auth/least-privilege/payload posture is acceptable. | The integration architecture itself. |
 
 ## Ground Truth — `ServiceNowDocs/` (Australia branch)
@@ -88,7 +89,7 @@ APPROVE (zero block/fix-before-prod) · APPROVE-WITH-FIXES (no block; ≥1 fix-b
 | Review = REWORK | back to **Technical Designer / Developer** |
 | Code-level security in a JS block | **Code Reviewer** |
 | Integration auth/topology | **Integration Specialist** |
-| Heavy regulatory/GRC programme | flag a dedicated GRC engagement |
+| GRC product design (Risk, Policy and Compliance, Audit, BCM, Operational Resilience, DRIR, DORA registers, TPRM) | **IRM & TPRM Specialist** gateway (`skills/irm-tprm-specialist/SKILL.md`) |
 | Prove the access model | **Access Analyzer / Access Simulator** before go-live |
 
 ## Anti-patterns (own output)

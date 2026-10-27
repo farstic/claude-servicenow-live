@@ -3,9 +3,96 @@
 All notable changes to the Claude ServiceNow Architecture Engine are documented in this file.
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Last updated:** 4 October 2026
+**Last updated:** 27 October 2026
 
 The engine follows a minor-version cadence where the **first digit** signals a major architectural shift, and the **second digit** signals an additive or corrective patch within that architecture.
+
+---
+
+## v2.11.0 — FSM & Telecom Specialist gateway
+
+**Released:** 27 October 2026
+**Trigger:** A field service RFP showed that the engine had no coverage of ServiceNow Field Service Management or FSM for Telecommunications — no skill mentioned work orders, dispatch or scheduling. The ninth Domain Expert gateway closes that gap.
+
+### Added
+- **fsm-telecom-specialist v1.0.0** — Domain Expert gateway for Field Service Management and FSM for Telecommunications: work orders and work order tasks, state flows, qualification and dispatch, Dynamic Scheduling, Schedule Optimization, skills, crews, territories, capacity, appointment booking, Field Service Mobile and offline, parts and stockrooms, Planned Work Management, contractors and the Field Service Marketplace, time recording, Workforce Optimization for Field Service, AI for FSM and the TMF697 / TMF646 Open APIs. 5-Part Constraint Envelope, §1.1 hot spots, a Part 5 anti-pattern library, Brazil-vs-Australia version notes and documentation defects not to propagate. 174 citations, all resolving in the Australia submodule; content read from the Brazil and Australia families. CSM, ITSM and CMDB & CSDM co-fire on their layers; telecom service operations and network inventory have no gateway and are flagged.
+- **VALIDATION-TESTS.md** — T-23 (FSM & Telecom gateway fires on a field-scheduling request and rejects a custom certification table: Verdict B, skills with expiry, the Schedule Optimization-only limit).
+
+### Changed
+- **CLAUDE.md** — engine v2.11.0; roster 31 personas / 32 `SKILL.md`; FSM & Telecom added to the gateway group, the Phase 1 Step 5 table and the co-fire boundaries; Status reports nine gateways.
+- **taxonomy.md v1.9** — roster row 31, boundary rows (FSM & Telecom vs CSM / ITSM / CMDB & CSDM; vs ITOM/Discovery for telecom), §3.2 gateway list, §4.4 trigger row, §6.1 Step 7 gateway list and co-fire boundary.
+- **prompt-patterns.md** — PP-02b gateway list includes FSM & Telecom.
+- **csm-specialist v2.0.3** — the envelope-format note lists all nine Domain Experts.
+- **README.md** — engine v2.11.0, 32 skills, nine gateways, Tier 1 upload order.
+
+---
+
+## v2.10.2 — ServiceNowDocs on the Australia refresh of 16 October 2026
+
+**Released:** 26 October 2026
+**Trigger:** ServiceNow refreshed the Australia documentation on 16 October 2026 (ServiceNowDocs `c10276e9`, 28 commits after the pinned `0ba98cdaf` of 15 May). The refresh brings the ServiceNow Otto naming, the redesigned AI Agent Studio and AI Control Tower and the combined upgrade release notes from Xanadu, Yokohama and Zurich. It also moves the release notes and some product folders and removes 13 pages the skills cited, so 29 skill citations stopped resolving.
+
+### Changed
+- **ServiceNowDocs submodule** — pinned to `c10276e9` (Australia, 16 Oct 2026; fast-forward). The case-only filename collision in `security-management/` is gone from this commit, so the submodule is clean on Windows.
+- **Citations remapped — 29 dead paths in 6 skills.** 16 moved pages repointed: release notes now sit in `release-notes/` instead of `release-notes/release-notes/`, the Now Assist for FSO pages moved one folder up, and two GRC pages moved into the workspace folders. 13 removed pages replaced:
+  - by their successors: case and account escalation, the account onboarding playbook and its data import, customer and internal plays, the TMT release notes, Now Assist for TPRM configuration and the AI Gateway;
+  - by the Subscription Management pages: the two ITAM licensing pages.
+- **irm-tprm-specialist v1.0.2** — the IRM / BCM Pro SKU page is gone, so the SKU composition is now marked as May 2026 docs, to verify against the subscription (`download-opres.md` still confirms the two SKUs and that BCM Professional alone cannot install the IRM plugins). The DRIR licence family is now stated on the Australia page as well. The local release notes include the combined upgrade notes.
+- **customer-success-specialist v1.0.1** — version-sensitive facts: the combined upgrade notes are local now; the Playbook Experience 26.1.2 (KB1651378) note is gone from the docs (KB1651427 remains); the customer play's Service definition is no longer documented.
+- **now-assist-genai v1.0.1** — AI Gateway corrected: it governs MCP server transactions; the model choice and data routing (including a customer's own LLM) sit with AI model providers.
+- **licensing-specialist v1.0.1, fso-insurance-specialist v1.0.2, csm-specialist v2.0.2** — citations only. Mirrors synced.
+- **scripts/md-to-docx.ps1** — Markdown links to http(s) and mailto targets become real Word hyperlinks (one external relationship per URL); column widths count a link's text, not its URL.
+- **CLAUDE.md / README.md** — engine v2.10.2.
+- **VALIDATION-TESTS.md** — run-log row for v2.10.2 (mechanical checks); the T-22 licence citation repointed.
+
+---
+
+## v2.10.1 — DRIR licence family (IRM & TPRM Specialist v1.0.1)
+
+**Released:** 19 October 2026
+**Trigger:** The Brazil release docs state that Digital Resilience Incident Reporting "is licensed under the Integrated Risk Management (IRM) application family". The Australia page, the engine's evidence base, carries no licence note, so the gateway said only that the SKU covering DRIR is not documented. A licensing review against the Brazil docs surfaced the gap.
+
+### Changed
+- **irm-tprm-specialist v1.0.1** — DRIR's licence family from the Brazil docs in the version-sensitive facts, a new DRIR row in the licence-family table and the BCM / Operational Resilience licence paragraph. The tier or SKU stays "verify against the engagement's subscription"; the citation is the same page path, marked as its Brazil version. Mirror synced.
+- **CLAUDE.md / README.md** — engine v2.10.1.
+- **VALIDATION-TESTS.md** — run-log row for v2.10.1 (mechanical checks).
+
+---
+
+## v2.10.0 — IRM & TPRM Specialist (eighth Domain Expert gateway)
+
+**Released:** 16 October 2026
+**Trigger:** Regulated financial-services work kept touching the ServiceNow GRC products — ICT and third-party risk, DORA incident reporting and the Register of Information — with no gateway behind it. Security & GRC is a posture consult and does not hold the products' process maps, data models or licence boundaries — and TPRM, a separate product from IRM, is easily described as part of an IRM subscription without a product map.
+
+### Added
+- **`skills/irm-tprm-specialist/`** (SKILL.md + EXAMPLES.md) — one Domain Expert gateway for the GRC products: the common layer (entities, issues, indicators, Approver Configurator, Entity Based Access, confidentiality), Risk Management and Advanced Risk, Policy and Compliance, Audit and Advanced Audit, Compliance Case Management, Regulatory Change Management, the Smart Assessment Engine, BCM, Operational Resilience, Digital resilience incident reporting, the Digital resilience third-party registers and Third-party Risk Management; Privacy, Continuous Authorization and Monitoring, AI Risk and Compliance, Model Risk Management and Now Assist for IRM / TPRM at lightweight depth. One gateway rather than two because IRM and TPRM share the common layer and almost every task touches both; the product separation lives inside the skill as a **product and licence map** (IRM Pro SKU = Advanced Risk + Policy and Compliance + Risk; BCM Pro SKU; Privacy add-on; TPRM a separate Store product metered per engagement; Operational Resilience via IRM or BCM Professional; DORA registers via IRM Professional or TPRM; no documented feature-to-tier map). Built from a six-group digest of `ServiceNowDocs/markdown/governance-risk-compliance/` (common layer and packaging, Risk, Compliance, Audit and Smart Assessment, TPRM, BCM and Operational Resilience) and the Australia release notes; 279 citations in SKILL.md, all resolving. §1.1 bias: configuration records first; KB-prescribed table and column changes (Entity Based Access, user hierarchy, confidentiality on further tables), new State values, new appetite statuses and new TPRM scoring components are Verdict C. Records the one-way switches (TPRM Smart Assessment Engine, Migrate to Advanced Risk, target assessment, record confidentiality, advanced issue grouping), the undocumented assessment-engine tables and the documentation defects not to propagate. Examples: TPRM onboarding with IRQ and two-level approval (A), ICT risk per business application with automated likelihood and write-back (B), legal-entity segregation of TPRM records — conditional C, documented extension point.
+- **VALIDATION-TESTS T-22** — IRM & TPRM gateway fires on a group-rollout request, corrects "TPRM on our IRM subscription", halts on extending Entity Based Access to TPRM tables; not yet live-fired.
+
+### Changed
+- **CLAUDE.md** — engine v2.10.0; roster 30 personas / 31 `SKILL.md`; IRM & TPRM added to the gateway group, the Phase 1 Step 5 table and the co-fire boundaries; Status reports eight gateways.
+- **taxonomy.md v1.8** — roster row 30 (counts corrected to 30), §2.3 boundary rows (IRM & TPRM vs Security & GRC; vs CMDB & CSDM / ITSM), §3.2 gateway list, §4.4 trigger row, Security & GRC trigger row narrowed to posture keywords, §6.1 Step 7.
+- **prompt-patterns.md** — PP-02b lists the IRM & TPRM gateway.
+- **security-grc-specialist v1.2.0** — boundary row and hand-off to the IRM & TPRM gateway for GRC product design.
+- **README.md** — counts, version and the Tier 1 upload order.
+
+---
+
+## v2.9.0 — Customer Success Specialist (seventh Domain Expert gateway)
+
+**Released:** 14 October 2026
+**Trigger:** An upcoming engagement implements ServiceNow Customer Success Management (`sn_acct_lc`, formerly Account Lifecycle Events). No skill covered it: the CSM gateway knows the case/customer base layer only, and the product carries its own data model, health and risk engine, plays, licensing tiers and Now Assist agents.
+
+### Added
+- **`skills/customer-success-specialist/`** (SKILL.md + EXAMPLES.md) — Domain Expert gateway producing the 5-Part Constraint Envelope for account onboarding, engagements and success blueprints, objectives / outcomes / initiatives, customer / internal / renewal / success plays, health and risk on the Data Context Engine, product capability and adoption (Product Adoption Roadmap), touchpoints and Zoom, Microsoft Dynamics CRM, and Now Assist for TMT (11 skills, 6 agentic workflows). Built from a five-group digest of the docs: all 124 files of `ServiceNowDocs/markdown/acct-lifecycle-events/`, the Now Assist for TMT pages, the Australia release notes and the adjacent products (CRM Touchpoints, ServiceNow Impact). 142 citations, all resolving. §1.1 bias: the product extends by configuration records (success-play definition records, risk definitions, DCE data sources, colour bands, templates); Workflow Data Fabric tables, new State values and non-spoke aliases are Verdict C. Records the "CSM" name collision, the undocumented table parents, the deprecated health tables, the Australia-only features and the documentation defects not to propagate. Examples: health score + automatic NPS risk (A), onboarding self-upload with validation (B), telemetry from a data warehouse — conditional C, documented extension point.
+- **VALIDATION-TESTS T-21** — Customer Success gateway fires on a telemetry-to-adoption request, CSM co-fires, conditional Verdict C halt; not yet live-fired.
+
+### Changed
+- **CLAUDE.md** — engine v2.9.0; roster 29 personas / 30 `SKILL.md`; Customer Success added to the gateway group, the Phase 1 Step 5 table and the co-fire boundaries (with the instruction to ask when "CSM" could mean Customer Success); Status reports seven gateways.
+- **taxonomy.md v1.7** — roster row 29 (legend count corrected from a stale 27 to 29), §2.3 Customer Success vs CSM boundary, §3.2 gateway list, §4.4 trigger row, §6.1 Step 7.
+- **prompt-patterns.md** — PP-02b lists the Customer Success gateway.
+- **csm-specialist v2.0.1** — hand-off to the Customer Success gateway; hot spot 6 (usage history / health score: Customer Success Data Context Engine when entitled, Verdict C otherwise); EXAMPLES Example 4 lists Customer Success as an entitlement-dependent alternative. T-02 still expects Verdict C (the subscription is never assumed); its expected behaviour notes the alternative.
+- **itsm-specialist** — "all six Domain Experts" reworded to "all Domain Experts".
+- **README.md** — counts, version and the Tier 1 upload order.
 
 ---
 

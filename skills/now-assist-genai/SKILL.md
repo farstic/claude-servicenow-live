@@ -1,7 +1,7 @@
 ---
 name: now-assist-genai
 description: Reference knowledge on Now Assist and generative AI in ServiceNow — OOB skill catalogue, Skill Kit, Now LLM / Generative AI Controller, AI Agents, Now Assist admin, AI Control Tower governance. Use to answer "what is / what can it do / which tier / how is it governed" questions. For buildable designs use now-assist-specialist.
-version: 1.0.0
+version: 1.0.1
 ---
 
 # Now Assist / GenAI (Reference Knowledge)
@@ -28,7 +28,8 @@ If the request is *design/build it* → **Now Assist Specialist**. If it's *what
 | AI-native SKU overview (packaging/consumption) | `markdown/intelligent-experiences/ai-native-sku-overview.md` |
 | Now Assist Skill Kit (build custom skills) | `markdown/intelligent-experiences/now-assist-skill-kit/now-assist-skill-kit-landing.md` |
 | AI Control Tower (governance) | `markdown/intelligent-experiences/ai-control-tower/ai-control-tower-landing.md` |
-| AI Gateway (BYO-LLM / Generative AI Controller) | `markdown/intelligent-experiences/ai-control-tower/ai-gateway-overview.md` |
+| AI model providers (bring-your-own LLM, data routing) | `markdown/intelligent-experiences/ai-model-providers.md` |
+| AI Gateway (governs MCP server transactions) | `markdown/intelligent-experiences/ai-gateway.md` |
 | AI Agent Advisor / agentic | `markdown/intelligent-experiences/ai-agent-advisor-landing-page.md` |
 
 Cite the path used. If a path is unavailable in the Australia branch, flag it explicitly. **Do not assert version-sensitive capability claims from memory** — Now Assist evolves fast between releases; ground them or flag as "verify against the engagement's release."
@@ -39,7 +40,7 @@ Cite the path used. If a path is unavailable in the Australia branch, flag it ex
 - **Out-of-box Now Assist skills** (per domain) include — case/incident **summarization**, **resolution notes**, **chat/email reply** drafting, **knowledge-article generation**, **code generation** (for app builders), and **search/answers**. Enabled and tuned in the **Now Assist admin console / Now Assist Center**. *(citation: `configuring-now-assist.md`, `configure-a-now-assist-skill.md`)*
 - **Now Assist Skill Kit** lets teams build **custom** Now Assist skills with their own prompts and inputs/outputs over platform data. *(citation: `now-assist-skill-kit/now-assist-skill-kit-landing.md`)*
 - **AI Agents / agentic** experiences (AI Agent Advisor, agentic workflows) orchestrate multi-step AI work with human-in-the-loop boundaries. *(citation: `ai-agent-advisor-landing-page.md`)*
-- **AI Control Tower** is the governance surface — discover, monitor, manage, and audit AI features (ServiceNow and third-party) across the instance, including the AI Gateway for model routing. *(citation: `ai-control-tower/ai-control-tower-landing.md`, `ai-gateway-overview.md`)*
+- **AI Control Tower** is the governance surface — discover, monitor, manage, and audit AI features (ServiceNow and third-party) across the instance, with AI model providers for the model choice and data routing (including a customer's own LLM) and the AI Gateway for MCP server transactions. *(citation: `ai-control-tower/ai-control-tower-landing.md`, `ai-model-providers.md`, `ai-gateway.md`)*
 
 ## §1.1 awareness
 
@@ -62,4 +63,4 @@ You don't build, but when you describe what's possible, keep the baseline-first 
 
 ---
 
-*End of Now Assist / GenAI reference SKILL.md v1.0.*
+*End of Now Assist / GenAI reference SKILL.md v1.0.1. v1.0.1 (26 Oct 2026): AI Gateway corrected to MCP server transactions, model choice and data routing via AI model providers; citations remapped to the ServiceNowDocs Australia refresh of 16 Oct 2026.*

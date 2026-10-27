@@ -2,7 +2,7 @@
 
 Ready-made ServiceNow expertise for Claude, connected to a live ServiceNow instance.
 
-- **Claude Code (locally, in the terminal)** — the Chief ServiceNow Architect from `CLAUDE.md`: 28 specialists, 9 sub-agents, 29 skills and the official ServiceNow documentation, local in the repo.
+- **Claude Code (locally, in the terminal)** — the Chief ServiceNow Architect from `CLAUDE.md`: 30 specialists, 9 sub-agents, 31 skills and the official ServiceNow documentation, local in the repo.
 - **claude.ai (in the browser)** — the same skills, uploaded to your account, for work without a terminal.
 - **The `snow-mcp` MCP server** — connects Claude Code to a live ServiceNow instance: 394 tools for reading and writing, without leaving the terminal.
 
@@ -18,7 +18,7 @@ The steps are for Windows 11. Time for a full installation: about 2 hours.
 
 **Installation (steps 1–9):** [1 Clone](#step-1--clone-the-repo) · [2 Submodule](#step-2--fetch-the-servicenowdocs-submodule) · [3 Git settings](#step-3--configure-git-for-this-copy) · [4 MCP server](#step-4--build-the-snow-mcp-mcp-server) · [5 instances.json](#step-5--create-instancesjson) · [6 .mcp.json](#step-6--create-mcpjson) · [6a Rights](#step-6a--configure-the-rights-in-mcpjson) · [7 Permission](#step-7--allow-the-server-in-claude-code) · [8 First launch](#step-8--sign-in-and-launch-claude-code) · [9 Check](#step-9--verify-that-it-works-4-tests)
 
-**After installation:** [Enabling writes](#when-you-enable-writes-to-the-instance) · [Skills in claude.ai](#upload-the-skills-to-claudeai) · [Document toolchain](#document-and-diagram-toolchain-optional-per-os) · [Day-to-day work](#day-to-day-work) · [Check before push](#pre-push-check) · [Monthly maintenance](#monthly-maintenance)
+**After installation:** [Enabling writes](#when-you-enable-writes-to-the-instance) · [Skills in claude.ai](#upload-the-skills-to-claudeai) · [Day-to-day work](#day-to-day-work) · [Check before push](#pre-push-check) · [Monthly maintenance](#monthly-maintenance)
 
 **Reference:** [Final check](#final-check) · [If something breaks](#if-something-breaks) · [What in the old documentation is no longer true](#what-in-the-old-documentation-is-no-longer-true) · [Where things live](#where-things-live)
 
@@ -30,7 +30,7 @@ The steps are for Windows 11. Time for a full installation: about 2 hours.
 claude.ai (browser)                 Claude Code (terminal)
 ─────────────────────────           ──────────────────────────────────────────
 Skills in the account               Chief Architect (CLAUDE.md)
-  └─ the same 29 skills               ├─ 28 specialists, 9 sub-agents
+  └─ the same 31 skills               ├─ 30 specialists, 9 sub-agents
 Knowledge projects                    ├─ ServiceNowDocs/ (submodule, australia)
   └─ one per engagement               └─ snow-mcp ──► live ServiceNow instance
 ```
@@ -41,7 +41,7 @@ The Architect reads the official documentation from the submodule and calls tool
 
 ## 2. What you get
 
-- You run `claude` in the repo folder and get the Chief ServiceNow Architect (Engine v2.8.1) with 9 project agents and 29 skills, including the six mandatory domain gateways: ITSM, CSM, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance.
+- You run `claude` in the repo folder and get the Chief ServiceNow Architect (Engine v2.11.0) with 9 project agents and 32 skills, including the nine mandatory domain gateways: ITSM, CSM, Customer Success, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance, IRM & TPRM, FSM & Telecom.
 - The ServiceNow documentation (`australia` branch) locally, with the citations in the skills verified on every commit.
 - An MCP server with 394 tools that works with several instances from a single file.
 - A Git hook that synchronises the mirrored folders and stops the commit on a broken structure or a citation to a non-existent file.
@@ -75,7 +75,7 @@ git config --global core.quotepath off
 
 > Do not add `--omit=optional` to the Claude Code installation. `claude.exe` comes from the optional package `@anthropic-ai/claude-code-win32-x64` and from the postinstall step — without them the command is broken.
 >
-> The sub-agents are pinned to the `claude-opus-4-8` model. Your account must have access to it, otherwise every dispatch to a sub-agent fails with an error. Verify with `/model` in a session.
+> The sub-agents use `model: inherit` — they run on the session model (check it with `/model`).
 
 **Verify that everything is in place.**
 
@@ -443,7 +443,7 @@ All tests are run in a `claude` session started from the repo root. Nothing is w
 
 **1. The Architect.** Type `Status`, then `/agents`.
 
-**Expected:** a response as Chief ServiceNow Architect, Engine v2.8.1, release family `australia`, 28 specialists and the six gateways; `/agents` shows 9 project agents.
+**Expected:** a response as Chief ServiceNow Architect, Engine v2.11.0, release family `australia`, 31 specialists and the nine gateways; `/agents` shows 9 project agents.
 
 **2. Routing.** Paste exactly:
 
@@ -517,31 +517,11 @@ cd "$env:USERPROFILE\Documents\claude-servicenow-live"
 
 **Expected:** `29`, then `itsm-specialist/`, `itsm-specialist/EXAMPLES.md`, `itsm-specialist/SKILL.md`.
 
-Upload via Settings → Capabilities → Skills → Upload skill. Upload in this order: the six gateways and the core first — `itsm-specialist`, `csm-specialist`, `hrsd-specialist`, `itom-discovery-specialist`, `cmdb-csdm-specialist`, `fso-insurance-specialist`, `developer`, `code-reviewer`. Then the remaining 21.
+Upload via Settings → Capabilities → Skills → Upload skill. Upload in this order: the nine gateways and the core first — `itsm-specialist`, `csm-specialist`, `customer-success-specialist`, `hrsd-specialist`, `itom-discovery-specialist`, `cmdb-csdm-specialist`, `fso-insurance-specialist`, `irm-tprm-specialist`, `fsm-telecom-specialist`, `developer`, `code-reviewer`. Then the remaining 21.
 
 **Expected:** every uploaded skill appears in the list in claude.ai.
 
 > Finally, delete the temporary folder: `Remove-Item -Recurse -Force "$env:TEMP\claude-ai-uploads"`. Re-upload every time you change a `SKILL.md` — `CLAUDE.md` requires this to happen within 24 hours.
-
----
-
-## Document and diagram toolchain (optional, per OS)
-
-Needed only when you produce Word/PDF deliverables (proposals, HLD/LLD) or render diagrams.
-**Generating a `.docx` needs nothing beyond Python 3 (macOS/Linux) or PowerShell (Windows)** — no
-Pandoc, no Word, no `python-docx`, no pip packages. Full details, install commands, and the
-end-to-end pipeline are in **[`scripts/README.md`](./scripts/README.md)**.
-
-| Capability | macOS / Linux | Windows |
-|---|---|---|
-| Markdown → styled `.docx` | Python 3 → `scripts/md-to-docx.py` | PowerShell → `scripts/md-to-docx.ps1` |
-| `.drawio` → PNG (client-ready figures) | `brew install --cask drawio` → `scripts/render-drawio.sh` | draw.io Desktop (`winget install JGraph.Draw.io`) |
-| `.docx` → PDF (visual QA) | `brew install --cask libreoffice` → `scripts/render-pdf.sh` | Microsoft Word → `scripts/render-pdf-pages.ps1` |
-| `.mmd` → SVG/PNG (in-repo preview only) | Node.js → `scripts/render-diagrams.sh` | Node.js → `scripts/render-diagrams.ps1` |
-
-> **Rule:** in a `.docx`, diagrams are embedded as **rendered draw.io PNGs** (authored by the
-> Diagramming Specialist, rasterised with `render-drawio.sh`) — **never** raw Mermaid source.
-> Renderers run **locally only** (confidentiality firewall).
 
 ---
 
@@ -629,7 +609,7 @@ Everything in PowerShell, **from the repo root**, unless stated otherwise.
 | 9 | `git check-ignore -v .mcp.json .mcp.json.bak instances.json instances.json.bak mcp.json .env .claude/settings.local.json .claude/settings.json` | 8 lines |
 | 10 | `Test-Path "$env:USERPROFILE\snow-mcp\dist\cli\index.js"` | `True` |
 | 11 | `claude mcp list` | `snow-mcp: ... - ✔ Connected` |
-| 12 | In a session: `Status` | Chief ServiceNow Architect, v2.8.1, `australia`, 28 specialists, 6 gateways |
+| 12 | In a session: `Status` | Chief ServiceNow Architect, v2.11.0, `australia`, 31 specialists, 9 gateways |
 
 ---
 
@@ -639,7 +619,6 @@ Everything in PowerShell, **from the repo root**, unless stated otherwise.
 |---|---|
 | `running scripts is disabled on this system` on `npm` or `claude` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. Until then, call `npm.cmd` and `claude.cmd`. |
 | `claude` is not recognised or does not start after installation | Open a new window. `npm config get ignore-scripts` must be `false`. Reinstall without `--omit=optional`. |
-| Model error when dispatching to a sub-agent | The agents are pinned to `claude-opus-4-8`. Check with `/model` whether your account has access to it. |
 | `Status` gives a generic answer, `/agents` shows no project agents | You started `claude` outside the repo root. `cd` back and start it again. |
 | `error: unable to create file ...: Filename too long` | `git config --global core.longpaths true`, then run `git submodule update --init --recursive` again. |
 | `git status` always shows ` m ServiceNowDocs` | `git config submodule.ServiceNowDocs.ignore dirty`. Do not rename files in the submodule. |
@@ -664,7 +643,7 @@ The files `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/ADVANCED-WEB-SETUP.md`
 - **Node must be at least 22** (a Claude Code requirement), not 18. The value `lite` for `MCP_TOOL_PACKAGE` does not exist — the valid values are `full` and the specialised packages.
 - **For basic auth the server reads `SERVICENOW_BASIC_USERNAME` / `SERVICENOW_BASIC_PASSWORD`**, not `SERVICENOW_USERNAME` / `SERVICENOW_PASSWORD`.
 - **`context-mode` is not part of the working environment.** Do not copy `.claude/settings.example.json` as `.claude/settings.json` — the paths in it are Unix paths.
-- **There are 28 specialists** (29 skills, 9 sub-agents, 6 gateways — FSO Insurance was added on 21 Sep 2026), not 22. The templates in `claude-ai-projects/` do not exist — the claude.ai projects are set up by hand.
+- **There are 31 specialists** (32 skills, 9 sub-agents, 9 gateways — FSO Insurance was added on 21 Sep 2026, Customer Success on 14 Oct 2026, IRM & TPRM on 16 Oct 2026, FSM & Telecom on 27 Oct 2026), not 22. The templates in `claude-ai-projects/` do not exist — the claude.ai projects are set up by hand.
 - **The tool names have changed.** `CLAUDE.md` §2.1 and §2.2 still use the old ones:
 
 | Old name | New name |
@@ -684,7 +663,7 @@ The files `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/ADVANCED-WEB-SETUP.md`
 
 | Path | What it is | In git |
 |---|---|---|
-| `<repo>\CLAUDE.md` | The architect's instructions, v2.8.1 | yes |
+| `<repo>\CLAUDE.md` | The architect's instructions, v2.11.0 | yes |
 | `<repo>\.claude\agents\` (9) | The agents that Claude Code reads | yes |
 | `<repo>\.claude\skills\` (28) | The skills that Claude Code reads | yes |
 | `<repo>\agents\`, `<repo>\skills\` | Copies for GitHub — do not edit | yes |

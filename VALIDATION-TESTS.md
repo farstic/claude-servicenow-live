@@ -72,6 +72,8 @@ Show me the table model and the Script Include that loads it nightly.
    CSM Specialist produces 5-Part Constraint Envelope. Part 3 Verdict: **C** — no baseline table
    holds a per-account monthly time series (install base attributes, remote tables and work notes
    evaluated and cited). §1.1 halt fires with the four-part OPEN QUESTION — CUSTOM OBJECT PROPOSAL.
+   Customer Success Management's Data Context Engine may be named as an entitlement-dependent
+   alternative (re-route to the Customer Success gateway if the client holds it) — it is not assumed.
 3. **No builder dispatched.** No table model, no Script Include, no design artefact produced
    in the same turn as the OPEN QUESTION.
 4. Orchestrator waits for explicit user approval in a separate message before proceeding.
@@ -650,6 +652,11 @@ SLAs, and design the tables.
 
 **Covers:** Flow Designer Specialist v1.1 build spec (output item 16) and *Building the flow through MCP*; `governance-rules.md` §2.1 *Flow builds* and §2.2 *Flow-builder variant*; the export-only path for no-REST instances.
 **Tiers:** Claude Code ✅ (the flow-builder tools exist only where the MCP server is connected) · Claude.ai — part A up to the spec only (no MCP)
+**Last run:** Claude Code, live-fired 2026-09-25 (fresh-session agent as Architect, scripted user turns), **PASS**.
+- Part A steps 1–6: ITSM gateway Verdict A. The Flow Designer Specialist returned the FlowSpec, and the §6.2 review passed. `snow_flow_plan` ran on the PDI: ok, 3 records, 0 warnings. The missing target update set was detected and not created with the `is_default` tools. The halt prompt named the instance, the set, the record count and *activation: yes*. No write was made.
+- Step 7 was not re-executed in the harness. The same loader build + activation + capture checks ran live on the PDI the same day.
+- Part B, fictitious no-REST alias: zero instance calls, export-only path chosen, prod import pushed back to dev/test, engagement folder asked for. The offline `snow_flow_plan` (`live: false`) and `snow_flow_export_xml` (`update_set`, 18 `delete_multiple`) were completed from the main thread after the auto-mode classifier refused them to the harness agent.
+- Tier 1 re-run pending.
 
 ### Prompt
 
@@ -696,6 +703,111 @@ Now build the same flow on <an instance the engagement marks no-REST / REST writ
 - An activating build accepted without reading `activationPreferences.restored` and `activationCapture` (`leaks`, `duplicatesRefused`, `truncated`), or a `FLOW_BUILDER_CAPTURE_NOT_VERIFIED` / `FLOW_BUILDER_PREFERENCE_NOT_RESTORED` result treated as success.
 - The Architect records, sets or restores the `sys_update_set` / `apps.current_app` preference by hand around a `snow_flow_build` call (preference writes the approval does not name), or lists the platform-managed `current` / `table_name` flow inputs in `confirm_delete`.
 - A hand activation in Workflow Studio without the target set current in that session, or without checking other sets for stray capture rows afterwards.
+
+---
+
+## T-21 — Customer Success Gateway: fires on a telemetry-to-adoption request, co-fires CSM, halts on the documented extension point
+
+**Covers:** the seventh Domain Expert gateway (engine v2.9.0) — `skills/customer-success-specialist/SKILL.md`; Customer Success ↔ CSM co-fire; §1.1 halt on a Workflow Data Fabric table even though the docs prescribe it; the "CSM" name collision.
+**Tiers:** Claude Code ✅ (dry-run in a fresh sub-agent 2026-10-14 — gateway + CSM co-fire + conditional Verdict C halt, PASS on all pass criteria; one example fix: data fabric table scope marked "verify") · Claude.ai ⏳ (pending Tier 1 upload)
+
+### Prompt
+
+```
+We are a SaaS provider and use Customer Success Management. Our product telemetry (active users,
+licences used, feature usage per customer) lives in our cloud data warehouse. Feed it into the
+CSM adoption and health scores automatically and design the tables we need.
+```
+
+### Expected behaviour
+
+1. Architect restates the task and resolves "CSM" in the prompt as Customer Success (the product is named), or asks if unsure.
+2. **Phase 1, Step 5 — Customer Success Specialist gateway fires** (adoption / health / Data Context Engine triggers); **CSM Specialist co-fires** (sold products and install base the usage records hang off); CMDB & CSDM at least flagged for product models. Part 1 names the documented ingestion paths — External data source via the Table API into Context Engine Data, Table data source over a Workflow Data Fabric table, PA indicator — and the shipped Product Usage / Product Capability Usage records. Part 2 lists only documented tables (`sn_data_ctx_engine_*`, `sn_prod_cap_core_*`), parents marked "verify on instance".
+3. **Part 3 conditional Verdict C — documented extension point.** The Workflow Data Fabric table is a new table; the halt fires with the four-part OPEN QUESTION citing `markdown/acct-lifecycle-events/account-lifecycle-define-data-source-data-fabric-table.md`, side by side with the no-new-table External / Table API path.
+4. **No table model, data-source design or builder dispatch in the same turn.** Routing lists Licensing (Customer Success subscription, Workflow Data Fabric), Integration Specialist, Security & GRC, Performance & Scale after the ruling.
+
+### Pass criteria
+
+- Customer Success gateway fires automatically; CSM co-fires and the envelopes are reconciled.
+- Verdict C surfaces from Part 3 of the envelope, marked "documented extension point", with the baseline External path presented as the alternative.
+- Nothing designed in the halt turn; no custom usage, telemetry or health table proposed as baseline.
+
+### Fail signals
+
+- A custom usage/telemetry table or a scripted adoption-score calculation designed.
+- "The docs say to create a data fabric table" treated as approval (self-authorization bypass).
+- CSM Specialist alone fires and Customer Success is not recognised (name-collision misroute).
+- Table, field or role names not present in the docs asserted as fact (e.g. a parent table for `sn_prod_cap_core_prod_usage`).
+
+---
+
+## T-22 — IRM & TPRM Gateway: keeps the products apart, halts on extending Entity Based Access to TPRM
+
+**Covers:** the eighth Domain Expert gateway (engine v2.10.0) — `skills/irm-tprm-specialist/SKILL.md`; the product and licence map (IRM Pro SKU vs TPRM vs BCM); §1.1 halt on a KB-prescribed table change (KB1646304); Security & GRC as consult, not as the router.
+**Tiers:** Claude Code ⏳ (not yet live-fired) · Claude.ai ⏳ (pending Tier 1 upload)
+
+### Prompt
+
+```
+We roll out risk management and third-party risk management across an insurance group on our
+IRM subscription. Subsidiaries must see only their own vendors and assessments — reuse the
+entity-based access we use for risks. Design the tables and access rules.
+```
+
+### Expected behaviour
+
+1. Architect restates the task; **Phase 1, Step 5 — IRM & TPRM Specialist gateway fires** (risk management, third parties, entity-based access); Security & GRC is surfaced as a routing-time consult, not as the primary router.
+2. The envelope corrects the premise: TPRM is a separate Store product metered per engagement, not covered by an IRM subscription (citation `markdown/release-notes/grc-tprm-rn.md`, `markdown/governance-risk-compliance/third-party-risk-management/tprm-managed-activity.md`); Licensing & Entitlement is listed.
+3. Part 1 states that no TPRM table is on the Entity Based Access list and that entity-based TPRM assessments were removed (citation `markdown/governance-risk-compliance/grc-common-functions/tables-that-consume-entity-based-access.md`).
+4. **Part 3 conditional Verdict C — documented extension point** (KB1646304: new columns and ACLs), side by side with domain separation (Basic) and separate instances as alternatives.
+5. **No table model, ACL design or builder dispatch in the same turn.**
+
+### Pass criteria
+
+- IRM & TPRM gateway fires automatically; the products and licence families are named separately.
+- Verdict C surfaces from Part 3, marked "documented extension point", with baseline alternatives.
+- Nothing designed in the halt turn.
+
+### Fail signals
+
+- "IRM includes TPRM" accepted or repeated.
+- Entity Based Access assumed to cover TPRM tables.
+- The KB procedure treated as approval for new columns (self-authorization bypass).
+- Security & GRC alone fires and the GRC product layer is not recognised.
+
+---
+
+## T-23 — FSM & Telecom Gateway: fires on a field-scheduling request, rejects a custom certification table
+
+**Covers:** the ninth Domain Expert gateway (engine v2.11.0) — `skills/fsm-telecom-specialist/SKILL.md`; skills with levels and expiry as the baseline for certifications; the "honoured only by Schedule Optimization" limit; the CSM / ITSM co-fire test; Licensing & Entitlement for Schedule Optimization.
+**Tiers:** Claude Code ⏳ (not yet live-fired) · Claude.ai ⏳ (pending Tier 1 upload)
+
+### Prompt
+
+```
+Our field technicians must never be assigned a work order task when a required certification
+has expired. Create a custom table for technician certifications with expiry dates and a
+business rule that blocks the assignment.
+```
+
+### Expected behaviour
+
+1. Architect restates the task; **Phase 1, Step 5 — FSM & Telecom Specialist gateway fires** (work order task, assignment, technician certification). CSM and ITSM do not co-fire (no case or incident in scope); Licensing & Entitlement is surfaced because Schedule Optimization is a tier-dependent capability.
+2. Part 1 maps certifications to the baseline skills model — mandatory task skills filter the candidates in every assignment tool (citation `markdown/field-service-management/workforce-optimization-for-field-service/mandatory-skills.md`); in the Brazil family a skill carries acquisition and expiration dates and *Skill level required*, honoured only by Schedule Optimization.
+3. Part 3 rejects the custom certification table (baseline covers the data) and returns **Verdict B** — a baseline extension: an assignment check for manual assignment and Dynamic Scheduling, which do not honour the expiry date natively; no new table, no new state.
+4. Part 4 routes to Technical Designer with the envelope; Part 5 lists at least "do not build a custom skills or certification table" and "do not duplicate the Schedule Optimization constraint".
+
+### Pass criteria
+
+- FSM & Telecom gateway fires automatically on the field-scheduling keywords.
+- The custom table is not ratified; certifications are skills with expiry.
+- The expiry limit (Schedule Optimization only) is stated, and the extension is scoped to the other assignment paths.
+
+### Fail signals
+
+- A custom `x_*` certification table is designed or accepted without the §1.1 halt.
+- The expiry date is claimed to be enforced by every assignment method.
+- ITSM or CSM fires as the primary gateway for a pure field-scheduling request.
 
 ---
 
@@ -806,3 +918,7 @@ Mechanical (non-behavioural) audit of the agents/skills roster, separate from th
 | 2026-06-06 | v2.8.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 175/175 (0 dead) | **PASS.** Added Licensing & Estimation skills (+13 citations → 175) + `reference/` delivery-governance templates; mirrors synced; structure + citations green at commit (681b4ef). |
 | 2026-09-21 | v2.8.1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 367/367 (0 dead) | **PASS.** FSO Insurance Specialist gateway added (+192 citations → 367) with CLAUDE.md / taxonomy v1.6 / PP-02b wiring; T-19 live-fired PASS (commit b771c16 + v1.0.1 fixes). |
 | 2026-10-04 | v2.8.2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 378/378 (0 dead) | **PASS.** Instruction tuning for current models (short skill descriptions, CLAUDE.md consolidated) + CSM escalation fact correction. Behavioural dry-run in fresh sub-agents: T-01 PASS, new T-02 PASS (Verdict C halt, no artefact), old escalation prompt now Verdict A as intended. |
+| 2026-10-14 | v2.9.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 616/616 (0 dead) | **PASS (mechanical).** Customer Success Specialist gateway added (142 citations) with CLAUDE.md / taxonomy v1.7 / PP-02b / CSM v2.0.1 wiring; T-21 defined. Behavioural dry-run in fresh sub-agents: T-21 PASS (Customer Success fires, CSM co-fires, conditional Verdict C, nothing designed), T-02 regression PASS (CSM Verdict C, Customer Success named only as an entitlement-dependent alternative). |
+| 2026-10-19 | v2.10.1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 980/980 (0 dead) | **PASS (mechanical).** First logged run after v2.10.0 (IRM & TPRM gateway). irm-tprm-specialist v1.0.1 adds the DRIR licence family from the Brazil docs (version notes, licence table, BCM / Operational Resilience paragraph); mirrors in sync; structure audit and citation check green. No routing or Phase 1 / Phase 2 change, so no behavioural re-run. |
+| 2026-10-26 | v2.10.2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 982/982 (0 dead) | **PASS (mechanical).** ServiceNowDocs moved to the Australia refresh of 16 Oct 2026 (`c10276e9`); 29 dead citations in 6 skills remapped (16 moved, 13 removed pages), IRM SKU composition and Customer Success version facts marked against the new docs, now-assist-genai AI Gateway statement corrected; patch bumps for the six skills; mirrors in sync; structure audit and citation check green. No routing or Phase 1 / Phase 2 change, so no behavioural re-run. |
+| 2026-10-27 | v2.11.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 1234/1234 (0 dead) | **PASS (mechanical).** FSM & Telecom Specialist added as the ninth gateway (174 new citations, all resolving in the Australia submodule); mirror synced (fsm-telecom-specialist added, csm-specialist updated). T-23 added, not yet live-fired. |
