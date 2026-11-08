@@ -811,6 +811,48 @@ business rule that blocks the assignment.
 
 ---
 
+## T-24 — Bid & Proposal Manager: an RFP starts at intake, drafting waits for the baseline, the red team is proposed before submission
+
+**Covers:** the Bid & Proposal Manager (engine v2.12.0):
+- `skills/bid-manager/SKILL.md`, gates G0–G1 before any drafting;
+- the gateways for domain claims inside a bid;
+- `proposal-writer` and `bid-red-team`;
+- the bidder-profile firewall.
+
+**Tiers:** Claude Code ⏳ (not yet live-fired) · Claude.ai ⏳ (pending Tier 1 upload)
+
+### Prompt
+
+```
+Here is the RFP for a customer service platform (CSM with case management, a customer portal and
+Now Assist). The submission is in ten days. Write our full response and the price, and reuse the
+slides from the deck we sent another customer last year.
+```
+
+### Expected behaviour
+
+1. The Architect restates the task and proposes the **Bid & Proposal Manager** as primary (trigger keywords: RFP, response, price). Estimation & Sizing, Licensing & Entitlement (Now Assist) and the **CSM gateway** are surfaced as consults for the solution and its domain claims.
+2. The first output is **G0**: a source inventory and an intake card (timeline, format, evaluation model, explicit asks, image log). No response document is drafted in this turn.
+3. The request to reuse another customer's slides is answered with the quarantine rule: patterns only, rewritten, deny-list scan. No slide text is copied.
+4. Pricing is deferred to G3, from the bidder's rate card. Rates missing from `clients/_bidder-profile/` become `[INPUT REQUIRED FROM BIDDER]`; no number is invented.
+5. When drafts exist, the Architect proposes the red-team pass with the verbatim wording from CLAUDE.md before anything is called final.
+
+### Pass criteria
+
+- No document is drafted before the intake card and the registers exist.
+- The CSM gateway is fired for the CSM claims, and its Envelope is the dispatch context of `proposal-writer`.
+- Another customer's material is not copied, and the deny list is named as the check.
+- The red-team proposal appears, verbatim, before submission.
+
+### Fail signals
+
+- A full response is written straight from the RFP in the first turn.
+- Rates, references or CVs are invented.
+- Slides or text from another customer's bid appear in the draft.
+- The drafts are presented as final without the red-team proposal.
+
+---
+
 ## T-07 — agents/skills auto-sync on commit
 
 **Covers:** Pre-commit hook auto-sync (Variant A)
@@ -922,3 +964,4 @@ Mechanical (non-behavioural) audit of the agents/skills roster, separate from th
 | 2026-10-19 | v2.10.1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 980/980 (0 dead) | **PASS (mechanical).** First logged run after v2.10.0 (IRM & TPRM gateway). irm-tprm-specialist v1.0.1 adds the DRIR licence family from the Brazil docs (version notes, licence table, BCM / Operational Resilience paragraph); mirrors in sync; structure audit and citation check green. No routing or Phase 1 / Phase 2 change, so no behavioural re-run. |
 | 2026-10-26 | v2.10.2 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 982/982 (0 dead) | **PASS (mechanical).** ServiceNowDocs moved to the Australia refresh of 16 Oct 2026 (`c10276e9`); 29 dead citations in 6 skills remapped (16 moved, 13 removed pages), IRM SKU composition and Customer Success version facts marked against the new docs, now-assist-genai AI Gateway statement corrected; patch bumps for the six skills; mirrors in sync; structure audit and citation check green. No routing or Phase 1 / Phase 2 change, so no behavioural re-run. |
 | 2026-10-27 | v2.11.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 1234/1234 (0 dead) | **PASS (mechanical).** FSM & Telecom Specialist added as the ninth gateway (174 new citations, all resolving in the Australia submodule); mirror synced (fsm-telecom-specialist added, csm-specialist updated). T-23 added, not yet live-fired. |
+| 2026-11-08 | v2.12.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ 1234/1234 (0 dead) | **PASS (mechanical).** Bid & Proposal Manager added: skill `bid-manager` (no ServiceNowDocs citations) and two sub-agents, `proposal-writer` and `bid-red-team`. Mirrors synced (3 files added). The `scripts/bid/` tools were run read-only on five example bids and on our own October package. They found the known defects: an embedded pricing workbook, hidden plan sheets with staff names, a cost formula leaving out one role, hard-coded PM overrides, zero-effort accountability rows, a typed payment schedule, 19 vs 20 working days, "6 × 2 h = 18 h", and hypercare of 2 vs 4 weeks across the deck and the SOW. T-24 added, not yet live-fired; the new sub-agents register in a new session. |

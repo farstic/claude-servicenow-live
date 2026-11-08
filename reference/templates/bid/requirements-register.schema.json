@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "requirements-register.schema.json",
+  "title": "Bid requirements register",
+  "description": "One row per requirement found in the customer's sources (RFP, annexes, questionnaires, demo scripts, Q&A). The register is the inventory every later artefact is checked against: compliance matrix, response documents, estimate, red team. Used by scripts/bid/build-compliance.js.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "loc", "cat", "mand", "text"],
+    "additionalProperties": true,
+    "properties": {
+      "id": { "type": "string", "description": "Stable ID with a prefix per area, e.g. OBJ-03, CHN-06, SUB-01, DEL-07, FUC1-02. Never renumber after the first issue." },
+      "src": { "type": "string", "description": "Source document code from the source inventory, e.g. SRC-001 (RFP), SRC-002 (demo use cases)." },
+      "loc": { "type": "string", "description": "Location in the source: section, page, row or slide, e.g. '§3.1.2, p. 20'." },
+      "cat": { "type": "string", "description": "Category, e.g. Functional – channels, Technical – integration, Submission, Deliverable, Commercial, Contractual, Security, Demo – <use case>." },
+      "mand": { "type": "string", "description": "Yes | No | Not stated | Disqualifying. Use what the source says; do not upgrade or downgrade." },
+      "grp": { "type": "string", "description": "Work group for answering and review, e.g. A functional, B AI and channels, C demo and technical, D contractual and submission." },
+      "text": { "type": "string", "description": "The requirement in the customer's words (quote or close paraphrase), one obligation per row." },
+      "rel": { "type": "string", "description": "Related requirement IDs, comma separated." },
+      "eval": { "type": "string", "description": "Evaluation criterion or weight it feeds, when the source states one." },
+      "owner": { "type": "string", "description": "Internal owner of the answer (internal register only)." }
+    }
+  }
+}

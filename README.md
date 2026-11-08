@@ -2,7 +2,7 @@
 
 Ready-made ServiceNow expertise for Claude, connected to a live ServiceNow instance.
 
-- **Claude Code (locally, in the terminal)** — the Chief ServiceNow Architect from `CLAUDE.md`: 30 specialists, 9 sub-agents, 31 skills and the official ServiceNow documentation, local in the repo.
+- **Claude Code (locally, in the terminal)** — the Chief ServiceNow Architect from `CLAUDE.md`: 32 specialists, 11 sub-agents, 33 skills and the official ServiceNow documentation, local in the repo.
 - **claude.ai (in the browser)** — the same skills, uploaded to your account, for work without a terminal.
 - **The `snow-mcp` MCP server** — connects Claude Code to a live ServiceNow instance: 394 tools for reading and writing, without leaving the terminal.
 
@@ -30,7 +30,7 @@ The steps are for Windows 11. Time for a full installation: about 2 hours.
 claude.ai (browser)                 Claude Code (terminal)
 ─────────────────────────           ──────────────────────────────────────────
 Skills in the account               Chief Architect (CLAUDE.md)
-  └─ the same 31 skills               ├─ 30 specialists, 9 sub-agents
+  └─ the same 33 skills               ├─ 32 specialists, 11 sub-agents
 Knowledge projects                    ├─ ServiceNowDocs/ (submodule, australia)
   └─ one per engagement               └─ snow-mcp ──► live ServiceNow instance
 ```
@@ -41,7 +41,7 @@ The Architect reads the official documentation from the submodule and calls tool
 
 ## 2. What you get
 
-- You run `claude` in the repo folder and get the Chief ServiceNow Architect (Engine v2.11.0) with 9 project agents and 32 skills, including the nine mandatory domain gateways: ITSM, CSM, Customer Success, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance, IRM & TPRM, FSM & Telecom.
+- You run `claude` in the repo folder and get the Chief ServiceNow Architect (Engine v2.12.0) with 11 project agents and 33 skills, including the nine mandatory domain gateways (ITSM, CSM, Customer Success, HRSD, ITOM/Discovery, CMDB & CSDM, FSO Insurance, IRM & TPRM, FSM & Telecom) and the Bid & Proposal Manager with its two sub-agents (`proposal-writer`, `bid-red-team`).
 - The ServiceNow documentation (`australia` branch) locally, with the citations in the skills verified on every commit.
 - An MCP server with 394 tools that works with several instances from a single file.
 - A Git hook that synchronises the mirrored folders and stops the commit on a broken structure or a citation to a non-existent file.
@@ -443,7 +443,7 @@ All tests are run in a `claude` session started from the repo root. Nothing is w
 
 **1. The Architect.** Type `Status`, then `/agents`.
 
-**Expected:** a response as Chief ServiceNow Architect, Engine v2.11.0, release family `australia`, 31 specialists and the nine gateways; `/agents` shows 9 project agents.
+**Expected:** a response as Chief ServiceNow Architect, Engine v2.12.0, release family `australia`, 32 specialists and the nine gateways; `/agents` shows 11 project agents.
 
 **2. Routing.** Paste exactly:
 
@@ -517,7 +517,7 @@ cd "$env:USERPROFILE\Documents\claude-servicenow-live"
 
 **Expected:** `29`, then `itsm-specialist/`, `itsm-specialist/EXAMPLES.md`, `itsm-specialist/SKILL.md`.
 
-Upload via Settings → Capabilities → Skills → Upload skill. Upload in this order: the nine gateways and the core first — `itsm-specialist`, `csm-specialist`, `customer-success-specialist`, `hrsd-specialist`, `itom-discovery-specialist`, `cmdb-csdm-specialist`, `fso-insurance-specialist`, `irm-tprm-specialist`, `fsm-telecom-specialist`, `developer`, `code-reviewer`. Then the remaining 21.
+Upload via Settings → Capabilities → Skills → Upload skill. Upload in this order: the nine gateways and the core first — `itsm-specialist`, `csm-specialist`, `customer-success-specialist`, `hrsd-specialist`, `itom-discovery-specialist`, `cmdb-csdm-specialist`, `fso-insurance-specialist`, `irm-tprm-specialist`, `fsm-telecom-specialist`, `developer`, `code-reviewer`. Then the remaining 22 (including `bid-manager`).
 
 **Expected:** every uploaded skill appears in the list in claude.ai.
 
@@ -609,7 +609,7 @@ Everything in PowerShell, **from the repo root**, unless stated otherwise.
 | 9 | `git check-ignore -v .mcp.json .mcp.json.bak instances.json instances.json.bak mcp.json .env .claude/settings.local.json .claude/settings.json` | 8 lines |
 | 10 | `Test-Path "$env:USERPROFILE\snow-mcp\dist\cli\index.js"` | `True` |
 | 11 | `claude mcp list` | `snow-mcp: ... - ✔ Connected` |
-| 12 | In a session: `Status` | Chief ServiceNow Architect, v2.11.0, `australia`, 31 specialists, 9 gateways |
+| 12 | In a session: `Status` | Chief ServiceNow Architect, v2.12.0, `australia`, 32 specialists, 9 gateways |
 
 ---
 
@@ -643,7 +643,7 @@ The files `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/ADVANCED-WEB-SETUP.md`
 - **Node must be at least 22** (a Claude Code requirement), not 18. The value `lite` for `MCP_TOOL_PACKAGE` does not exist — the valid values are `full` and the specialised packages.
 - **For basic auth the server reads `SERVICENOW_BASIC_USERNAME` / `SERVICENOW_BASIC_PASSWORD`**, not `SERVICENOW_USERNAME` / `SERVICENOW_PASSWORD`.
 - **`context-mode` is not part of the working environment.** Do not copy `.claude/settings.example.json` as `.claude/settings.json` — the paths in it are Unix paths.
-- **There are 31 specialists** (32 skills, 9 sub-agents, 9 gateways — FSO Insurance was added on 21 Sep 2026, Customer Success on 14 Oct 2026, IRM & TPRM on 16 Oct 2026, FSM & Telecom on 27 Oct 2026), not 22. The templates in `claude-ai-projects/` do not exist — the claude.ai projects are set up by hand.
+- **There are 32 specialists** (33 skills, 11 sub-agents, 9 gateways — FSO Insurance was added on 21 Sep 2026, Customer Success on 14 Oct 2026, IRM & TPRM on 16 Oct 2026, FSM & Telecom on 27 Oct 2026, the Bid & Proposal Manager on 8 Nov 2026), not 22. The templates in `claude-ai-projects/` do not exist — the claude.ai projects are set up by hand.
 - **The tool names have changed.** `CLAUDE.md` §2.1 and §2.2 still use the old ones:
 
 | Old name | New name |
@@ -663,9 +663,11 @@ The files `SETUP.md`, `docs/INSTALLATION-GUIDE.md`, `docs/ADVANCED-WEB-SETUP.md`
 
 | Path | What it is | In git |
 |---|---|---|
-| `<repo>\CLAUDE.md` | The architect's instructions, v2.11.0 | yes |
-| `<repo>\.claude\agents\` (9) | The agents that Claude Code reads | yes |
-| `<repo>\.claude\skills\` (28) | The skills that Claude Code reads | yes |
+| `<repo>\CLAUDE.md` | The architect's instructions, v2.12.0 | yes |
+| `<repo>\.claude\agents\` (11) | The agents that Claude Code reads | yes |
+| `<repo>\.claude\skills\` (33) | The skills that Claude Code reads | yes |
+| `<repo>\scripts\bid\`, `<repo>\reference\templates\bid\` | Bid tools and bid templates (no customer data) | yes |
+| `<repo>\clients\_bidder-profile\` | The bidder's own facts: rates, references, CVs, deny list | **no** (git-ignored) |
 | `<repo>\agents\`, `<repo>\skills\` | Copies for GitHub — do not edit | yes |
 | `<repo>\.githooks\pre-commit` | The hook: sync, structure, citations | yes |
 | `<repo>\ServiceNowDocs\` | The ServiceNow documentation (submodule, `australia`) | pointer |

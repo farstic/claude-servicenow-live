@@ -1,0 +1,25 @@
+# Bid tools
+
+Dependency-free Node.js tools used by the Bid & Proposal Manager skill (`skills/bid-manager/SKILL.md`) and the bid red-team sub-agent (`agents/bid-red-team.md`).
+
+- **No Office needed.** They read Office files directly, without Office or unzip.
+- **No customer data.** They hold no customer, company or price data. Lists of names and the bidder's facts come from the git-ignored bidder profile (`reference/templates/bid/bidder-profile-template.md`).
+- **Rights-protected files.** A file encrypted by a sensitivity label (rights management) is reported as such and never opened. Ask its owner for an authorised export, for example a PDF.
+
+| Tool | What it does | Typical call |
+|---|---|---|
+| `extract-office.js` | Text of a file:<br>• **.pptx:** slides in order (hidden marked), tables, SmartArt, speaker notes, alternative text, static text on layouts and masters<br>• **.xlsx/.xlsm:** every sheet (hidden, protected and filtered marked), cells and formulas, defined names<br>• **.docx:** headings, paragraphs, tables, headers and footers, review marks, alternative text<br>It also lists embedded files. | `node scripts/bid/extract-office.js deck.pptx --out deck.txt` |
+| `hygiene-scan.js` | Pre-submission scan. **Exit code** 1 on a HIGH finding.<br>**Content:**<br>• names from a deny list<br>• placeholders, drafting labels and template residue<br>• broken fields and cross-references<br>• instance addresses and sys_ids<br>• Cyrillic or Greek text; probable non-English text<br>• spreadsheet references pasted into prose<br>• stated totals that do not add up<br>• questions addressed to the customer<br>• duplicated table rows; typed page numbers; mixed dates<br>• text in numeric columns<br>**Hidden places:**<br>• speaker notes; hidden slides and sheets<br>• comments, tracked changes, hidden text, highlighting<br>• alternative text, layouts and masters, headers and footers<br>• macros, external links<br>• document properties, including the stored folder path<br>• embedded files: embedded workbooks are opened, and their sheets and hidden sheets are listed<br>`--customer-template` marks the customer's own returned templates, whose hidden sheets are left as received. | `node scripts/bid/hygiene-scan.js deck.pptx price.xlsx --deny deny-list.txt --allow allow-list.txt` |
+| `estimate-check.js` | Arithmetic check of any estimate workbook. Sheets and rows are found by content, never by position.<br>**Arithmetic:**<br>• totals that differ from their rows<br>• stale SUMs; rows a summary counts twice or leaves out<br>• formula errors and `#REF!` inside formulas<br>**Cell contents:**<br>• text in number cells or summed ranges<br>• typed constants where a column is calculated; one-off formulas<br>• factors and percentages typed into formulas; different working-day constants<br>**Coverage:**<br>• cost formulas that leave out an effort column<br>• labelled rows with zero effort; duplicated rows<br>• option or reference-only rows above a total<br>• payment schedules typed rather than linked; totals that ignore an autofilter<br>• no contingency line<br>**Text and structure:**<br>• internal notes, cell references, unpriced obligations and wrong arithmetic in text columns<br>• hidden sheets, broken or stray defined names, leftover sheet names | `node scripts/bid/estimate-check.js estimate.xlsx --all` |
+| `fact-scan.js` | Cross-document facts:<br>• durations<br>• effort and FTE<br>• counts (markets, languages, case types, reports, go-lives…)<br>• percentages<br>• money<br>• dates<br><br>It groups them by subject (hypercare, warranty, phase 1, contingency, …) and marks each group whose values differ as CHECK. It is a review aid for the cross-document consistency register; the reviewer decides. | `node scripts/bid/fact-scan.js deck.pptx response.docx estimate.xlsx --md fact-scan.md` |
+| `build-compliance.js` | Builds a compliance matrix workbook from a requirements register and the answers: an internal view, or a client view with `--client`.<br>**Checks:**<br>• answers are complete<br>• statuses come from the vocabulary<br>• the client view carries no internal labels or deny-list names | `node scripts/bid/build-compliance.js --register requirements.json --answers answers.json --out matrix.xlsx --client` |
+| `md2pdf.js` | Markdown to a styled PDF through headless Chrome or Edge: cover, table of contents with page numbers, tables, `<br>` line breaks in cells. | `node scripts/bid/md2pdf.js doc.md doc.pdf --landscape --brand "<bidder>" --footer "<customer> \| <classification>"` |
+| `lib/office.js`, `lib/xlsx-writer.js`, `lib/text-checks.js` | Zip reader and Office text extraction (also from a Buffer, for embedded files); minimal .xlsx writer; shared text checks. | — |
+
+**Word output.** Word files come from the engine's `scripts/md-to-docx.ps1`, with `-FooterText` set per bid.
+
+**Formats.** The formats are described in `reference/templates/bid/`:
+- `requirements-register.schema.json`;
+- `compliance-matrix-template.md`;
+- `estimate-workbook-spec.md`;
+- `submission-checklist.md`.

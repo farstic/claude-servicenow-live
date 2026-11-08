@@ -3,9 +3,66 @@
 All notable changes to the Claude ServiceNow Architecture Engine are documented in this file.
 
 **Repository:** [`farstic/claude-servicenow-live`](https://github.com/farstic/claude-servicenow-live)
-**Last updated:** 27 October 2026
+**Last updated:** 8 November 2026
 
 The engine follows a minor-version cadence where the **first digit** signals a major architectural shift, and the **second digit** signals an additive or corrective patch within that architecture.
+
+---
+
+## v2.12.0 — Bid & Proposal Manager
+
+**Released:** 8 November 2026
+**Trigger:** Several RFPs and proposal reviews in October and November were run with ad-hoc prompts. The engine had no persona for a bid as a whole: registers, compliance, cross-document consistency, estimate arithmetic, commercial exposure and submission hygiene. Five real bids and a reference library were analysed for patterns. Their content stays in git-ignored client folders.
+
+### Added
+- **bid-manager v1.0.0** — the Bid & Proposal Manager skill. It has:
+  - **six modes:** RFP response, budgetary offer, pre-qualification, hearing, bid review, revised offer;
+  - **gates G0–G7:** intake card, baseline registers, solution through the gateways, estimate, response, red team, package, hearing;
+  - **ground rules:** evidence first, historical content quarantined, one set of facts, every promise priced or excluded, product names checked on both release families;
+  - **rules** for references, CVs, pre-qualification answers and the version of record;
+  - **anti-patterns** seen in the real bids.
+- **Sub-agents:**
+  - `proposal-writer` drafts the customer documents from an approved baseline;
+  - `bid-red-team` gives an independent adversarial review that judges only what is sent.
+- **Bid tools (`scripts/bid/`, dependency-free Node.js):**
+  - `extract-office.js` — text of .pptx, .xlsx and .docx, including hidden slides and sheets, notes, alternative text, layouts and masters, headers and footers;
+  - `hygiene-scan.js` — deny-list names, placeholders, template residue, notes, hidden content, embedded workbooks (opened and listed), stored folder paths, instance addresses, cell references in prose, wrong arithmetic;
+  - `estimate-check.js` — totals, typed overrides, constants in formulas, cost formulas that leave out an effort column, zero-effort rows, unlinked payment schedules, working-day constants, missing contingency;
+  - `fact-scan.js` — durations, counts, percentages, money and dates across documents, with conflicts marked;
+  - `build-compliance.js` and `md2pdf.js`.
+
+  Rights-protected (encrypted) Office files are detected and reported, never opened.
+- **Bid templates (`reference/templates/bid/`):**
+  - intake card;
+  - bid registers, including the staffing matrix and the as-sent register;
+  - requirements register schema;
+  - compliance matrix with answer patterns;
+  - proposal outlines (written response, budgetary deck, time-boxed hearing deck, SOW with work-package card);
+  - estimate workbook specification;
+  - assumptions catalogue;
+  - risk catalogue;
+  - reference card with selection rules;
+  - CV template;
+  - bidder profile;
+  - submission checklist.
+- **prompt-patterns.md** — Group H, PP-26 (bid or proposal).
+- **VALIDATION-TESTS.md** — T-24. An RFP starts at intake, drafting waits for the baseline, another customer's slides are not reused, and the red team is proposed before submission.
+
+### Changed
+- **CLAUDE.md** — engine v2.12.0:
+  - roster: 32 personas, 33 `SKILL.md`, 11 sub-agent files;
+  - new "Bids & proposals" group;
+  - post-build row for the bid red team, with its verbatim proposal;
+  - artefact-standards row;
+  - repo map: `reference/templates/bid/`, `scripts/bid/`, `clients/_bidder-profile/`;
+  - confidentiality rule for the bidder profile.
+- **taxonomy.md v1.10:**
+  - roster row 32 in a new group;
+  - §2.4 boundaries: vs Estimation & Sizing, Discovery, HLD/LLD Writer, the gateways;
+  - §3.2 bid red-team row;
+  - §4.5 trigger row;
+  - three §5 anti-routing rules.
+- **README.md** — engine v2.12.0, 32 specialists, 33 skills, 11 sub-agents.
 
 ---
 

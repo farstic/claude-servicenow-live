@@ -531,6 +531,37 @@ Conventions:
 
 ---
 
+## Group H — Bids and proposals
+
+### PP-26: Bid or proposal (respond, offer, review)
+**When to use:** Use this pattern for:
+- an RFP, RFI, tender or pre-qualification to answer;
+- a budgetary offer or SOW to prepare;
+- a hearing to prepare;
+- a proposal (ours or someone else's) to review before it is sent.
+
+The Bid & Proposal Manager runs the bid through gates G0–G7. It drafts with the `proposal-writer` sub-agent and reviews with the `bid-red-team` sub-agent.
+
+**Template:**
+> Bid & Proposal Manager task, mode {{RFP RESPONSE / BUDGETARY OFFER / PRE-QUALIFICATION / HEARING / BID REVIEW / REVISED OFFER}} for {{CUSTOMER}}.
+>
+> Customer files: clients/{{client-short-name}}/bid/00-intake/ ({{RFP, annexes, templates, Q&A}})
+> Deadline: {{DATE TIME TIMEZONE}} · Channel: {{PORTAL / E-MAIL}} · Hearing: {{DATE or none}}
+> Release families: proposed {{RELEASE}}; customer's current {{RELEASE or unknown}}
+> Bidder profile: clients/_bidder-profile/ (rates, references, CVs, deny list) — gaps: {{KNOWN GAPS}}
+> Commercial frame: {{FIXED PRICE / T&M / BUDGETARY}}; licences {{RESOLD / CUSTOMER-HELD}}
+> Stop after: {{G0 intake card / G1 baseline / G4 drafts / G5 red team / G6 package}}
+>
+> Return per gate: artefacts, gate note (done / open / waiting on), next gate. Fire the gateways for every domain claim; consult Estimation, Licensing and Security & GRC as needed.
+
+**Example (filled):**
+> Bid & Proposal Manager task, mode BID REVIEW for a retail customer.
+> Customer files: the RFP and the sales team's final deck and estimate in clients/{{client}}/bid/.
+> Release families: proposed Brazil; customer's current Australia.
+> Return: verdict, missed requirements, mandatory changes with why, product claims checked on both releases, estimate audit, file hygiene, plus an annex workbook with every requirement and finding.
+
+---
+
 ## Maintenance
 
 This file is updated when:
@@ -542,4 +573,4 @@ Updates committed with message: `prompt-patterns: <change-summary>`.
 
 ---
 
-*End of prompt-patterns.md v1.3 — added PP-25 Flow build from spec (Group F, after PP-19: plan first, write approval separately; export-only path for no-REST instances). Prior — v1.2: added Group G (PP-20 Estimation & sizing, PP-21 Licensing & entitlement check, PP-22 ADR capture, PP-23 Traceability update / gap check, PP-24 RAID / NFR capture) for the engine v2.8.0 delivery-governance layer.*
+*End of prompt-patterns.md v1.4 — added Group H, PP-26 Bid or proposal (engine v2.12.0: Bid & Proposal Manager, `proposal-writer`, `bid-red-team`). Prior — v1.3 — added PP-25 Flow build from spec (Group F, after PP-19: plan first, write approval separately; export-only path for no-REST instances). Prior — v1.2: added Group G (PP-20 Estimation & sizing, PP-21 Licensing & entitlement check, PP-22 ADR capture, PP-23 Traceability update / gap check, PP-24 RAID / NFR capture) for the engine v2.8.0 delivery-governance layer.*
